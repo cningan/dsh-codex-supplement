@@ -40,7 +40,7 @@ npm pack --dry-run
 - 启用 Codex 搜索会把 DSH `web` provider 切换为 `openai-codex`，方式是在活动 Profile 的 `cordis.patch.yml` 写入带标记的块。关闭时只移除插件管理的标记块，不改动手写的 `web` override。启用前请先确认这一副作用符合预期。
 - 官方 Codex credential record 与旧 token 的一次性迁移保留。Fast Mode/搜索状态仍保存在插件自己的 `data/` 目录，不会从旧插件自动迁移。旧的自定义模型清单不再读取；请在官方 **Models → OpenAI Codex** 项配置模型。
 - 生图工具只有一个：`codex-generate-image`。它的 `model` 参数从设置页勾选的清单取值，缺省用默认档；请求清单外的模型会被拒绝并列出合法值。旧配置里的 `codex-managed-image` 选择在读取时一次性迁移为出厂勾选，该哨兵绝不会再发给上游。
-- **未实证边界**：Codex 订阅端点没有公开 schema，官方 `image_generation` 契约取自 API-key SDK。某个图像模型 id 是否被订阅端点接受，只能由一次真实调用确定；被拒绝时插件原样报出状态码与模型 id，**不会静默换用别的模型**。
+- **已在真实订阅上实证（2026-09-24）**：订阅端点**接受** `image_generation.model`——`gpt-image-2.5-flare` 与 `gpt-image-2.5-sunburst` 各通过工具出图一次。但端点仍无公开 schema（官方契约取自 API-key SDK），将来收紧仍有可能：被拒绝时插件原样报出状态码与模型 id，**不会静默换用别的模型**。
 - 旧插件数据不会自动复制；移除旧插件目录前，应先将数据保存在活动插件目录之外。本包不发布 npm。
 
 架构见 [ARCHITECTURE_MAP.md](ARCHITECTURE_MAP.md)，安全说明见 [SECURITY.md](SECURITY.md)，开发与发布边界见 [docs/release.md](docs/release.md)。

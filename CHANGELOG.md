@@ -8,6 +8,7 @@
 - Merge the two tool names into a single `codex-generate-image`; drop the dead `aspectRatio` parameter and the `codex-managed-image` sentinel. Legacy `enableProviders`/`providerModelSelections` are read once for migration and never forwarded upstream.
 - Report a rejected image model with its HTTP status and id instead of a generic failure, and never silently substitute another model.
 - Split the tool's schema into a dependency-free module so the tool shape (single name, `model` enum, absence of the dead `aspectRatio`) is covered by offline tests rather than only by inspection after a Host restart.
+- Verified against a live subscription (2026-09-24): the Codex endpoint accepts `image_generation.model`; `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst` each produced a PNG through `codex-generate-image`.
 
 ## 0.1.0 — Codex Supplement consolidation
 
