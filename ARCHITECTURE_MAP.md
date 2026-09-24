@@ -28,6 +28,7 @@ This is a single DSH bundle. The old two-package monorepo, non-Codex OAuth provi
 | Subscription image tool | **One** tool name, `codex-generate-image`; the `model` argument selects the image model while the remote `carrier` stays the official Codex chat model | `lib/media/image-tool.js`, `executors.mjs` | Active |
 | Image tool schema | The tool's parameter/description/output shape as plain data, so the single name, the `model` enum, and the removed `aspectRatio` are asserted offline — `@deepseek-ai/dsh-tools` lives only in a DSH profile tree, so the tool module itself cannot be imported by this repo's tests | `lib/media/image-tool-schema.mjs` | Active |
 | Image request protocol | Builds the hosted `image_generation` tool (`model`, `action`, `size`, `quality`, `background`, `output_format`, `output_compression`, `moderation`, `input_fidelity`, `partial_images`, `input_image_mask`), parses SSE/JSON, reports a rejected image model with its status and id | `lib/media/adapters/openai-codex.js` | Active |
+| Image-generation architecture and decision | Capability scope, carrier/image-model roles, selection flow, subscription compatibility evidence, and limits | `docs/image-generation.md`, `docs/adr/0001-separate-responses-carrier-from-image-model.md` | Active |
 | Image output | Writes generated files under the current session workspace and returns attachment-compatible output | `lib/media/image-output.mjs` | Active |
 
 ### Host route prefix
