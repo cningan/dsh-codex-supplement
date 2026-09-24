@@ -35,8 +35,8 @@ const output = `window.__ModuleLoader__.load({
     return {
       inject: [...new Set([...(oauth.inject ?? []), ...(media.inject ?? [])])],
       apply(ctx) {
-        oauth.apply(ctx);
-        media.apply(ctx);
+        const mediaSettings = media.apply(ctx);
+        oauth.apply(ctx, mediaSettings);
       },
     };
   },

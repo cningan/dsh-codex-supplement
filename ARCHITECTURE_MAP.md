@@ -37,9 +37,8 @@ Codex chat itself is provided by DSH's official `openai-codex` provider. This pl
 
 | Object | Role | Location | State |
 |---|---|---|---|
-| Codex settings/login UI | Login presentation, device/manual-code handling, model selection, quota, search and Fast Mode controls | `src/client/oauth.js` | Active source |
-| Codex subscription image settings | Master switch, managed-engine selection, sign-in status and carrier display | `src/client/media.js` | Active source |
-| Combined Client entry | Exactly one `window.__ModuleLoader__.load` row, id `@local/dsh-codex-supplement`; settings/fast/quota slot IDs are package-prefixed | `lib/client.js` | Generated from sources |
+| Unified Codex settings page | One `settings.section` entry; login, model list, quota, search, Fast Mode and subscription image controls render together, with image settings as a separated subsection | `src/client/oauth.js`, `src/client/media.js` | Active source |
+| Combined Client entry | Exactly one `window.__ModuleLoader__.load` row and one settings page, id `@local/dsh-codex-supplement-settings`; fast/quota slot IDs remain package-prefixed. Settings shell currently supplies its generic gear icon. | `scripts/build-client.mjs` → `lib/client.js` | Generated from sources |
 
 ## Data and compatibility
 

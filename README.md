@@ -15,12 +15,12 @@ Grok, Claude, Antigravity, API-key image adapters, and video generation are not 
 
 ## Use
 
-Open **Settings → Codex subscription sign-in** to authenticate and manage search/model-list options. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle. Open **Settings → Codex Subscription Image Generation** to enable the tool and select the subscription-managed engine.
+Open **Settings → Codex Subscription** to sign in, manage search/model-list options, and configure subscription image generation in one page. Login/usage controls and image-generation controls remain separate sections within that page. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
 
 ## Compatibility and installation
 
 - DSH `0.1.7-rc.1` baseline; Node.js 22 or newer.
-- This is an `@local` bundle intended for a DSH local-plugin source tree. Its `package.json` declares the bundle patch and combined web Client module. Install it through the DSH bundle/plugin manager after reviewing the package. This repository has **not** been installed into or applied to an active Profile during development.
+- This is an `@local` bundle intended for a DSH local-plugin source tree. Its `package.json` declares the bundle patch and combined web Client module. Install it through the DSH bundle/plugin manager after reviewing the package; package changes may require a Host restart. This package is not published to npm.
 - The package is not published to npm. GitHub source history is maintained separately from the previous OAuth repository history to avoid carrying its rejected, unsanitized commits.
 
 ## Build and test
@@ -39,6 +39,6 @@ npm pack --dry-run
 
 - Enabling Codex search switches the DSH `web` provider to `openai-codex` by writing a marked block to the active Profile's `cordis.patch.yml`. Disabling the feature removes only that plugin-managed block; hand-written `web` overrides are left alone. Review this side effect before enabling search.
 - The official Codex credential record and legacy token migration are retained. Plugin-owned settings files such as Fast Mode/search state and custom model-list data live under the plugin's data directory; moving to this new package directory does not automatically migrate those files. Re-enable Fast Mode/search as needed and deliberately migrate custom model-list data if you rely on it.
-- No active Profile was changed, no host was restarted, and no npm publication was performed as part of this work.
+- Legacy plugin data is not copied automatically; preserve it outside the active plugin tree before removing the former plugin directories. No npm package is published.
 
 See [ARCHITECTURE_MAP.md](ARCHITECTURE_MAP.md), [SECURITY.md](SECURITY.md), and [docs/release.md](docs/release.md).

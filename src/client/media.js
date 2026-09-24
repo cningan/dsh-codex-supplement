@@ -128,7 +128,7 @@ window.__ModuleLoader__.load({
         if (!saved) return;
       };
 
-      return h("div", { style: { display: "flex", flexDirection: "column", gap: 12, paddingTop: 14, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
+      return h("div", { style: { display: "flex", flexDirection: "column", gap: 12 } },
         h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
           h("label", { style: { display: "inline-flex", alignItems: "center", gap: 8, color: "var(--dsw-alias-label-primary)", fontSize: 13, cursor: busy || !writable ? "default" : "pointer" } },
             h("input", { type: "checkbox", checked: config.enableImageGeneration === true, disabled: busy || !writable,
@@ -158,14 +158,14 @@ window.__ModuleLoader__.load({
     }
 
     function CodexImageSection({ t, configScope }) {
-      return h("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
+      return h("div", { style: { display: "flex", flexDirection: "column", gap: 8, marginTop: 8, paddingTop: 16, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
         h("h4", { style: { margin: 0, color: "var(--dsw-alias-label-primary)", fontSize: 16, fontWeight: 600 } }, t("title")),
         h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("intro")),
         h(CodexImageSettings, { t, configScope }),
       );
     }
 
-    const inject = ["slots", "locale", "configForms"];
+    const inject = ["locale", "configForms"];
 
     function apply(ctx) {
       ctx.effect(() => ctx.locale.register(NS, dictionaries), "Codex Supplement media dictionaries");
@@ -176,13 +176,7 @@ window.__ModuleLoader__.load({
         subscribe: (listener) => form.subscribe(listener),
         set: (field, value) => form.mutate([{ op: "set", path: [field], value }]),
       };
-      ctx.slots.inject("settings.section", () => ctx.slots.register({
-        name: "settings.section",
-        id: "@local/dsh-codex-supplement-media",
-        order: 13,
-        label: () => t("title"),
-        inject: () => ({ t, configScope }),
-      }, CodexImageSection));
+      return { t, configScope, Section: CodexImageSection };
     }
 
     exports.inject = inject;

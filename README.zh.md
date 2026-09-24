@@ -15,12 +15,12 @@
 
 ## 使用方式
 
-打开 **设置 → Codex 订阅登录** 完成授权并管理搜索/模型列表。在 Codex 对话中，输入框工具栏提供额度入口与 Fast Mode 开关。打开 **设置 → Codex 订阅生图**，启用图片工具并选择订阅管理的图像引擎。
+打开 **设置 → Codex 订阅**，即可在同一页完成登录、搜索/模型列表管理与订阅生图设置；登录/额度和生图控件仍分为独立区块。在 Codex 对话中，输入框工具栏提供额度入口与 Fast Mode 开关。
 
 ## 兼容性与安装
 
 - 基线：DSH `0.1.7-rc.1`；Node.js 22 或更新版本。
-- 这是供 DSH 本地插件目录加载的 `@local` bundle。`package.json` 声明 bundle patch 和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装。本次开发没有安装到或改动任何活动 Profile。
+- 这是供 DSH 本地插件目录加载的 `@local` bundle。`package.json` 声明 bundle patch 和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
 - 不发布到 npm。GitHub 源码历史与之前 OAuth 仓库的历史分离，以免携带被 GitHub push protection 拒绝的未清理旧提交。
 
 ## 构建与测试
@@ -39,6 +39,6 @@ npm pack --dry-run
 
 - 启用 Codex 搜索会把 DSH `web` provider 切换为 `openai-codex`，方式是在活动 Profile 的 `cordis.patch.yml` 写入带标记的块。关闭时只移除插件管理的标记块，不改动手写的 `web` override。启用前请先确认这一副作用符合预期。
 - 官方 Codex credential record 与旧 token 的一次性迁移保留。Fast Mode/搜索状态和自定义模型目录等插件数据保存在插件自己的 `data/` 目录；换到新插件目录时本版本不会自动迁移这些文件。按需重新启用 Fast Mode/搜索；依赖自定义模型列表的用户需要另行审慎迁移。
-- 本次工作没有改动活动 Profile、重启 Host 或发布 npm 包。
+- 旧插件数据不会自动复制；移除旧插件目录前，应先将数据保存在活动插件目录之外。本包不发布 npm。
 
 架构见 [ARCHITECTURE_MAP.md](ARCHITECTURE_MAP.md)，安全说明见 [SECURITY.md](SECURITY.md)，开发与发布边界见 [docs/release.md](docs/release.md)。

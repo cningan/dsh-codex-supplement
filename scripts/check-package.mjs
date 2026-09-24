@@ -96,6 +96,9 @@ if (manifest) {
       const packageIds = client.match(/\bid:\s*["']@local\/dsh-codex-supplement["']/g) ?? []
       if (loaderRows.length !== 1) fail(`Client bundle must contain one Loader row; found ${loaderRows.length}`)
       if (packageIds.length !== 1) fail(`Client bundle must contain one package Loader id; found ${packageIds.length}`)
+      const settingsRows = client.match(/name:\s*["']settings\.section["']/g) ?? []
+      if (settingsRows.length !== 1) fail(`Client bundle must contribute one merged settings page; found ${settingsRows.length}`)
+      if (!client.includes('id: "@local/dsh-codex-supplement-settings"')) fail('Merged Codex settings page id is missing')
     }
   }
 }

@@ -14,7 +14,7 @@ window.__ModuleLoader__.load({
 
     const dictionaries = {
       zh: {
-        oauthTitle: "Codex 订阅登录",
+        oauthTitle: "Codex 订阅",
         oauthIntro: "登录 ChatGPT/Codex 订阅，在 DSH 使用官方 Codex 模型、额度、搜索与 Fast Mode。",
         signedIn: "已登录",
         signedOut: "未登录",
@@ -85,7 +85,7 @@ window.__ModuleLoader__.load({
         fastModeUnavailableTitle: "此对话暂时无法使用 Fast mode",
       },
       en: {
-        oauthTitle: "Codex subscription sign-in",
+        oauthTitle: "Codex Subscription",
         oauthIntro: "Sign in with your ChatGPT/Codex subscription to use the official Codex models, usage, search, and Fast Mode in DSH.",
         signedIn: "Signed in",
         signedOut: "Not signed in",
@@ -635,10 +635,11 @@ window.__ModuleLoader__.load({
       );
     }
 
-    function OAuthSection({ t }) {
+    function OAuthSection({ t, media }) {
       return h("div", { style: { display: "flex", flexDirection: "column", gap: 12 } },
         h("p", { style: { margin: 0, fontSize: 13, color: "var(--dsw-alias-label-secondary)" } }, t("oauthIntro")),
         PROVIDERS.map((provider) => h(ProviderCard, { key: provider.id, provider, t })),
+        media?.Section ? h(media.Section, { t: media.t, configScope: media.configScope }) : null,
       );
     }
 
@@ -867,15 +868,15 @@ window.__ModuleLoader__.load({
     // 与 dsh-client-ui-chat（`["slots","sessions",...,"remote","remote.session",...]`）——都在模块级 inject。
     const inject = ["slots", "locale", "sessions", "remote", "remote.session"];
 
-    function apply(ctx) {
+    function apply(ctx, media) {
       ctx.effect(() => ctx.locale.register("dsh-codex-supplement-auth", dictionaries), "dsh-codex-supplement-auth: dictionaries");
       const t = ctx.locale.bind("dsh-codex-supplement-auth");
       ctx.slots.inject("settings.section", () => ctx.slots.register({
         name: "settings.section",
-        id: "@local/dsh-codex-supplement-auth",
+        id: "@local/dsh-codex-supplement-settings",
         order: 12,
         label: () => t("oauthTitle"),
-        inject: () => ({ t }),
+        inject: () => ({ t, media }),
       }, OAuthSection));
       // 对话输入框右侧 Fast mode 按钮：照旧插件经 modelDirectories 拿当前会话的模型选择
       // （provider/model 在 directory store 的 current 上；服务由 dsh-client-ui-model-selection
