@@ -40,7 +40,7 @@ The catalog deliberately permits syntactically valid custom IDs so newly support
 
 ## References
 
-- [Architecture map](../ARCHITECTURE_MAP.md)
+- [Package specification and code map](../SPEC.md)
 - [User-facing package README](../README.md)
 - [Image-generation tool schema](../lib/media/image-tool-schema.mjs)
 - [Model catalog](../lib/media/image-models.mjs)
