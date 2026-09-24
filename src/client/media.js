@@ -10,21 +10,18 @@ window.__ModuleLoader__.load({
     const NS = "dsh-codex-supplement-media";
     const SETTINGS_ENTRY = "codex-supplement";
     const CAPABILITIES_PATH = "/plugins/dsh-codex-supplement/capabilities";
-    const CODEX_PROVIDER_ID = "openai-codex-oauth";
 
     const dictionaries = {
       zh: {
         title: "Codex 订阅生图",
-        intro: "用 ChatGPT/Codex 订阅的 image_generation 生成与编辑图片。工具不绑定模型：勾选决定可选档位，也决定工具是否暴露。",
+        intro: "用 ChatGPT/Codex 订阅的 image_generation 生成与编辑图片。工具不绑定模型：清单决定 model 参数能取哪些值。",
         enable: "启用图片生成工具",
-        topHint: "总开关与勾选共同决定工具是否注册；一个都不勾就不暴露生图工具。",
-        models: "可用图像模型",
-        modelsHint: "勾选项决定工具 model 参数的合法取值。图像引擎仍由订阅服务端执行，这里只是声明想用哪一档。",
-        defaultModel: "默认档位",
-        defaultHint: "工具调用不传 model 时使用这一档。",
-        fast: "快速档",
-        quality: "高质量档",
-        legacyTier: "前代",
+        topHint: "总开关与清单共同决定工具是否注册；清单为空就不暴露生图工具。",
+        models: "模型清单",
+        modelsHint: "每行一个模型 id，可增可删、可自填代号。清单即工具 model 参数的合法取值；顺序即优先级，第一个是缺省档。",
+        addModel: "添加模型",
+        loadCatalog: "载入内置目录",
+        catalogNote: "内置目录是插件自带的候选，不是查询结果——订阅端点没有图像模型枚举接口，「获取可用模型」在这个能力上没有数据源。",
         carrier: "Responses carrier",
         signedIn: "Codex 已登录",
         signedOut: "请先登录 Codex",
@@ -34,21 +31,20 @@ window.__ModuleLoader__.load({
         loadFailed: "能力状态读取失败",
         readFailed: "读取设置失败",
         writeFailed: "保存失败",
-        noCatalog: "未读到可选模型目录",
-        emptySelection: "当前未勾选任何模型：生图工具不会出现在上下文里。",
+        emptySelection: "清单为空：生图工具不会出现在上下文里。",
+        rowPlaceholder: "模型 id，例如 gpt-image-2.5-flare",
+        remove: "移除",
       },
       en: {
         title: "Codex Subscription Image Generation",
-        intro: "Generate and edit images through the ChatGPT/Codex subscription image_generation tool. The tool is not bound to a model: your selection decides the allowed levels and whether the tool is exposed at all.",
+        intro: "Generate and edit images through the ChatGPT/Codex subscription image_generation tool. The tool is not bound to a model: this list defines the allowed values of its model argument.",
         enable: "Enable the image-generation tool",
-        topHint: "The master switch and your selection together decide whether the tool is registered; an empty selection exposes nothing.",
-        models: "Enabled image models",
-        modelsHint: "The checked entries are the allowed values of the tool's model parameter. The subscription still runs the engine; this only declares which tier to ask for.",
-        defaultModel: "Default tier",
-        defaultHint: "Used when a tool call omits model.",
-        fast: "fast",
-        quality: "quality",
-        legacyTier: "legacy",
+        topHint: "The master switch and this list together decide whether the tool is registered; an empty list exposes nothing.",
+        models: "Model list",
+        modelsHint: "One model id per row. Add, remove, or type an id yourself. The list is the tool's allowed model values; order is priority and the first entry is the default.",
+        addModel: "Add model",
+        loadCatalog: "Load built-in catalog",
+        catalogNote: "The built-in catalog is a bundled candidate list, not a query result — the subscription endpoint has no image-model enumeration, so there is no data source for a \"fetch available models\" action here.",
         carrier: "Responses carrier",
         signedIn: "Codex signed in",
         signedOut: "Sign in to Codex first",
@@ -58,8 +54,9 @@ window.__ModuleLoader__.load({
         loadFailed: "Failed to load capability status",
         readFailed: "Failed to load settings",
         writeFailed: "Save failed",
-        noCatalog: "No model catalog available",
-        emptySelection: "Nothing is selected: the image tool will not appear in context.",
+        emptySelection: "The list is empty: the image tool will not appear in context.",
+        rowPlaceholder: "model id, e.g. gpt-image-2.5-flare",
+        remove: "Remove",
       },
     };
 
@@ -70,11 +67,29 @@ window.__ModuleLoader__.load({
       return payload;
     }
 
-    function tierLabel(t, tier) {
-      if (tier === "fast") return t("fast");
-      if (tier === "quality") return t("quality");
-      return t("legacyTier");
-    }
+    const inputStyle = {
+      flex: 1,
+      minWidth: 0,
+      minHeight: 30,
+      padding: "4px 8px",
+      border: "1px solid var(--dsw-alias-border-l2)",
+      borderRadius: 8,
+      background: "var(--dsw-alias-bg-layer-1)",
+      color: "var(--dsw-alias-label-primary)",
+      font: "inherit",
+      fontSize: 12,
+    };
+    const buttonStyle = {
+      minHeight: 30,
+      padding: "4px 10px",
+      border: "1px solid var(--dsw-alias-border-l2)",
+      borderRadius: 8,
+      background: "var(--dsw-alias-bg-layer-1)",
+      color: "var(--dsw-alias-label-primary)",
+      font: "inherit",
+      fontSize: 12,
+      cursor: "pointer",
+    };
 
     function CodexImageSettings({ t, configScope }) {
       const subscribe = React.useCallback((listener) => configScope?.subscribe?.(listener) ?? (() => {}), [configScope]);
@@ -87,6 +102,8 @@ window.__ModuleLoader__.load({
       const [error, setError] = React.useState(undefined);
       const [writeError, setWriteError] = React.useState(undefined);
       const [busy, setBusy] = React.useState(false);
+      /** 正在编辑的清单（未提交）；null = 直接显示已保存的值。 */
+      const [draft, setDraft] = React.useState(null);
 
       const loadCapabilities = React.useCallback(async (signal) => {
         setLoading(true);
@@ -113,13 +130,11 @@ window.__ModuleLoader__.load({
       const writable = snapshot.writable === true;
       const capability = capabilities?.capability;
       const catalog = Array.isArray(capability?.catalog) ? capability.catalog : [];
-      // 以配置为显示正源；配置字段缺失（旧宿主）时回落到 Host 解析出的清单。
-      const selected = Array.isArray(config.imageModels)
+      // 以配置为显示正源；字段缺失（旧宿主）时回落到 Host 解析出的清单。
+      const saved = Array.isArray(config.imageModels)
         ? config.imageModels
         : (Array.isArray(capability?.models) ? capability.models : []);
-      const defaultModel = typeof config.defaultImageModel === "string" && config.defaultImageModel.length > 0
-        ? config.defaultImageModel
-        : (typeof capability?.defaultModel === "string" ? capability.defaultModel : "");
+      const list = draft ?? saved;
       const oauth = capabilities?.oauth;
       const carrier = capabilities?.codexCarrier || capability?.carrierModel || "—";
 
@@ -132,42 +147,46 @@ window.__ModuleLoader__.load({
           else for (const [field, value] of entries) await configScope.set(field, value);
           return true;
         } catch (cause) {
-          const detail = cause instanceof Error ? cause.message : String(cause);
-          setWriteError(`${t("writeFailed")}: ${detail}`);
+          setWriteError(`${t("writeFailed")}: ${cause instanceof Error ? cause.message : String(cause)}`);
           return false;
         } finally {
           setBusy(false);
         }
       };
 
-      const toggleModel = (id, checked) => {
-        const next = checked
-          ? [...new Set([...selected, id])]
-          : selected.filter((item) => item !== id);
-        const entries = [["imageModels", next]];
-        // 取消勾选的正好是默认档时，把默认档顺移到剩下的第一个，避免留下悬空默认值。
-        if (!checked && defaultModel === id) entries.push(["defaultImageModel", next[0] ?? ""]);
-        void mutate(entries);
+      /** 规范化并保存：去空白、去空行、去重（保序）。 */
+      const commit = async (next) => {
+        const cleaned = [...new Set(next.map((value) => String(value ?? "").trim()).filter(Boolean))];
+        setDraft(null);
+        await mutate([["imageModels", cleaned]]);
       };
 
-      const listbox = catalog.length === 0
-        ? h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("noCatalog"))
-        : h("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
-            ...catalog.map((item) => h("label", {
-              key: item.id,
-              style: { display: "flex", alignItems: "baseline", gap: 8, fontSize: 12, color: "var(--dsw-alias-label-primary)", cursor: busy || !writable ? "default" : "pointer" },
-            },
-              h("input", {
-                type: "checkbox",
-                checked: selected.includes(item.id),
-                disabled: busy || !writable,
-                onChange: (event) => toggleModel(item.id, event.target.checked),
-                style: { accentColor: "var(--dsw-alias-brand-primary)" },
-              }),
-              h("span", null, `${item.label} · ${tierLabel(t, item.tier)}`),
-              h("span", { style: { color: "var(--dsw-alias-label-secondary)" } }, item.id),
-              item.note ? h("span", { style: { color: "var(--dsw-alias-label-secondary)" } }, item.note) : null,
-            )));
+      const rows = list.map((value, index) => h("div", {
+        key: `row-${index}`,
+        style: { display: "flex", alignItems: "center", gap: 8 },
+      },
+        h("input", {
+          type: "text",
+          value,
+          placeholder: t("rowPlaceholder"),
+          disabled: busy || !writable,
+          spellCheck: false,
+          onChange: (event) => {
+            const next = [...list];
+            next[index] = event.target.value;
+            setDraft(next);
+          },
+          onBlur: () => { if (draft !== null) void commit(draft); },
+          style: inputStyle,
+        }),
+        h("button", {
+          type: "button",
+          title: t("remove"),
+          "aria-label": t("remove"),
+          disabled: busy || !writable,
+          onClick: () => void commit(list.filter((_, position) => position !== index)),
+          style: { ...buttonStyle, cursor: busy || !writable ? "default" : "pointer" },
+        }, "✕")));
 
       return h("div", { style: { display: "flex", flexDirection: "column", gap: 12 } },
         h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
@@ -185,26 +204,27 @@ window.__ModuleLoader__.load({
             h("span", { style: { color: oauth?.loggedIn ? "var(--dsw-alias-state-success-primary)" : "var(--dsw-alias-label-secondary)", fontSize: 12 } },
               loading ? t("checking") : oauth?.loggedIn ? t("signedIn") : t("signedOut")),
             h("button", { type: "button", disabled: loading, onClick: () => void loadCapabilities(),
-              style: { marginLeft: "auto", minHeight: 28, padding: "4px 10px", border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 8, background: "var(--dsw-alias-bg-layer-1)", color: "var(--dsw-alias-label-primary)", font: "inherit", fontSize: 12, cursor: loading ? "default" : "pointer" } },
+              style: { ...buttonStyle, marginLeft: "auto", cursor: loading ? "default" : "pointer" } },
               loading ? t("loading") : t("refresh"))),
           h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("modelsHint")),
-          listbox,
-          selected.length === 0
+          rows.length > 0 ? h("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, ...rows) : null,
+          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
+            h("button", {
+              type: "button",
+              disabled: busy || !writable,
+              onClick: () => setDraft([...list, ""]),
+              style: { ...buttonStyle, cursor: busy || !writable ? "default" : "pointer" },
+            }, `+ ${t("addModel")}`),
+            h("button", {
+              type: "button",
+              disabled: busy || !writable || catalog.length === 0,
+              onClick: () => void commit(catalog.map((item) => item.id)),
+              style: { ...buttonStyle, cursor: busy || !writable || catalog.length === 0 ? "default" : "pointer" },
+            }, t("loadCatalog"))),
+          h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("catalogNote")),
+          list.length === 0
             ? h("p", { role: "status", style: { margin: 0, color: "var(--dsw-alias-state-error-primary)", fontSize: 12 } }, t("emptySelection"))
             : null,
-          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", paddingTop: 4 } },
-            h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 12 } }, t("defaultModel")),
-            h("select", {
-              value: selected.includes(defaultModel) ? defaultModel : (selected[0] ?? ""),
-              disabled: busy || !writable || selected.length === 0,
-              onChange: (event) => void mutate([["defaultImageModel", event.target.value]]),
-              style: { minHeight: 28, padding: "2px 8px", border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 8, background: "var(--dsw-alias-bg-layer-1)", color: "var(--dsw-alias-label-primary)", font: "inherit", fontSize: 12 },
-            },
-              ...selected.map((id) => {
-                const entry = catalog.find((item) => item.id === id);
-                return h("option", { key: id, value: id }, entry ? `${entry.label} · ${tierLabel(t, entry.tier)}` : id);
-              })),
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("defaultHint"))),
           h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, `${t("carrier")}: ${carrier}`),
           error ? h("span", { role: "alert", style: { color: "var(--dsw-alias-state-error-primary)", fontSize: 12 } }, `${t("loadFailed")}: ${error}`) : null,
         ),
