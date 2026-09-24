@@ -7,6 +7,7 @@
 - Forward the rest of the documented tool surface (`action`, `size`, `quality`, `background`, `output_compression`, `moderation`, `input_fidelity`, `partial_images`, `input_image_mask`) and stop conflating the Responses carrier with the image model.
 - Merge the two tool names into a single `codex-generate-image`; drop the dead `aspectRatio` parameter and the `codex-managed-image` sentinel. Legacy `enableProviders`/`providerModelSelections` are read once for migration and never forwarded upstream.
 - Report a rejected image model with its HTTP status and id instead of a generic failure, and never silently substitute another model.
+- Split the tool's schema into a dependency-free module so the tool shape (single name, `model` enum, absence of the dead `aspectRatio`) is covered by offline tests rather than only by inspection after a Host restart.
 
 ## 0.1.0 — Codex Supplement consolidation
 
