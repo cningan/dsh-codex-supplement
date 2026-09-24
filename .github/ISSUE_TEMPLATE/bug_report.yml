@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a reproducible plugin issue
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, tokens, account identifiers, or private Profile files.
+  - type: input
+    id: package
+    attributes:
+      label: Package
+      description: "Codex Supplement (@local/dsh-codex-supplement)"
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: DSH and plugin versions
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
