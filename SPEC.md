@@ -72,6 +72,13 @@ The following older surfaces were deliberately removed and remain regression-rev
 - The obsolete aspectRatio image-tool parameter; aspect ratio is expressed through size.
 - The multi-package deployment helper and its Profile-mutating test; deployment is not part of this repository's checks.
 
+## Operational verification boundaries
+
+- **Fast Mode is not live-verified.** Model-ID mismatch can make the `service_tier: priority` injector silently no-op, and upstream rejection may surface as HTTP 400. A real Codex check must confirm both the outgoing field and a successful conversation; the injector remains fail-open.
+- **Legacy credential migration is source-defined but not verified on a real Profile.** It should seed the official Codex credential record only when absent. Do not claim the migration completed based on offline tests; credentials stay outside this repository.
+- **Image quality default reload is unverified.** A per-call `quality` overrides the package default; confirm the Host-side `imageQuality` value after restarting the plugin/Host before treating a stale summary as a Client defect.
+- **Upstream convergence is a removal trigger.** This package currently supplies Codex GUI authorization and a `service_tier` fallback. If DSH's official Codex provider exposes both, prefer retiring the corresponding plugin paths over maintaining duplicate ownership.
+
 ## Source map
 
 | Path | Responsibility |
