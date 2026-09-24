@@ -1,6 +1,6 @@
 # Codex subscription image generation
 
-This note describes the package’s current image-generation capability and its model boundary. The source and tests remain authoritative; this document explains how their pieces fit together.
+This note describes the package’s current image-generation capability and its model boundary. The source and tests remain authoritative; this document explains how their pieces fit together. The shared vocabulary is defined in the [context glossary](../CONTEXT.md).
 
 ## Scope and capability
 
