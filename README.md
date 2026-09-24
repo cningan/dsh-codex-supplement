@@ -15,7 +15,7 @@ Grok, Claude, Antigravity, API-key image adapters, and video generation are not 
 
 ## Use
 
-Open **Settings → Codex Subscription** to sign in, enable Codex search, view usage/quota, and configure subscription image generation. The image section is a one-row-per-model list: add a row, remove a row, type an id yourself, or load the built-in catalog. The list is the tool's allowed `model` values; order is priority and the first row is used when a call omits `model`. An empty list registers no image tool at all. Manage conversation models and their input/output capabilities only in the official **Models → OpenAI Codex** entry. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
+Open **Settings → Codex Subscription** to sign in, enable Codex search, view usage/quota, and configure subscription image generation. The image section is a one-row-per-model list: add a row, remove a row, type an id yourself, or load the built-in catalog. The list is the tool's allowed `model` values; order is priority and the first row is used when a call omits `model`. An empty list registers no image tool at all. The same section carries one request-level **quality default** (`auto` out of the box) that a call can still override; only GPT Image 2.5 reaches `xhigh`/`max`, while 1 / 1.5 / 2 stop at `high`. Manage conversation models and their input/output capabilities only in the official **Models → OpenAI Codex** entry. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
 
 ## Compatibility and installation
 
