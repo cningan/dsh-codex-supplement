@@ -15,7 +15,7 @@ Grok, Claude, Antigravity, API-key image adapters, and video generation are not 
 
 ## Use
 
-Open **Settings → Codex Subscription** to sign in, enable Codex search, view usage/quota, and configure subscription image generation. In the image section, tick which image models are allowed: the ticks define the tool's `model` values and the default tier, and ticking none registers no image tool at all. Manage conversation models and their input/output capabilities only in the official **Models → OpenAI Codex** entry. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
+Open **Settings → Codex Subscription** to sign in, enable Codex search, view usage/quota, and configure subscription image generation. The image section is a one-row-per-model list: add a row, remove a row, type an id yourself, or load the built-in catalog. The list is the tool's allowed `model` values; order is priority and the first row is used when a call omits `model`. An empty list registers no image tool at all. Manage conversation models and their input/output capabilities only in the official **Models → OpenAI Codex** entry. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
 
 ## Compatibility and installation
 
@@ -39,7 +39,7 @@ npm pack --dry-run
 
 - Enabling Codex search switches the DSH `web` provider to `openai-codex` by writing a marked block to the active Profile's `cordis.patch.yml`. Disabling the feature removes only that plugin-managed block; hand-written `web` overrides are left alone. Review this side effect before enabling search.
 - The official Codex credential record and legacy token migration are retained. Fast Mode/search state remains under the plugin's data directory and is not automatically migrated from the former plugin. Any old custom model-list data is no longer read; configure models in the official **Models → OpenAI Codex** entry.
-- There is exactly one image tool, `codex-generate-image`. Its `model` argument takes a value from the ticked list in settings and falls back to the default tier; a model outside that list is refused with the allowed values listed. The legacy `codex-managed-image` choice is migrated once on read and is never sent upstream.
+- There is exactly one image tool, `codex-generate-image`. Its `model` argument takes a value from the list in settings and falls back to that list's first row; a model outside the list is refused with the allowed values listed. The legacy `codex-managed-image` choice is migrated once on read and is never sent upstream.
 - **Verified on a live subscription (2026-09-24):** the Codex subscription endpoint accepts `image_generation.model`; `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst` each produced a PNG through the tool. The endpoint still publishes no schema, so a future tightening is possible: a rejection is surfaced with its status code and model id, and the plugin never silently substitutes another model.
 - Legacy plugin data is not copied automatically; preserve it outside the active plugin tree before removing the former plugin directories. No npm package is published.
 
