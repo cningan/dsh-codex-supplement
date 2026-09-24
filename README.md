@@ -8,14 +8,14 @@ A single DeepSeek Harness (`dsh`) bundle for Codex-only account and subscription
 
 - ChatGPT/Codex OAuth sign-in and logout, sharing the official `llm-pi-ai/openai-codex` credential record. The existing one-time migration from the legacy Codex secret store remains.
 - Codex subscription usage/quota presentation, optional Codex web search, and per-model Fast Mode.
-- Codex subscription image generation through the Responses `image_generation` tool. The official Codex model is only the Responses carrier; GPT Image IDs are not used as carrier models. Generated images are written to the current session workspace (default `images/`) and attached for later model inspection.
+- Codex subscription image generation through the Responses `image_generation` tool. The image model is chosen per call by the tool's `model` argument, from a catalog of GPT Image ids — including the two GPT Image 2.5 tiers, `gpt-image-2.5-flare` (fast) and `gpt-image-2.5-sunburst` (quality). The official Codex chat model is only the Responses carrier, and the two are never conflated. Generated images are written to the current session workspace (default `images/`) and attached for later model inspection.
 - One Host plugin row and one Client Loader module: `@local/dsh-codex-supplement`.
 
 Grok, Claude, Antigravity, API-key image adapters, and video generation are not included.
 
 ## Use
 
-Open **Settings → Codex Subscription** to sign in, enable Codex search, view usage/quota, and configure subscription image generation. Manage conversation models and their input/output capabilities only in the official **Models → OpenAI Codex** entry. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
+Open **Settings → Codex Subscription** to sign in, enable Codex search, view usage/quota, and configure subscription image generation. In the image section, tick which image models are allowed: the ticks define the tool's `model` values and the default tier, and ticking none registers no image tool at all. Manage conversation models and their input/output capabilities only in the official **Models → OpenAI Codex** entry. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
 
 ## Compatibility and installation
 
@@ -39,6 +39,8 @@ npm pack --dry-run
 
 - Enabling Codex search switches the DSH `web` provider to `openai-codex` by writing a marked block to the active Profile's `cordis.patch.yml`. Disabling the feature removes only that plugin-managed block; hand-written `web` overrides are left alone. Review this side effect before enabling search.
 - The official Codex credential record and legacy token migration are retained. Fast Mode/search state remains under the plugin's data directory and is not automatically migrated from the former plugin. Any old custom model-list data is no longer read; configure models in the official **Models → OpenAI Codex** entry.
+- There is exactly one image tool, `codex-generate-image`. Its `model` argument takes a value from the ticked list in settings and falls back to the default tier; a model outside that list is refused with the allowed values listed. The legacy `codex-managed-image` choice is migrated once on read and is never sent upstream.
+- **Unproven boundary:** the Codex subscription endpoint has no public schema; the official `image_generation` contract comes from the API-key SDK. Whether the subscription endpoint accepts a given image model id can only be established by a live call. A rejection is surfaced with its status code and model id, and the plugin never silently substitutes another model.
 - Legacy plugin data is not copied automatically; preserve it outside the active plugin tree before removing the former plugin directories. No npm package is published.
 
 See [ARCHITECTURE_MAP.md](ARCHITECTURE_MAP.md), [SECURITY.md](SECURITY.md), and [docs/release.md](docs/release.md).
