@@ -19,6 +19,8 @@ window.__ModuleLoader__.load({
         topHint: "总开关与清单共同决定工具是否注册；清单为空就不暴露生图工具。",
         models: "模型清单",
         modelsHint: "每行一个模型 id，可增可删、可自填代号。清单即工具 model 参数的合法取值；顺序即优先级，第一个是缺省档。",
+        quality: "缺省质量档",
+        qualityHint: "工具调用不传 quality 时用它，单次调用仍可覆盖。auto = 服务端按提示词自决。xhigh / max 仅 GPT Image 2.5（flare / sunburst）支持，gpt-image-1 / 1.5 / 2 最高到 high。",
         addModel: "添加模型",
         loadCatalog: "载入内置目录",
         catalogNote: "内置目录是插件自带的候选，不是查询结果——订阅端点没有图像模型枚举接口，「获取可用模型」在这个能力上没有数据源。",
@@ -42,6 +44,8 @@ window.__ModuleLoader__.load({
         topHint: "The master switch and this list together decide whether the tool is registered; an empty list exposes nothing.",
         models: "Model list",
         modelsHint: "One model id per row. Add, remove, or type an id yourself. The list is the tool's allowed model values; order is priority and the first entry is the default.",
+        quality: "Default quality",
+        qualityHint: "Used when a call omits quality; a call can still override it. auto lets the service decide from the prompt. xhigh / max are GPT Image 2.5 (flare/sunburst) only; gpt-image-1 / 1.5 / 2 cap at high.",
         addModel: "Add model",
         loadCatalog: "Load built-in catalog",
         catalogNote: "The built-in catalog is a bundled candidate list, not a query result — the subscription endpoint has no image-model enumeration, so there is no data source for a \"fetch available models\" action here.",
@@ -137,6 +141,12 @@ window.__ModuleLoader__.load({
       const list = draft ?? saved;
       const oauth = capabilities?.oauth;
       const carrier = capabilities?.codexCarrier || capability?.carrierModel || "—";
+      const qualityOptions = Array.isArray(capability?.qualities) && capability.qualities.length > 0
+        ? capability.qualities
+        : ["auto", "low", "medium", "high", "xhigh", "max"];
+      const defaultQuality = typeof config.imageQuality === "string" && config.imageQuality.length > 0
+        ? config.imageQuality
+        : (typeof capability?.defaultQuality === "string" ? capability.defaultQuality : "auto");
 
       const mutate = async (entries) => {
         if (!writable) return false;
@@ -222,6 +232,15 @@ window.__ModuleLoader__.load({
               style: { ...buttonStyle, cursor: busy || !writable || catalog.length === 0 ? "default" : "pointer" },
             }, t("loadCatalog"))),
           h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("catalogNote")),
+          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", paddingTop: 4 } },
+            h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 12 } }, t("quality")),
+            h("select", {
+              value: defaultQuality,
+              disabled: busy || !writable,
+              onChange: (event) => void mutate([["imageQuality", event.target.value]]),
+              style: { minHeight: 30, padding: "4px 8px", border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 8, background: "var(--dsw-alias-bg-layer-1)", color: "var(--dsw-alias-label-primary)", font: "inherit", fontSize: 12 },
+            }, ...qualityOptions.map((option) => h("option", { key: option, value: option }, option))),
+            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("qualityHint"))),
           list.length === 0
             ? h("p", { role: "status", style: { margin: 0, color: "var(--dsw-alias-state-error-primary)", fontSize: 12 } }, t("emptySelection"))
             : null,

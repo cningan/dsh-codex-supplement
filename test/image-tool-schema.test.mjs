@@ -66,6 +66,15 @@ test('the description names the enabled models and their tiers', () => {
   assert.match(description, /carrier/)
 })
 
+test('the quality default and support range are disclosed', () => {
+  const withDefault = buildImageToolParameters({ models: ENABLED, defaultQuality: 'high' })
+  assert.match(withDefault.quality.description, /Default: high/)
+  const fallback = buildImageToolParameters({ models: ENABLED })
+  assert.match(fallback.quality.description, /Default: auto/)
+  // 支持范围必须写明，否则模型会以为每个模型都有 xhigh/max
+  assert.match(fallback.quality.description, /cap at high/)
+})
+
 test('the output schema separates the image model from the carrier', () => {
   const schema = buildImageToolOutputSchema()
   assert.deepEqual(Object.keys(schema.properties).sort(), ['carrier', 'files', 'model', 'summary'])
