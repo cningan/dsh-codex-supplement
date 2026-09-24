@@ -15,7 +15,7 @@ window.__ModuleLoader__.load({
     const dictionaries = {
       zh: {
         oauthTitle: "Codex 订阅",
-        oauthIntro: "登录 ChatGPT/Codex 订阅，在 DSH 使用官方 Codex 模型、额度、搜索与 Fast Mode。",
+        oauthIntro: "登录 ChatGPT/Codex 订阅。普通模型及其输入/输出能力由官方 Models 页的 OpenAI Codex 项管理。",
         signedIn: "已登录",
         signedOut: "未登录",
         checking: "检查中…",
@@ -23,36 +23,9 @@ window.__ModuleLoader__.load({
         logout: "退出",
         working: "处理中…",
         loginPending: "授权中…",
-        models: "可用模型",
-        modelsCustomized: "已自定义",
-        modelsInherited: "随默认",
-        resetModels: "重置模型",
-        fetchModels: "获取模型",
-        fetching: "获取中…",
-        modelsEmpty: "未列出模型（空清单=不显示任何模型；可用「添加模型」填写）",
-        modelId: "模型 ID",
-        modelName: "名称",
-        modelAdvanced: "高级选项",
-        removeModel: "移除模型",
-        modelContextWindow: "上下文窗口",
-        modelMaxTokens: "最大输出",
-        addModel: "添加模型",
-        fetchTitle: "获取模型",
-        fetchDescription: "选择要加入清单的模型：",
-        fetchAdopt: "采纳所选",
-        fetchDeselectAll: "全不选",
-        fetchSelectAll: "全选",
-        fetchEmpty: "该供应商未返回任何模型",
-        applyModels: "应用",
-        cancel: "取消",
         weeklyLimit: "每周额度",
         fiveHourLimit: "5 小时额度",
         usageWindow: "额度窗口",
-        modelsSourceRemote: "远程目录（登录后 GET /models）",
-        modelsSourceOfficial: "官方目录（dsh 内置 pi-ai，随升级更新）",
-        modelsSourceStatic: "静态清单（订阅模型兜底）",
-        modelsSourceBuiltin: "默认目录（未登录或获取失败回退）",
-        modelsEmpty: "未发现模型",
         accountsHeading: "账号",
         noAccounts: "还没有账号",
         requestFailed: "请求失败",
@@ -86,7 +59,7 @@ window.__ModuleLoader__.load({
       },
       en: {
         oauthTitle: "Codex Subscription",
-        oauthIntro: "Sign in with your ChatGPT/Codex subscription to use the official Codex models, usage, search, and Fast Mode in DSH.",
+        oauthIntro: "Sign in with your ChatGPT/Codex subscription. Manage normal models and input/output capabilities in the official Models page under OpenAI Codex.",
         signedIn: "Signed in",
         signedOut: "Not signed in",
         checking: "Checking…",
@@ -94,36 +67,9 @@ window.__ModuleLoader__.load({
         logout: "Sign out",
         working: "Working…",
         loginPending: "Authorizing…",
-        models: "Models",
-        modelsCustomized: "Customized",
-        modelsInherited: "Inherited",
-        resetModels: "Reset models",
-        fetchModels: "Fetch models",
-        fetching: "Fetching…",
-        modelsEmpty: "No models listed (an empty list hides every model; use Add to fill rows)",
-        modelId: "Model ID",
-        modelName: "Name",
-        modelAdvanced: "Advanced",
-        removeModel: "Remove",
-        modelContextWindow: "Context window",
-        modelMaxTokens: "Max output",
-        addModel: "Add model",
-        fetchTitle: "Fetch models",
-        fetchDescription: "Pick models to add to the list:",
-        fetchAdopt: "Adopt selected",
-        fetchDeselectAll: "Clear all",
-        fetchSelectAll: "Select all",
-        fetchEmpty: "The provider returned no models",
-        applyModels: "Apply",
-        cancel: "Cancel",
         weeklyLimit: "Weekly quota",
         fiveHourLimit: "5-hour quota",
         usageWindow: "Usage window",
-        modelsSourceRemote: "Remote catalog (GET /models after sign-in)",
-        modelsSourceOfficial: "Official catalog (dsh-built-in pi-ai, updated with upgrades)",
-        modelsSourceStatic: "Static catalog (subscription fallback)",
-        modelsSourceBuiltin: "Default catalog (not signed in or fetch failed)",
-        modelsEmpty: "No models found",
         accountsHeading: "Accounts",
         noAccounts: "No accounts yet",
         requestFailed: "Request failed",
@@ -201,8 +147,6 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false);
       const usage = status.usage;
       const searchState = status.search || { enabled: false };
-      const fastEnabled = new Set(Array.isArray(status.fastModeModels) ? status.fastModeModels : []);
-      const models = Array.isArray(status.models) ? status.models : [];
       const base = { minHeight: 30, padding: "4px 12px", border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 14, background: "var(--dsw-alias-bg-layer-1)", color: "var(--dsw-alias-label-primary)", font: "inherit", fontSize: 12, cursor: "pointer" };
 
       const toggle = async (path, body) => {
@@ -250,237 +194,8 @@ window.__ModuleLoader__.load({
       );
     }
 
-    // ── 模型清单编辑器：照官方 dsh-client-ui-settings-models/lib/client.js ModelListEditor 忠实移植 ──
-    // （语义：行 = id/名称 + chevron 折叠区（上下文窗口/最大输出，placeholder 透显 256K/32K 提示）；
-    //  容量输入支持 K/M 词汇（256K→256000）；「获取模型」勾选加入（只加未知、保留已有行原样）；
-    //  「添加模型」加空行；删除行即重排；上层 draft = 整表，「应用」提交、overridden=true 才显示「重置模型」。）
-    // #region lib/types/client/ModelListEditor.js（照官方移植）
-    function textOf(model, key) {
-      const value = model && model[key];
-      return typeof value === "string" ? value : "";
-    }
-    function numberOf(model, key) {
-      const value = model && model[key];
-      return typeof value === "number" ? value : void 0;
-    }
-    /** Accepted capacity spellings: a decimal count with an optional K/M suffix. */
-    const CAPACITY_PATTERN = /^(\d+(?:\.\d+)?)([km])?$/i;
-    const CAPACITY_SCALE = { k: 1e3, m: 1e6 };
-    function parseCapacity(text) {
-      const trimmed = text.trim();
-      if (trimmed.length === 0) return void 0;
-      const match = CAPACITY_PATTERN.exec(trimmed);
-      if (match === null) return NaN;
-      const suffix = match[2] && match[2].toLowerCase();
-      const scale = suffix === "k" || suffix === "m" ? CAPACITY_SCALE[suffix] : 1;
-      const scaled = Number(match[1]) * scale;
-      const rounded = Math.round(scaled);
-      return Math.abs(scaled - rounded) < 1e-6 ? rounded : scaled;
-    }
-    function formatCapacity(value) {
-      if (!Number.isInteger(value) || value <= 0) return String(value);
-      if (value % CAPACITY_SCALE.m === 0) return `${String(value / CAPACITY_SCALE.m)}M`;
-      if (value % CAPACITY_SCALE.k === 0) return `${String(value / CAPACITY_SCALE.k)}K`;
-      return String(value);
-    }
-    /** What an empty capacity field is worth, shown as its placeholder. */
-    const CAPACITY_HINT = { contextWindow: "256K", maxTokens: "32K" };
-    function capacitySpelling(value) {
-      return value === void 0 ? "" : formatCapacity(value);
-    }
-    /** Adopt a candidate, keeping whatever capacities the provider disclosed. */
-    function adopt(candidate) {
-      return {
-        id: candidate.id,
-        ...(candidate.name === void 0 ? {} : { name: candidate.name }),
-        ...(candidate.contextWindow === void 0 ? {} : { contextWindow: candidate.contextWindow }),
-        ...(candidate.maxTokens === void 0 ? {} : { maxTokens: candidate.maxTokens }),
-      };
-    }
-    function IconChevron({ open }) {
-      return h("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", "aria-hidden": true,
-        style: { transform: open ? "rotate(90deg)" : void 0, transition: "transform 120ms ease" } },
-        h("path", { d: "M6 3.5L10.5 8L6 12.5", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" }));
-    }
-    function IconTrash() {
-      return h("svg", { width: "14", height: "14", viewBox: "0 0 16 16", fill: "none", "aria-hidden": true },
-        h("path", { d: "M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9a1 1 0 001 .9h4.6a1 1 0 001-.9L12 4M6.5 6.8v4.4M9.5 6.8v4.4", stroke: "currentColor", strokeWidth: "1.3", strokeLinecap: "round", strokeLinejoin: "round" }));
-    }
-    function ModelListEditor({ models, overridden, busy, onFetchCandidates, onSave, t }) {
-      const [draft, setDraft] = React.useState(void 0);
-      const [failure, setFailure] = React.useState(void 0);
-      const [candidates, setCandidates] = React.useState(void 0);
-      const [picked, setPicked] = React.useState(new Set());
-      const [expanded, setExpanded] = React.useState(new Set());
-      const [editing, setEditing] = React.useState(new Map());
-      const [busy2, setBusy2] = React.useState(false);
-      const rows = draft ?? (Array.isArray(models) ? models : []);
-      const bufferKey = (index, field) => `${String(index)}:${field}`;
-      const patch = (index, next) => {
-        setDraft((current) => (current ?? rows).map((model, at) => {
-          if (at !== index) return model;
-          const cleared = new Set(Object.entries(next).filter(([, value]) => value === void 0 || value === "").map(([key]) => key));
-          return Object.fromEntries(Object.entries({ ...model, ...next }).filter(([key]) => !cleared.has(key)));
-        }));
-      };
-      const editCapacity = (index, field, text) => {
-        setEditing((current) => new Map(current).set(bufferKey(index, field), text));
-        patch(index, { [field]: parseCapacity(text) });
-      };
-      const capacityText = (model, index, field) => editing.get(bufferKey(index, field)) ?? capacitySpelling(numberOf(model, field));
-      const reindexOnRemove = (current, index) => {
-        const next = new Map();
-        for (const [key, value] of current) {
-          const at = Number(key.slice(0, key.indexOf(":")));
-          if (at === index) continue;
-          next.set(at > index ? key.replace(/^\d+/, String(at - 1)) : key, value);
-        }
-        return next;
-      };
-      const toggleExpanded = (index) => {
-        setExpanded((current) => {
-          const next = new Set(current);
-          if (!next.delete(index)) next.add(index);
-          return next;
-        });
-      };
-      const fetchModels = async () => {
-        setBusy2(true);
-        setFailure(void 0);
-        try {
-          const found = await onFetchCandidates();
-          if (found.length === 0) { setFailure(t("fetchEmpty")); return; }
-          const known = new Set(rows.map((model) => textOf(model, "id")));
-          setCandidates(found);
-          setPicked(new Set(found.filter((model) => !known.has(model.id)).map((model) => model.id)));
-        } catch (error) {
-          setFailure(error instanceof Error ? error.message : String(error));
-        } finally {
-          setBusy2(false);
-        }
-      };
-      const closePicker = () => { setCandidates(void 0); setPicked(new Set()); };
-      const adoptPicked = () => {
-        if (candidates === void 0) return;
-        const byId = new Map(rows.map((model) => [textOf(model, "id"), model]));
-        for (const candidate of candidates) {
-          if (!picked.has(candidate.id)) continue;
-          byId.set(candidate.id, byId.get(candidate.id) ?? adopt(candidate));
-        }
-        setDraft([...byId.values()]);
-        closePicker();
-      };
-      const toggle = (id) => {
-        setPicked((current) => {
-          const next = new Set(current);
-          if (!next.delete(id)) next.add(id);
-          return next;
-        });
-      };
-      const activeCandidates = candidates ?? [];
-      const allCandidatesPicked = activeCandidates.length > 0 && activeCandidates.every((candidate) => picked.has(candidate.id));
-      const toggleAllCandidates = () => {
-        setPicked((current) => activeCandidates.every((candidate) => current.has(candidate.id))
-          ? new Set()
-          : new Set(activeCandidates.map((candidate) => candidate.id)));
-      };
-      const modelFailure = rows.map((model, index) => {
-        const trimmed = textOf(model, "id").trim();
-        if (trimmed.length === 0) return { index, key: "modelId" };
-        for (const field of ["contextWindow", "maxTokens"]) {
-          const value = numberOf(model, field);
-          if (value !== void 0 && (!Number.isFinite(value) || value <= 0)) return { index, key: field };
-        }
-        return void 0;
-      }).find(Boolean);
-      const apply = async () => {
-        setBusy2(true);
-        setFailure(void 0);
-        try {
-          await onSave(rows);
-          setDraft(void 0);
-        } catch (error) {
-          setFailure(error instanceof Error ? error.message : String(error));
-        } finally {
-          setBusy2(false);
-        }
-      };
-      const inputBase = { padding: "4px 8px", borderRadius: 6, border: "1px solid var(--dsw-alias-border-l2)", background: "var(--dsw-alias-bg-layer-1)", color: "var(--dsw-alias-label-primary)", font: "inherit", fontSize: 12, minWidth: 0 };
-      const linkButton = { minHeight: 24, padding: "2px 10px", border: "none", borderRadius: 12, background: "transparent", color: "var(--dsw-alias-brand-primary)", font: "inherit", fontSize: 12, cursor: "pointer" };
-      const iconButton = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, flex: "none", border: "none", borderRadius: 6, background: "transparent", color: "var(--dsw-alias-label-secondary)", cursor: "pointer" };
-      const disabled = busy || busy2;
-
-      return h("section", { "aria-label": t("models"), style: { display: "flex", flexDirection: "column", gap: 8 } },
-        h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-          h("span", { style: { fontSize: 12, color: "var(--dsw-alias-label-secondary)", fontWeight: 600 } }, t("models")),
-          h("span", { style: { fontSize: 11, color: "var(--dsw-alias-label-tertiary)" } }, overridden ? t("modelsCustomized") : t("modelsInherited")),
-          h("button", { type: "button", style: linkButton, disabled, onClick: () => void fetchModels() }, busy2 ? t("fetching") : t("fetchModels")),
-        ),
-        rows.length === 0
-          ? h("p", { role: "status", style: { margin: 0, fontSize: 12, color: "var(--dsw-alias-label-secondary)" } }, t("modelsEmpty"))
-          : null,
-        rows.map((model, index) => h("div", { key: String(index), style: { display: "flex", flexDirection: "column", gap: 6, padding: 8, borderRadius: 8, border: "1px solid var(--dsw-alias-border-l2)", background: "var(--dsw-alias-bg-layer-1)" } },
-          h("div", { style: { display: "flex", gap: 6, alignItems: "center" } },
-            h("input", { type: "text", style: { ...inputBase, flex: 2 }, value: textOf(model, "id"), placeholder: t("modelId"), "aria-label": `${t("modelId")} ${index + 1}`, disabled, onChange: (e) => patch(index, { id: e.target.value }) }),
-            h("input", { type: "text", style: { ...inputBase, flex: 2 }, value: textOf(model, "name"), placeholder: t("modelName"), "aria-label": `${t("modelName")} ${index + 1}`, disabled, onChange: (e) => patch(index, { name: e.target.value === "" ? void 0 : e.target.value }) }),
-            h("button", { type: "button", style: iconButton, "aria-label": `${t("modelAdvanced")} ${index + 1}`, "aria-expanded": expanded.has(index), title: t("modelAdvanced"), disabled, onClick: () => toggleExpanded(index) }, h(IconChevron, { open: expanded.has(index) })),
-            h("button", { type: "button", style: { ...iconButton, color: "var(--dsw-alias-state-error-primary)" }, "aria-label": `${t("removeModel")} ${index + 1}`, title: t("removeModel"), disabled, onClick: () => {
-              setDraft((current) => (current ?? rows).filter((_model, at) => at !== index));
-              setExpanded((current) => {
-                const next = new Set();
-                for (const at of current) { if (at < index) next.add(at); else if (at > index) next.add(at - 1); }
-                return next;
-              });
-              setEditing((current) => reindexOnRemove(current, index));
-            } }, h(IconTrash, {})),
-          ),
-          expanded.has(index)
-            ? h("div", { style: { display: "flex", flexDirection: "column", gap: 6, padding: "0 6px" } },
-                h("label", { style: { display: "flex", flexDirection: "column", gap: 3, fontSize: 11, color: "var(--dsw-alias-label-secondary)" } },
-                  h("span", {}, t("modelContextWindow")),
-                  h("input", { type: "text", inputMode: "numeric", style: inputBase, value: capacityText(model, index, "contextWindow"), placeholder: CAPACITY_HINT.contextWindow, "aria-label": `${t("modelContextWindow")} ${index + 1}`, disabled, onChange: (e) => editCapacity(index, "contextWindow", e.target.value) }),
-                ),
-                h("label", { style: { display: "flex", flexDirection: "column", gap: 3, fontSize: 11, color: "var(--dsw-alias-label-secondary)" } },
-                  h("span", {}, t("modelMaxTokens")),
-                  h("input", { type: "text", inputMode: "numeric", style: inputBase, value: capacityText(model, index, "maxTokens"), placeholder: CAPACITY_HINT.maxTokens, "aria-label": `${t("modelMaxTokens")} ${index + 1}`, disabled, onChange: (e) => editCapacity(index, "maxTokens", e.target.value) }),
-                ),
-              )
-            : null,
-        )),
-        h("button", { type: "button", style: { ...linkButton, alignSelf: "flex-start" }, disabled, onClick: () => setDraft((current) => [...(current ?? rows), { id: "" }]) }, t("addModel")),
-        draft !== void 0 || modelFailure !== void 0
-          ? h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-              draft !== void 0
-                ? h("button", { type: "button", style: { ...linkButton, border: "1px solid var(--dsw-alias-brand-primary)" }, disabled: disabled || modelFailure !== void 0, onClick: () => void apply() }, busy2 ? t("working") : t("applyModels"))
-                : null,
-              modelFailure !== void 0
-                ? h("span", { role: "status", style: { fontSize: 11, color: "var(--dsw-alias-state-error-primary)" } }, `${t("models")} ${String(modelFailure.index + 1)}: ${t(modelFailure.key)}`)
-                : null,
-            )
-          : null,
-        failure !== void 0
-          ? h("p", { role: "status", style: { margin: 0, fontSize: 11, color: "var(--dsw-alias-state-error-primary)", overflowWrap: "anywhere" } }, failure)
-          : null,
-        candidates !== void 0
-          ? h("div", { role: "dialog", "aria-label": t("fetchTitle"), style: { display: "flex", flexDirection: "column", gap: 6, padding: "10px 12px", borderRadius: 8, border: "1px solid var(--dsw-alias-border-l2)", background: "var(--dsw-alias-bg-layer-2)" } },
-              h("p", { style: { margin: 0, fontSize: 12, color: "var(--dsw-alias-label-secondary)" } }, t("fetchDescription")),
-              h("button", { type: "button", style: linkButton, onClick: toggleAllCandidates }, t(allCandidatesPicked ? "fetchDeselectAll" : "fetchSelectAll")),
-              h("div", { style: { display: "flex", flexDirection: "column", gap: 4, maxHeight: 220, overflow: "auto" } },
-                activeCandidates.map((candidate) => h("label", { key: String(candidate.id), style: { fontSize: 12, cursor: "pointer", color: "var(--dsw-alias-label-primary)", overflowWrap: "anywhere" } },
-                  h("input", { type: "checkbox", checked: picked.has(candidate.id), onChange: () => toggle(candidate.id) }),
-                  " " + candidate.id))),
-              h("div", { style: { display: "flex", gap: 8 } },
-                h("button", { type: "button", style: linkButton, onClick: closePicker }, t("cancel")),
-                h("button", { type: "button", style: { ...linkButton, border: "1px solid var(--dsw-alias-brand-primary)" }, onClick: adoptPicked }, t("fetchAdopt")),
-              ),
-            )
-          : null,
-      );
-    }
-    // #endregion
-
     function ProviderCard({ provider, t }) {
-      const [status, setStatus] = React.useState({ loggedIn: false, loginPending: false, accounts: [], models: [], diagnostics: [] });
+      const [status, setStatus] = React.useState({ loggedIn: false, loginPending: false, accounts: [] });
       const [loading, setLoading] = React.useState(true);
       const [busy, setBusy] = React.useState(false);
       const [open, setOpen] = React.useState(false);
@@ -493,7 +208,7 @@ window.__ModuleLoader__.load({
           setStatus(next);
           return next;
         } catch (cause) {
-          setStatus({ loggedIn: false, accounts: [], models: [], diagnostics: [cause instanceof Error ? cause.message : String(cause)] });
+          setStatus({ loggedIn: false, accounts: [], loginError: cause instanceof Error ? cause.message : String(cause) });
           return null;
         } finally {
           setLoading(false);
@@ -520,10 +235,10 @@ window.__ModuleLoader__.load({
           }
           if (result?.status === "pending" || result?.sessionId) setStatus((v) => ({ ...v, loginPending: true }));
           if (result?.authorizationCodeRequired) setManual(true);
-          if (result?.error) setStatus((v) => ({ ...v, diagnostics: [result.error] }));
+          if (result?.error) setStatus((v) => ({ ...v, loginError: result.error }));
           setTimeout(() => void refresh(), 600);
         } catch (cause) {
-          setStatus((v) => ({ ...v, diagnostics: [cause instanceof Error ? cause.message : String(cause)] }));
+          setStatus((v) => ({ ...v, loginError: cause instanceof Error ? cause.message : String(cause) }));
         } finally { setBusy(false); }
       };
       const submitCode = async () => {
@@ -533,7 +248,7 @@ window.__ModuleLoader__.load({
           await jsonRequest(`/plugins/dsh-codex-supplement/${provider.id}/submit-code`, "POST", { code: code.trim() });
           setCode(""); setManual(false); await refresh();
         } catch (cause) {
-          setStatus((v) => ({ ...v, diagnostics: [cause instanceof Error ? cause.message : String(cause)] }));
+          setStatus((v) => ({ ...v, loginError: cause instanceof Error ? cause.message : String(cause) }));
         } finally { setBusy(false); }
       };
       const logout = async () => {
@@ -544,32 +259,9 @@ window.__ModuleLoader__.load({
       };
 
       const accounts = Array.isArray(status.accounts) ? status.accounts : [];
-      const models = Array.isArray(status.models) ? status.models : [];
       const deviceSession = status?.loginSession && status.loginSession.userCode ? status.loginSession : null;
       const diag = [status.loginError].filter(Boolean).join("；");
       const stateText = loading ? t("checking") : status.loggedIn ? t("signedIn") : status.loginPending ? t("loginPending") : t("signedOut");
-      // 模型清单来源标注（remote=远程目录 / official=官方目录（dsh 内置 pi-ai，随升级更新）/ static=订阅静态兜底 / builtin=默认目录回退；未登录/获取失败可见）
-      const sourceLabel = status.catalogSource === "remote" ? t("modelsSourceRemote")
-        : status.catalogSource === "official" ? t("modelsSourceOfficial")
-          : status.catalogSource === "static" ? t("modelsSourceStatic")
-            : status.catalogSource === "builtin" ? t("modelsSourceBuiltin")
-              : "";
-      // 诊断（获取失败/回退原因）单独展示（不混入登录诊断）
-      const sourceDiag = Array.isArray(status.diagnostics) ? status.diagnostics : [];
-      const fetchCandidates = async () => {
-        setBusy(true);
-        try {
-          const payload = await jsonRequest(`/plugins/dsh-codex-supplement/${provider.id}/models?force=1`);
-          return Array.isArray(payload.models) ? payload.models : [];
-        } catch (cause) {
-          setStatus((v) => ({ ...v, diagnostics: [...(Array.isArray(v.diagnostics) ? v.diagnostics : []), cause instanceof Error ? cause.message : String(cause)] }));
-          return [];
-        } finally { setBusy(false); }
-      };
-      const saveModelList = async (modelRows) => {
-        await jsonRequest(`/plugins/dsh-codex-supplement/${provider.id}/models-list`, "POST", { models: modelRows });
-        await refresh();
-      };
 
       const base = { minHeight: 32, padding: "5px 14px", border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 16, background: "var(--dsw-alias-bg-layer-1)", color: "var(--dsw-alias-label-primary)", font: "inherit", fontSize: 13, cursor: "pointer" };
       const primary = { ...base, borderColor: "var(--dsw-alias-brand-primary)", background: "var(--dsw-alias-brand-primary)", color: "#fff" };
@@ -617,19 +309,6 @@ window.__ModuleLoader__.load({
                 accounts.map((account) => h("span", { key: account.accountId, style: { fontSize: 12, color: "var(--dsw-alias-label-secondary)" } }, account.email || account.displayName || account.accountId)),
               )
             : null,
-          h("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
-            h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-              h("h4", { style: { margin: 0, fontSize: 13, fontWeight: 600, color: "var(--dsw-alias-label-primary)" } }, t("models")),
-              sourceLabel
-                ? h("span", { style: { fontSize: 11, color: "var(--dsw-alias-label-tertiary)" } }, sourceLabel)
-                : null,
-            ),
-            sourceDiag.map((d) => h("p", { key: d, style: { margin: 0, fontSize: 11, color: "var(--dsw-alias-label-tertiary)", overflowWrap: "anywhere" } }, d)),
-            // 始终渲染编辑器：空清单（用户全删）同样保留「获取模型/添加模型」能力
-            // （2026-09-03 修：原 models.length>0 门槛导致清空后管理能力整个消失。
-            //  无「重置模型」——清单来源=云端/记忆/手填，不恢复内置清单）。
-            h(ModelListEditor, { models, overridden: status.modelsCustomized === true, busy, onFetchCandidates: fetchCandidates, onSave: saveModelList, t }),
-          ),
           provider.id === "codex" ? h(CodexExtras, { status, refresh, t }) : null,
         ) : null,
       );

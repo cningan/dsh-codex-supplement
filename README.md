@@ -15,7 +15,7 @@ Grok, Claude, Antigravity, API-key image adapters, and video generation are not 
 
 ## Use
 
-Open **Settings → Codex Subscription** to sign in, manage search/model-list options, and configure subscription image generation in one page. Login/usage controls and image-generation controls remain separate sections within that page. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
+Open **Settings → Codex Subscription** to sign in, enable Codex search, view usage/quota, and configure subscription image generation. Manage conversation models and their input/output capabilities only in the official **Models → OpenAI Codex** entry. In Codex conversations, the input toolbar provides the quota entry and Fast Mode toggle.
 
 ## Compatibility and installation
 
@@ -38,7 +38,7 @@ npm pack --dry-run
 ## Behavior and data notes
 
 - Enabling Codex search switches the DSH `web` provider to `openai-codex` by writing a marked block to the active Profile's `cordis.patch.yml`. Disabling the feature removes only that plugin-managed block; hand-written `web` overrides are left alone. Review this side effect before enabling search.
-- The official Codex credential record and legacy token migration are retained. Plugin-owned settings files such as Fast Mode/search state and custom model-list data live under the plugin's data directory; moving to this new package directory does not automatically migrate those files. Re-enable Fast Mode/search as needed and deliberately migrate custom model-list data if you rely on it.
+- The official Codex credential record and legacy token migration are retained. Fast Mode/search state remains under the plugin's data directory and is not automatically migrated from the former plugin. Any old custom model-list data is no longer read; configure models in the official **Models → OpenAI Codex** entry.
 - Legacy plugin data is not copied automatically; preserve it outside the active plugin tree before removing the former plugin directories. No npm package is published.
 
 See [ARCHITECTURE_MAP.md](ARCHITECTURE_MAP.md), [SECURITY.md](SECURITY.md), and [docs/release.md](docs/release.md).

@@ -6,4 +6,4 @@
 - Retain official Codex credential-record sharing and legacy credential migration.
 - Reduce Client output to one package-prefixed Loader module.
 - Remove non-Codex OAuth providers, generic API-key image providers, video generation, and the retired Codex chat adapter.
-- Do not migrate plugin-directory Fast Mode/search flags or custom model-list files automatically; see the README.
+- Remove the duplicate OAuth-page model editor/discovery/routes; the official OpenAI Codex provider owns the catalog and input/output capabilities. Do not migrate old plugin custom model lists; configure models in the official Models page.

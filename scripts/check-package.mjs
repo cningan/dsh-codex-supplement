@@ -103,6 +103,21 @@ if (manifest) {
   }
 }
 
+const clientPath = resolve(packageRoot, manifest?.exports?.['./client'] ?? 'lib/client.js')
+if (await exists(clientPath)) {
+  const client = await readFile(clientPath, 'utf8')
+  if (client.includes('ModelListEditor') || client.includes('/models-list')) {
+    fail('Client bundle must not duplicate the official OpenAI Codex model editor')
+  }
+}
+const codexHostPath = resolve(packageRoot, 'lib/providers/codex/index.mjs')
+if (await exists(codexHostPath)) {
+  const codexHost = await readFile(codexHostPath, 'utf8')
+  if (codexHost.includes('registerModelDiscovery') || codexHost.includes('/models-list')) {
+    fail('Codex Supplement must not register a duplicate model catalog or model-list route')
+  }
+}
+
 const files = []
 for (const root of roots) files.push(...await collect(resolve(packageRoot, root)))
 files.sort()
