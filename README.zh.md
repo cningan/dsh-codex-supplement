@@ -2,14 +2,14 @@
 
 > [English](README.md) | 简体中文
 
-一个面向 DeepSeek Harness（`dsh`）的单体插件包，把原 `dsh-oauth` 与 `dsh-multimedia` 中需要保留的 Codex 能力合并到 **`@local/dsh-codex-supplement`**。
+一个面向 DeepSeek Harness（`dsh`）的单体插件包，把原 `dsh-oauth` 与 `dsh-multimedia` 中需要保留的 Codex 能力合并到 **`@cningan/dsh-codex-supplement`**。
 
 ## 功能
 
 - ChatGPT/Codex OAuth 登录与退出，共用 DSH 官方 `llm-pi-ai/openai-codex` credential record；保留旧 Codex secret store 的一次性迁移。
 - Codex 订阅用量/额度展示、可选 Codex 网络搜索，以及按模型启用的 Fast Mode。
 - 通过 Responses `image_generation` 使用 Codex 订阅生图。图像模型由工具 `model` 参数逐次指定（内置目录含 GPT Image 2.5 的 `gpt-image-2.5-flare` 快速档与 `gpt-image-2.5-sunburst` 高质量档）。官方 Codex 对话模型仅作为 Responses carrier，两者不再混用。图片默认写入当前会话工作区的 `images/`，并附加到会话供模型后续查看。
-- 一个 Host 插件行、一个 Client Loader 模块：`@local/dsh-codex-supplement`。
+- 一个 Host 插件行、一个 Client Loader 模块：`@cningan/dsh-codex-supplement`。
 
 不包含 Grok、Claude、Antigravity、API-key 图片适配器或视频生成。
 
@@ -20,7 +20,7 @@
 ## 兼容性与安装
 
 - 基线：DSH `0.1.7-rc.1`；Node.js 22 或更新版本。
-- 这是供 DSH 本地插件目录加载的 `@local` bundle。`package.json` 声明 bundle patch 和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
+- 这是供 DSH 本地插件目录加载的 `@cningan` bundle。`package.json` 声明 bundle patch 和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
 - 不发布到 npm。GitHub 源码历史与之前 OAuth 仓库的历史分离，以免携带被 GitHub push protection 拒绝的未清理旧提交。
 
 ## 构建与测试

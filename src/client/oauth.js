@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: "@local/dsh-codex-supplement",
+  id: "@cningan/dsh-codex-supplement",
   factory: (require) => {
     var module = { exports: {} };
     var exports = module.exports;
@@ -552,7 +552,7 @@ window.__ModuleLoader__.load({
       const t = ctx.locale.bind("dsh-codex-supplement-auth");
       ctx.slots.inject("settings.section", () => ctx.slots.register({
         name: "settings.section",
-        id: "@local/dsh-codex-supplement-settings",
+        id: "@cningan/dsh-codex-supplement-settings",
         order: 12,
         label: () => t("oauthTitle"),
         inject: () => ({ t, media }),
@@ -564,7 +564,7 @@ window.__ModuleLoader__.load({
       ctx.inject(["slots", "modelDirectories"], (scope) => {
         scope.slots.inject("conversation.input.right", () => scope.slots.register({
           name: "conversation.input.right",
-          id: "@local/dsh-codex-supplement-fast-mode",
+          id: "@cningan/dsh-codex-supplement-fast-mode",
           order: 10,
           locale: "dsh-codex-supplement-auth",
           inject: (sessionId) => ({
@@ -574,7 +574,7 @@ window.__ModuleLoader__.load({
         // 对话输入框额度入口（照旧插件 QuotaButton：与 Fast 闪电并排，仅 codex 登录时显示有效额度）
         scope.slots.inject("conversation.input.right", () => scope.slots.register({
           name: "conversation.input.right",
-          id: "@local/dsh-codex-supplement-quota",
+          id: "@cningan/dsh-codex-supplement-quota",
           order: 11,
           locale: "dsh-codex-supplement-auth",
           inject: (sessionId) => ({

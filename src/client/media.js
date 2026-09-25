@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: "@local/dsh-codex-supplement",
+  id: "@cningan/dsh-codex-supplement",
   factory: (require) => {
     var module = { exports: {} };
     var exports = module.exports;

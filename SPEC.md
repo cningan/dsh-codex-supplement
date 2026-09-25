@@ -4,7 +4,7 @@ This is the canonical current specification and source-navigation map for the pa
 
 ## Purpose and scope
 
-Codex Supplement is one DeepSeek Harness local bundle, package identity @local/dsh-codex-supplement. It combines ChatGPT/Codex OAuth sign-in, subscription usage/quota, optional subscription web search, per-model Fast Mode, and Codex subscription image generation. It was consolidated from the former dsh-oauth and dsh-multimedia packages; the release record is in [CHANGELOG.md](CHANGELOG.md).
+Codex Supplement is one DeepSeek Harness local bundle, package identity @cningan/dsh-codex-supplement. It combines ChatGPT/Codex OAuth sign-in, subscription usage/quota, optional subscription web search, per-model Fast Mode, and Codex subscription image generation. It was consolidated from the former dsh-oauth and dsh-multimedia packages; the release record is in [CHANGELOG.md](CHANGELOG.md).
 
 The official DSH openai-codex provider owns Codex chat execution, chat-model IDs, and input/output/context capabilities. This package adds adjacent account and subscription features; it does not register a chat-completions adapter or maintain another chat-model catalog. The package is intended for a DSH local-plugin tree, targets the DSH 0.1.7-rc.1 baseline and Node.js 22+, and is not published to npm. See [README.md](README.md) for installation and maintenance commands, and [SECURITY.md](SECURITY.md) for security policy.
 
@@ -17,7 +17,7 @@ Out of scope are non-Codex OAuth providers, API-key image adapters, and video ge
 - [lib/media/index.js](lib/media/index.js) owns the image settings schema, capability route, and live image-tool registration. The tool is reconciled when volatile config changes.
 - [src/client/oauth.js](src/client/oauth.js) and [src/client/media.js](src/client/media.js) are the retained Client sources. [scripts/build-client.mjs](scripts/build-client.mjs) combines their factories into the single generated [lib/client.js](lib/client.js) Loader entry. The generated bundle is checked in; npm run check and prepack rebuild it.
 
-The merged Client has Loader identity @local/dsh-codex-supplement, one settings section with id @local/dsh-codex-supplement-settings, and package-prefixed Fast Mode/quota slot IDs. The settings section combines sign-in/account controls with subscription image controls; the settings shell currently supplies its generic gear icon. Normal chat-model configuration remains in the official Models → OpenAI Codex entry.
+The merged Client has Loader identity @cningan/dsh-codex-supplement, one settings section with id @cningan/dsh-codex-supplement-settings, and package-prefixed Fast Mode/quota slot IDs. The settings section combines sign-in/account controls with subscription image controls; the settings shell currently supplies its generic gear icon. Normal chat-model configuration remains in the official Models → OpenAI Codex entry.
 
 ## Observable behavior and contracts
 

@@ -1,4 +1,4 @@
 - insert:
     - id: codex-supplement
-      name: '@local/dsh-codex-supplement'
+      name: '@cningan/dsh-codex-supplement'
       config: {}

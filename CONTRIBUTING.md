@@ -4,7 +4,7 @@ Thanks for helping improve Codex Supplement.
 
 ## Scope
 
-- Keep this as one `@local/dsh-codex-supplement` bundle. Do not restore separate OAuth/media packages or non-Codex providers, generic API-key image adapters, or video support without a confirmed product requirement.
+- Keep this as one `@cningan/dsh-codex-supplement` bundle. Do not restore separate OAuth/media packages or non-Codex providers, generic API-key image adapters, or video support without a confirmed product requirement.
 - DSH's official `openai-codex` provider owns Codex chat. This plugin owns adjacent login, usage, search, Fast Mode, and subscription image-generation features.
 - Do not add credentials, tokens, account exports, Profile configuration, generated media, or plugin `data/*.json` files.
 - Update `SPEC.md` whenever a component moves, changes ownership, or is removed; keep current responsibilities in its source map and removed behavior in its regression-review list, with tests where appropriate.

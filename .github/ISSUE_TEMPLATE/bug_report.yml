@@ -9,7 +9,7 @@ body:
     id: package
     attributes:
       label: Package
-      description: "Codex Supplement (@local/dsh-codex-supplement)"
+      description: "Codex Supplement (@cningan/dsh-codex-supplement)"
     validations:
       required: true
   - type: input

@@ -9,7 +9,7 @@ A single DeepSeek Harness (`dsh`) bundle for Codex-only account and subscription
 - ChatGPT/Codex OAuth sign-in and logout, sharing the official `llm-pi-ai/openai-codex` credential record. The existing one-time migration from the legacy Codex secret store remains.
 - Codex subscription usage/quota presentation, optional Codex web search, and per-model Fast Mode.
 - Codex subscription image generation through the Responses `image_generation` tool. The image model is chosen per call by the tool's `model` argument, from a catalog of GPT Image ids — including the two GPT Image 2.5 tiers, `gpt-image-2.5-flare` (fast) and `gpt-image-2.5-sunburst` (quality). The official Codex chat model is only the Responses carrier, and the two are never conflated. Generated images are written to the current session workspace (default `images/`) and attached for later model inspection.
-- One Host plugin row and one Client Loader module: `@local/dsh-codex-supplement`.
+- One Host plugin row and one Client Loader module: `@cningan/dsh-codex-supplement`.
 
 Grok, Claude, Antigravity, API-key image adapters, and video generation are not included.
 
@@ -20,7 +20,7 @@ Open **Settings → Codex Subscription** to sign in, enable Codex search, view u
 ## Compatibility and installation
 
 - DSH `0.1.7-rc.1` baseline; Node.js 22 or newer.
-- This is an `@local` bundle intended for a DSH local-plugin source tree. Its `package.json` declares the bundle patch and combined web Client module. Install it through the DSH bundle/plugin manager after reviewing the package; package changes may require a Host restart. This package is not published to npm.
+- This is an `@cningan` bundle intended for a DSH local-plugin source tree. Its `package.json` declares the bundle patch and combined web Client module. Install it through the DSH bundle/plugin manager after reviewing the package; package changes may require a Host restart. This package is not published to npm.
 - The package is not published to npm. GitHub source history is maintained separately from the previous OAuth repository history to avoid carrying its rejected, unsanitized commits.
 
 ## Build and test

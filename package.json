@@ -1,5 +1,5 @@
 {
-  "name": "@local/dsh-codex-supplement",
+  "name": "@cningan/dsh-codex-supplement",
   "version": "0.2.0",
   "description": "Codex sign-in, usage, search, Fast Mode, and subscription image generation for DeepSeek Harness.",
   "type": "module",

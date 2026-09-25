@@ -26,7 +26,7 @@ for (const module of modules) {
 }
 
 const output = `window.__ModuleLoader__.load({
-  id: "@local/dsh-codex-supplement",
+  id: "@cningan/dsh-codex-supplement",
   factory: (require) => {
     const createCodexOAuth = (require) => {${factories[0].body}\n    };
     const createCodexMedia = (require) => {${factories[1].body}\n    };
