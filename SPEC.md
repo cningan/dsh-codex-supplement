@@ -118,7 +118,7 @@ Fast Mode 与搜索状态不会从原插件自动迁移。共享的官方 creden
 | [docs/adr/0001-separate-responses-carrier-from-image-model.md](docs/adr/0001-separate-responses-carrier-from-image-model.md) | 关于 carrier/图像模型边界的已接受决策记录。 |
 | [CONTEXT.md](CONTEXT.md) | 四个图像/聊天模型概念的共享词汇表。 |
 | [CHANGELOG.md](CHANGELOG.md) | 带日期的发布历史与兼容性观察。 |
-| [README.md](README.md) | 面向用户的目的、安装、行为与维护总览。 |
+| [README.md](README.md) / [README.zh.md](README.zh.md) | 面向用户的目的、安装、行为与维护总览（英文主文档 + 中文镜像）。 |
 | [CONTRIBUTING.md](CONTRIBUTING.md)、[docs/release.md](docs/release.md) 与 [SECURITY.md](SECURITY.md) | 贡献、交接与安全指引。 |
 
 对于图像生成相关改动，还请阅读[功能说明](docs/image-generation.md)与 [ADR 0001](docs/adr/0001-separate-responses-carrier-from-image-model.md)。包的使用与命令请从 [README.md](README.md) 开始。
