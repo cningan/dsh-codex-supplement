@@ -1,9 +1,9 @@
-# Code of Conduct
+# 行为准则
 
-We are committed to a welcoming, respectful, and harassment-free community for everyone.
+我们致力于为每个人营造一个友好、互相尊重、杜绝骚扰的社区。
 
-Be considerate and constructive. Respect differing viewpoints and experience. Accept responsibility for mistakes and work to repair their impact. Unacceptable behavior includes harassment, discrimination, personal attacks, doxxing, and publishing another person's private information without consent.
+请体贴且有建设性。尊重不同的观点与经验。为自己的错误承担责任并努力修复其影响。不可接受的行为包括骚扰、歧视、人身攻击、人肉搜索，以及未经同意公开他人的隐私信息。
 
-Maintainers may remove, edit, or reject contributions that violate this code and may temporarily or permanently restrict participation. Report a concern privately using the channel described in [SECURITY.md](SECURITY.md); do not include sensitive details in a public issue.
+维护者可以移除、编辑或拒绝违反本准则的贡献，并可能临时或永久限制参与资格。如有疑虑，请使用 [SECURITY.md](SECURITY.md) 中描述的渠道私下报告；不要把敏感细节写进公开 issue。
 
-This code applies in project spaces and when someone is representing the project in public.
+本准则适用于项目空间内，以及任何人在公开场合代表本项目的场景。

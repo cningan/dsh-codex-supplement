@@ -1,33 +1,33 @@
-name: Bug report
-description: Report a reproducible plugin issue
+name: Bug 报告
+description: 报告可复现的插件问题
 labels: [bug]
 body:
   - type: markdown
     attributes:
-      value: Do not include credentials, tokens, account identifiers, or private Profile files.
+      value: 请不要包含凭据、token、账户标识或私有 Profile 文件。
   - type: input
     id: package
     attributes:
-      label: Package
+      label: 包
       description: "Codex Supplement (@cningan/dsh-codex-supplement)"
     validations:
       required: true
   - type: input
     id: versions
     attributes:
-      label: DSH and plugin versions
+      label: DSH 与插件版本
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Steps to reproduce
+      label: 复现步骤
       render: text
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Expected and actual behavior
+      label: 预期行为与实际行为
     validations:
       required: true

@@ -1,10 +1,10 @@
-## Summary
+## 摘要
 
 -
 
-## Validation
+## 验证
 
 - [ ] `npm run check`
 - [ ] `npm test`
-- [ ] Reviewed package packlist if manifest/files changed
-- [ ] Confirmed no credentials, Profile state, generated output, or runtime data was added
+- [ ] 若 manifest/files 有变动，已检查包 packlist
+- [ ] 已确认未添加任何凭据、Profile 状态、生成输出或运行期数据

@@ -1,17 +1,17 @@
-# Codex Image Generation Context
+# Codex 图像生成上下文
 
-This glossary defines the model concepts used in the Codex subscription image-generation capability. It exists to prevent the shared word “model” from collapsing distinct user choices.
+本词汇表定义 Codex 订阅图像生成能力中使用的模型概念。它存在是为了防止共享词 “model” 把不同的用户选择混为一谈。
 
-## Language
+## 术语
 
-**Codex chat-model selection**: The model choice for the Codex conversation that requests the image capability.
-_Avoid_: Image model, carrier (these are related but distinct concepts).
+**Codex 聊天模型选择（Codex chat-model selection）**：发起图像能力请求的 Codex 对话所选择的模型。
+_避免_：图像模型、carrier（这些是相关但不同的概念）。
 
-**Responses carrier**: The Codex conversation model that carries an image-generation request; it is not the engine that creates the image.
-_Avoid_: Image model.
+**Responses carrier**：携带图像生成请求的 Codex 对话模型；它不是创建图像的引擎。
+_避免_：图像模型。
 
-**Image model**: The model choice that generates or edits the image requested through the Codex capability.
-_Avoid_: Chat model, carrier.
+**图像模型（Image model）**：通过该 Codex 能力生成或编辑所请求图像的模型选择。
+_避免_：聊天模型、carrier。
 
-**Image quality**: A generation-quality tier that affects the requested image result without selecting a different chat or image model.
-_Avoid_: Model, image model.
+**图像质量（Image quality）**：影响所请求图像结果的生成质量档位，而不切换不同的聊天或图像模型。
+_避免_：模型、图像模型。

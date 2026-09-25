@@ -1,7 +1,7 @@
-# Security Policy
+# 安全策略
 
-Never publish OAuth credentials, access/refresh tokens, account identifiers, Profile configuration, session files, generated media, or plugin runtime `data/` contents in issues, pull requests, logs, or screenshots.
+绝不要在 issue、pull request、日志或截图中发布 OAuth 凭据、access/refresh token、账户标识、Profile 配置、会话文件、生成的媒体或插件运行期 `data/` 内容。
 
-If you find a vulnerability, do not file exploit details publicly. Use GitHub's private vulnerability reporting for this repository if enabled; otherwise contact the maintainer through an existing private channel with only the minimum information needed to reproduce the issue. Confirm the private reporting channel before sharing sensitive material.
+如果你发现漏洞，不要公开披露利用细节。若本仓库已启用 GitHub 私有漏洞报告，请使用它；否则通过现有私有渠道联系维护者，只提供复现问题所需的最少信息。分享敏感材料前，先确认私有报告渠道。
 
-The project does not request users to upload credential files. Sanitize logs and reproductions before sharing them. The Codex credential-record adapter is intended to use DSH's official shared record and never logs token values.
+本项目不会要求用户上传凭据文件。分享前请先脱敏日志与复现材料。Codex credential-record adapter 打算使用 DSH 官方共享记录，绝不在日志中记录 token 值。

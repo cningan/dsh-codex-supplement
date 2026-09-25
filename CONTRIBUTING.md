@@ -1,17 +1,17 @@
-# Contributing
+# 贡献指南
 
-Thanks for helping improve Codex Supplement.
+感谢您帮助改进 Codex Supplement。
 
-## Scope
+## 范围
 
-- Keep this as one `@cningan/dsh-codex-supplement` bundle. Do not restore separate OAuth/media packages or non-Codex providers, generic API-key image adapters, or video support without a confirmed product requirement.
-- DSH's official `openai-codex` provider owns Codex chat. This plugin owns adjacent login, usage, search, Fast Mode, and subscription image-generation features.
-- Do not add credentials, tokens, account exports, Profile configuration, generated media, or plugin `data/*.json` files.
-- Update `SPEC.md` whenever a component moves, changes ownership, or is removed; keep current responsibilities in its source map and removed behavior in its regression-review list, with tests where appropriate.
+- 保持它作为单一 `@cningan/dsh-codex-supplement` bundle。在没有确认的产品需求时，不要恢复分离的 OAuth/媒体包，也不要加入非 Codex provider、通用 API-key 图像 adapter 或视频支持。
+- DSH 官方 `openai-codex` provider 拥有 Codex 聊天。本插件拥有相邻的登录、用量、搜索、Fast Mode 与订阅图像生成功能。
+- 不要添加凭据、token、账户导出、Profile 配置、生成的媒体或插件 `data/*.json` 文件。
+- 每当组件移动、所有权变更或被移除时更新 `SPEC.md`；把当前职责留在其源码地图中，被移除的行为放进回归审查清单，并在适当之处补上测试。
 
-## Checks
+## 检查
 
-Node.js 22 or newer is required. The unit/syntax checks use built-in Node facilities:
+需要 Node.js 22 或更新版本。单元/语法检查使用 Node 内置设施：
 
 ```sh
 npm run check
@@ -19,8 +19,8 @@ npm test
 npm pack --dry-run
 ```
 
-`npm run check` regenerates the combined Client module and validates JavaScript syntax. Inspect the `npm pack --dry-run` file list before any package handoff; it does not publish.
+`npm run check` 会重新生成合并后的 Client 模块并校验 JavaScript 语法。任何包交接前都先查看 `npm pack --dry-run` 的文件清单；它不会发布。
 
-## Profile safety and releases
+## Profile 安全与发布
 
-Do not install into, modify, or restart a user's active Profile as part of routine development. Profile installation, a live profile check, GitHub publication, and npm publishing are separate actions requiring explicit authorization. There is no automated publish workflow.
+例行开发中不要安装、修改或重启用户的活动 Profile。Profile 安装、真实 Profile 检查、GitHub 发布与 npm 发布是彼此独立的动作，都需要明确授权。本仓库没有自动化发布流程。
