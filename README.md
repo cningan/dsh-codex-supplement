@@ -43,6 +43,6 @@ npm pack --dry-run
 - **Verified on a live subscription (2026-09-24):** the Codex subscription endpoint accepts `image_generation.model`; `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst` each produced a PNG through the tool. The endpoint still publishes no schema, so a future tightening is possible: a rejection is surfaced with its status code and model id, and the plugin never silently substitutes another model.
 - Legacy plugin data is not copied automatically; preserve it outside the active plugin tree before removing the former plugin directories. No npm package is published.
 
-Before changing subscription image-generation request fields, model selection, or compatibility claims, read the [package specification and code map](SPEC.md), [image-generation architecture note](docs/image-generation.md), and [ADR 0001](docs/adr/0001-separate-responses-carrier-from-image-model.md).
+Before changing subscription image-generation request fields, model selection, or compatibility claims, read the [package specification](SPEC.md), [image-generation architecture note](docs/image-generation.md), and [ADR 0001](docs/adr/0001-separate-responses-carrier-from-image-model.md).
 
-See [SPEC.md](SPEC.md) for current contracts and source responsibilities, plus [SECURITY.md](SECURITY.md) and [docs/release.md](docs/release.md).
+See [SPEC.md](SPEC.md) for current contracts, plus [SECURITY.md](SECURITY.md) and [docs/release.md](docs/release.md).

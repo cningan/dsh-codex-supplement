@@ -40,7 +40,7 @@ OpenAI Python SDK 生成的 Responses `ImageGeneration` 工具类型暴露了工
 
 ## 参考
 
-- [包规格与代码地图](../SPEC.md)
+- [包规格](../SPEC.md)
 - [面向用户的包 README](../README.md)
 - [图像生成工具 schema](../lib/media/image-tool-schema.mjs)
 - [模型目录](../lib/media/image-models.mjs)

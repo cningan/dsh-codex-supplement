@@ -43,6 +43,6 @@ npm pack --dry-run
 - **已在真实订阅上实证（2026-09-24）**：订阅端点**接受** `image_generation.model`——`gpt-image-2.5-flare` 与 `gpt-image-2.5-sunburst` 各通过工具出图一次。但端点仍无公开 schema（官方契约取自 API-key SDK），将来收紧仍有可能：被拒绝时插件原样报出状态码与模型 id，**不会静默换用别的模型**。
 - 旧插件数据不会自动复制；移除旧插件目录前，应先将数据保存在活动插件目录之外。本包不发布 npm。
 
-修改订阅生图请求字段、模型选择或兼容性判断前，请先读[插件规格与代码地图](SPEC.md)、[image-generation architecture note](docs/image-generation.md) 和 [ADR 0001](docs/adr/0001-separate-responses-carrier-from-image-model.md)。
+修改订阅生图请求字段、模型选择或兼容性判断前，请先读[插件规格](SPEC.md)、[image-generation architecture note](docs/image-generation.md) 和 [ADR 0001](docs/adr/0001-separate-responses-carrier-from-image-model.md)。
 
-当前行为契约和关键文件职责见 [SPEC.md](SPEC.md)；安全说明见 [SECURITY.md](SECURITY.md)，开发与发布边界见 [docs/release.md](docs/release.md)。
+当前行为契约见 [SPEC.md](SPEC.md)；安全说明见 [SECURITY.md](SECURITY.md)，开发与发布边界见 [docs/release.md](docs/release.md)。
