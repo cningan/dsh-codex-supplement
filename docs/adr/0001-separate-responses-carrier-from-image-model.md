@@ -13,7 +13,7 @@ OpenAI Python SDK 生成的 Responses 图像工具类型暴露了工具级字段
 
 保持三个请求概念相互独立：
 
-1. Responses carrier 只从官方 DSH OpenAI Codex 的当前选择获取；仅当该选择不可用时，才使用 adapter 的代码自带 fallback。
+1. Responses carrier 固定为本插件拥有的 ChatGPT-account 模型 `gpt-5.6-sol`；不读取官方聊天模型选择。2026-11-09 修订：此前读取官方选择会把 API-only 的 `gpt-5.5` 发给 ChatGPT 账号并得到 400“not supported”，因此 carrier 来源改为插件自有常量。
 2. 图像模型只从包选定的图像模型列表获取，允许的单次覆盖也只能来自该列表；只写入 `image_generation.model`。
 3. 保持 `quality` 为独立的工具控件，带自己的缺省与单次覆盖。绝不要把质量档编码成模型 ID，也不要从 carrier 推断图像模型。
 

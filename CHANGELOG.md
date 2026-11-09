@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.4.3 — 修复 ChatGPT 账号的 carrier 400
+
+- 修复试生图 400：`The 'gpt-5.5' model is not supported when using Codex with a ChatGPT account`。顶层 Responses carrier 不再读取官方聊天模型选择，固定为 ChatGPT 账号可用的 `gpt-5.6-sol`；`gpt-5.5` 是 API-only 模型。
+- 设置页新增自定义导航图标，生图卡片增加模型行边框、统一图标按钮与可滚动的错误框；插件图标重绘渐变与高光。
+- 收紧试生图错误展示，长错误不再撑开整页。
+
 ## 0.4.2 — 每模型缺省与显示元数据校正
 
 - 完成 per-model 配置链：`defaultImageModel` 显式默认、`imageModelDefaults[model]` 保存每个模型的 quality/complexity；工具、试生图与 `/capabilities` 共用同一解析，显式非法档位本地拒绝。

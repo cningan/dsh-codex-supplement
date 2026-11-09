@@ -359,6 +359,25 @@ window.__ModuleLoader__.load({
 
       const label = { color: "var(--dsw-alias-label-secondary)", fontSize: 12 };
       const muted = { color: "var(--dsw-alias-label-tertiary)", fontSize: 11 };
+      const iconButton = {
+        ...buttonStyle,
+        width: 26,
+        height: 26,
+        minHeight: 26,
+        padding: 0,
+        display: "grid",
+        placeItems: "center",
+        borderRadius: 7,
+      };
+      const rowShell = {
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+        padding: "7px 8px",
+        border: "1px solid var(--dsw-alias-border-l2)",
+        borderRadius: 9,
+        background: "var(--dsw-alias-bg-layer-2, var(--dsw-alias-bg-layer-1))",
+      };
 
       const rows = list.map((value, index) => {
         const choice = catalog.find((item) => item.id === value);
@@ -404,8 +423,7 @@ window.__ModuleLoader__.load({
             disabled: busy || !writable || value.length === 0,
             onClick: () => void mutate([["defaultImageModel", value]]),
             style: {
-              ...buttonStyle,
-              padding: "2px 7px",
+              ...iconButton,
               color: isDefault ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-secondary)",
               cursor: busy || !writable || value.length === 0 ? "default" : "pointer",
             },
@@ -416,7 +434,7 @@ window.__ModuleLoader__.load({
             "aria-label": t("modelSettings"),
             "aria-expanded": expandedModel === value,
             onClick: () => setExpandedModel(expandedModel === value ? null : value),
-            style: { ...buttonStyle, padding: "2px 7px" },
+            style: { ...iconButton },
           }, "⚙"),
           h("button", {
             type: "button",
@@ -424,12 +442,12 @@ window.__ModuleLoader__.load({
             "aria-label": t("remove"),
             disabled: busy || !writable,
             onClick: () => void commit(list.filter((_, position) => position !== index)),
-            style: { ...buttonStyle, cursor: busy || !writable ? "default" : "pointer" },
+            style: { ...iconButton, cursor: busy || !writable ? "default" : "pointer" },
           }, "✕"));
-        if (expandedModel !== value) return row;
-        return h("div", { key: `row-${index}-wrap`, style: { display: "flex", flexDirection: "column", gap: 6 } },
+        if (expandedModel !== value) return h("div", { key: `row-${index}-wrap`, style: rowShell }, row);
+        return h("div", { key: `row-${index}-wrap`, style: rowShell },
           row,
-          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "6px 10px", borderRadius: 8, background: "var(--dsw-alias-bg-layer-2, var(--dsw-alias-bg-layer-1))" } },
+          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "6px 8px", borderRadius: 7, border: "1px solid var(--dsw-alias-border-l2)", background: "var(--dsw-alias-bg-layer-1)" } },
             h("span", { style: label }, t("quality")),
             h("select", {
               value: profile.defaults?.quality ?? "auto",
@@ -622,7 +640,22 @@ window.__ModuleLoader__.load({
                 ? h("div", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 11, wordBreak: "break-word" } }, `${t("testEffective")}: ${JSON.stringify(testResult.effective)}`)
                 : h("div", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 11 } }, t("testNoEffective")))
               : null,
-            testResult.error ? h("pre", { style: { margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", color: "var(--dsw-alias-state-error-primary)", fontSize: 11 } }, testResult.error) : null,
+            testResult.error ? h("pre", {
+              style: {
+                margin: 0,
+                maxHeight: 180,
+                overflow: "auto",
+                padding: "8px 10px",
+                border: "1px solid color-mix(in srgb, var(--dsw-alias-state-error-primary) 30%, var(--dsw-alias-border-l2))",
+                borderRadius: 7,
+                background: "var(--dsw-alias-bg-layer-1)",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                color: "var(--dsw-alias-state-error-primary)",
+                fontSize: 11,
+                lineHeight: 1.5,
+              },
+            }, testResult.error) : null,
             ...(Array.isArray(testResult.images)
               ? testResult.images.map((image, index) => image.dataUrl
                 ? h("img", {
@@ -646,10 +679,26 @@ window.__ModuleLoader__.load({
     }
 
     function CodexImageSection({ t, configScope }) {
-      return h("div", { style: { display: "flex", flexDirection: "column", gap: 8, marginTop: 4, paddingTop: 16, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
-        h("div", { style: { display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" } },
-          h("h4", { style: { margin: 0, color: "var(--dsw-alias-label-primary)", fontSize: 16, fontWeight: 600 } }, t("title")),
-          h("span", { style: { color: "var(--dsw-alias-label-tertiary)", fontSize: 11 } }, t("subtitle"))),
+      return h("div", { style: { display: "flex", flexDirection: "column", gap: 10, marginTop: 4, paddingTop: 16, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
+        h("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+          h("span", {
+            "aria-hidden": "true",
+            style: {
+              width: 28,
+              height: 28,
+              flex: "none",
+              display: "grid",
+              placeItems: "center",
+              borderRadius: 8,
+              border: "1px solid color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, var(--dsw-alias-border-l2))",
+              background: "color-mix(in srgb, var(--dsw-alias-brand-primary) 8%, var(--dsw-alias-bg-layer-1))",
+              color: "var(--dsw-alias-brand-primary)",
+              fontSize: 15,
+            },
+          }, "✦"),
+          h("div", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 } },
+            h("h4", { style: { margin: 0, color: "var(--dsw-alias-label-primary)", fontSize: 15, fontWeight: 600 } }, t("title")),
+            h("span", { style: { color: "var(--dsw-alias-label-tertiary)", fontSize: 11 } }, t("subtitle")))),
         h(CodexImageSettings, { t, configScope }),
       );
     }

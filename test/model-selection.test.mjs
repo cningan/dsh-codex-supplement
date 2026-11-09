@@ -5,7 +5,6 @@ import {
   LEGACY_MANAGED_IMAGE_CHOICE,
   assertCodexImageAdapter,
   legacySelectionState,
-  resolveCarrierModel,
   resolveDefaultImageModel,
   resolveImageModelForRequest,
   resolveModelProfile,
@@ -122,14 +121,6 @@ test('resolveModelProfile keeps defaults inside the selected model capability', 
   assert.equal('complexity' in older, false)
   assert.deepEqual(older.complexityOptions, [])
   assert.ok(older.qualityOptions.includes('max'))
-})
-
-test('the carrier is resolved separately from the image model', () => {
-  assert.equal(resolveCarrierModel({ officialCodexDefaultModel: 'gpt-6-luna' }), 'gpt-6-luna')
-  assert.equal(resolveCarrierModel({ officialCodexDefaultModel: '' }), undefined)
-  assert.equal(resolveCarrierModel({ officialCodexDefaultModel: 42 }), undefined)
-  // 图像模型 id 永远不该变成 carrier
-  assert.equal(resolveCarrierModel({ officialCodexDefaultModel: LEGACY_MANAGED_IMAGE_CHOICE }), LEGACY_MANAGED_IMAGE_CHOICE)
 })
 
 test('unsupported adapters are rejected before any request', () => {

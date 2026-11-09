@@ -333,6 +333,30 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function CodexSettingsIcon({ size = 16, active = false }) {
+      return h("svg", {
+        width: size,
+        height: size,
+        viewBox: "0 0 16 16",
+        fill: "none",
+        "aria-hidden": "true",
+        style: { display: "block" },
+      },
+        h("path", {
+          d: "M7.4 1.8c.5 2.7 1.15 3.35 3.85 3.85-2.7.5-3.35 1.15-3.85 3.85-.5-2.7-1.15-3.35-3.85-3.85 2.7-.5 3.35-1.15 3.85-3.85Z",
+          stroke: "currentColor",
+          strokeWidth: 1.35,
+          strokeLinejoin: "round",
+          fill: active ? "currentColor" : "none",
+          fillOpacity: active ? 0.14 : 0,
+        }),
+        h("circle", { cx: 12.9, cy: 3.7, r: 1.15, fill: "currentColor" }),
+        h("path", {
+          d: "M12.2 9.6c.2 1.15.5 1.45 1.65 1.65-1.15.2-1.45.5-1.65 1.65-.2-1.15-.5-1.45-1.65-1.65 1.15-.2 1.45-.5 1.65-1.65Z",
+          fill: "currentColor",
+        }));
+    }
+
     function OAuthSection({ t, media }) {
       return h("div", { style: { display: "flex", flexDirection: "column", gap: 14 } },
         h("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
@@ -578,6 +602,11 @@ window.__ModuleLoader__.load({
         label: () => t("oauthTitle"),
         inject: () => ({ t, media }),
       }, OAuthSection));
+      ctx.slots.inject("settings.section.icon", () => ctx.slots.register({
+        name: "settings.section.icon",
+        id: "@cningan/dsh-codex-supplement-settings",
+        order: 12,
+      }, CodexSettingsIcon));
       // 对话输入框右侧 Fast mode 按钮：照旧插件经 modelDirectories 拿当前会话的模型选择
       // （provider/model 在 directory store 的 current 上；服务由 dsh-client-ui-model-selection
       // 提供，缺失时整段不激活——Fast mode 是增强，不让它阻塞设置区）。只在 codex 对话渲染

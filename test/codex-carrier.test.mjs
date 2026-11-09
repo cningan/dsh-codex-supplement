@@ -21,12 +21,12 @@ async function submit(extra = {}, response) {
   return { payload, result }
 }
 
-test('the Responses carrier falls back to the known-good chat model', async () => {
+test('the Responses carrier defaults to a ChatGPT-account model', async () => {
   const { payload, result } = await submit()
-  assert.equal(DEFAULT_RESPONSES_MODEL, 'gpt-5.5')
-  assert.equal(payload.model, 'gpt-5.5')
+  assert.equal(DEFAULT_RESPONSES_MODEL, 'gpt-5.6-sol')
+  assert.equal(payload.model, 'gpt-5.6-sol')
   assert.equal(payload.tools[0].type, 'image_generation')
-  assert.equal(result.carrierModel, 'gpt-5.5')
+  assert.equal(result.carrierModel, 'gpt-5.6-sol')
 })
 
 test('an explicit carrier is used for the top-level model only', async () => {

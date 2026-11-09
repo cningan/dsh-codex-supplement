@@ -17,17 +17,17 @@
 | 概念 | 属主与请求位置 | 含义 |
 |---|---|---|
 | DSH Codex 聊天模型选择 | 官方 DSH `openai-codex` provider 与 Models UI | 拥有对话模型标识及其输入/输出能力。本插件不维护第二套聊天模型目录。 |
-| Responses carrier | 顶层 Responses 请求字段 `model` | 携带请求/工具调用的 Codex 对话模型。当前官方 Codex 选择提供它；若该选择不可用，adapter 有代码自带的 fallback。它不是图像引擎。 |
+| Responses carrier | 顶层 Responses 请求字段 `model` | 携带请求/工具调用的 Codex 对话模型。本插件固定为 ChatGPT 账号可用的 `gpt-5.6-sol`；它不是图像引擎，也不跟随官方聊天模型选择。 |
 | 图像生成模型 | 托管 `image_generation` 工具内部的 `model` | 为本次工具调用选择图像引擎。它来自插件选定的图像模型列表，或允许的单次覆盖。 |
 | 图像质量 | `image_generation` 内部的 `quality` | 独立的生成控件，缺省为 `auto`，除非另有配置或覆盖。它既不是聊天模型也不是图像模型 ID。 |
 | 场景复杂度 | `image_generation` 内部的 `complexity` | GPT Image 2.6 起的规划强度（low / medium / high），与渲染质量解耦；省略 = 模型默认。 |
 
-`model` 这个词出现在两个不同的请求对象中。其角色来自来源与位置，而不是 ID 的拼写：carrier 取自官方 Codex 选择，写在请求顶层；图像模型取自本包的图像选择，写在工具声明内部。不要把图像 ID 挪进顶层字段，不要从 carrier 推导图像引擎，也不要把图像模型名换算成质量值。
+`model` 这个词出现在两个不同的请求对象中。其角色来自来源与位置，而不是 ID 的拼写：carrier 由本插件固定为 `gpt-5.6-sol`，写在请求顶层；图像模型取自本包的图像选择，写在工具声明内部。不要把图像 ID 挪进顶层字段，不要从 carrier 推导图像引擎，也不要把图像模型名换算成质量值。
 
 ## 请求与输出流程
 
 1. `codex-supplement` base row 提供 `openaiCodexAuth` 与设置页；`codex-supplement-image` 行（`lib/media/index.js`）拥有生图启用标志、模型清单、显式默认模型、每个模型的 quality/complexity 缺省与输出目录设置。base 行上的旧媒体字段仍通过校验，但不再覆盖 image 行。
-2. `lib/media/image-tool.js` 把当前官方 Codex 选择解析为 carrier，并独立地把请求的图像模型对照选定的允许清单解析。请求未选定的图像模型会被拒绝并列合法值；代码不会静默选择替身。
+2. `lib/media/image-tool.js` 使用固定的 ChatGPT-account carrier，并独立地把请求的图像模型对照选定的允许清单解析。请求未选定的图像模型会被拒绝并列合法值；代码不会静默选择替身。
 3. `lib/media/adapters/openai-codex.js` 构造 Responses 请求，其顶层 `model` 是 carrier，`tools` 项是 `image_generation`。图像模型只写入该工具的 `model` 字段；quality、complexity、size、action、background、输出格式、压缩、审核、输入保真、部分图、GIF 帧与遮罩仍是工具级控件。
 4. adapter 解析返回的图像生成事件与 `image_generation_call` 上的实际字段（`effective`）。执行/输出层保存图像字节，并通过工具结果与附件处理返回路径/元数据。
 5. 试生图路由复用第 2–4 步，但不经过工具注册/工作区写入；它把 `requested`、`effective`、耗时与预览直接回给设置页。
