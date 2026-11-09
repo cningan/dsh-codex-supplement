@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.5.2 — 修复 Images JSON 响应解析并补成功链路测试
+
+- 修复一个会直接导致付费账号“请求成功但无图片”的问题：专有 Images 端点返回普通 JSON，旧代码却按 Responses 的 SSE 流解析。现在 Images 请求单独走 `res.json()`。
+- 新增真实本地 HTTP mock 集成测试，覆盖设置页请求字段 → 路由解析 → adapter → `/codex/images/generations` 请求 → `data[].b64_json` 图片与 `effective` 字段解析。
+- 测试保留三类证据：成功 JSON、非 SSE 解析、403 套餐错误。
+
 ## 0.5.1 — 设置页文案与 Images lane 对齐
 
 - 设置页不再显示 `complexity` 提示；副标题改为 Codex Images API，模型缺省只编辑 quality。

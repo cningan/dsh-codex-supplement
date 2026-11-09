@@ -66,7 +66,7 @@
 ## 测试决策
 
 - **测试约定**：只测外部行为契约（工具 schema 形状、Images 请求/响应、允许清单/缺省解析、凭据映射、proxy 目标规则），不安装包、不读取 Profile 数据。
-- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、Codex Images 请求与响应、403 套餐文案、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、PNG/GIF、没有已死的 `aspectRatio` 与 hosted-tool 字段）、试生图请求解析与预览上限、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
+- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、Codex Images 请求与响应、真实本地 HTTP mock 的成功链路（设置页请求 → 路由解析 → adapter → JSON 图片解析）、403 套餐文案、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、PNG/GIF、没有已死的 `aspectRatio` 与 hosted-tool 字段）、试生图请求解析与预览上限、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
 - **命令**：`npm test` 跑离线测试；`npm run check` 重建 Client 并做 Host/Client/脚本/测试的语法检查；`npm pack --dry-run` 只审阅发布文件清单，不发布。
 - **验证边界**：Fast Mode、旧凭据迁移与真实订阅生图未在普通测试中验证；真实运行态验证必须单独做，不能以离线测试或设置自检代替。
 

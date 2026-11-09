@@ -38,7 +38,7 @@ Codex Images 端点实际接受 `model` / `size` / `quality` / `background` / `n
 4. adapter 解析 `data[].b64_json` 与顶层 `effective` 字段。执行/输出层保存图像字节，并通过工具结果与附件处理返回路径/元数据。
 5. 试生图路由复用第 2–4 步，但不经过工具注册/工作区写入；它把 `requested`、`effective`、耗时与预览直接回给设置页。
 
-外部行为由 `test/codex-carrier.test.mjs` 断言（Images 生成/编辑请求、403 文案、宿主字段拒绝）；允许清单/缺省解析由 `test/model-selection.test.mjs` 覆盖；面向用户的工具契约由 `test/image-tool-schema.test.mjs` 覆盖。
+外部行为由 `test/codex-carrier.test.mjs` 断言（Images 生成/编辑请求、403 文案、宿主字段拒绝），并由 `test/codex-images-integration.test.mjs` 用本地真实 HTTP mock 跑通“设置页请求 → 路由解析 → adapter → JSON 图片解析”的成功链路；允许清单/缺省解析由 `test/model-selection.test.mjs` 覆盖；面向用户的工具契约由 `test/image-tool-schema.test.mjs` 覆盖。
 
 ## 兼容性证据与边界
 
