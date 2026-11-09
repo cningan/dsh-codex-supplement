@@ -8,7 +8,7 @@
 
 - ChatGPT/Codex OAuth 登录与退出，共用 DSH 官方 `llm-pi-ai/openai-codex` credential record；保留旧 Codex secret store 的一次性迁移。
 - Codex 订阅用量/额度展示、可选 Codex 网络搜索，以及按模型启用的 Fast Mode。
-- 通过 Responses `image_generation` 使用 Codex 订阅生图。图像模型由工具 `model` 参数逐次指定；内置目录以 GPT Image 2.6 Flare / Sunburst 为首，随后是 2.5（含带日期快照）与前代 id。2.6 增加规划复杂度 `complexity`、GIF/SVG 输出、遮罩与帧控制，工具 schema 会按已勾选模型的能力位裁剪。Responses carrier 固定为 ChatGPT 账号可用的 `gpt-5.6-terra`，不跟随官方聊天模型，也不与图像模型混用。ChatGPT Free 不包含这条 Codex 生图通道；插件在发请求前识别 `planType: free` 并显示可操作的套餐提示。图片默认写入当前会话工作区的 `images/`，并附加到会话供模型后续查看。
+- 通过 Codex 专有的 Images 端点（`/backend-api/codex/images/generations` 与 `/images/edits`）使用订阅生图。图像模型由工具 `model` 参数逐次指定；内置目录以 GPT Image 2.6 Flare / Sunburst 为首，随后是 2.5（含带日期快照）与前代 id。Codex OAuth 通道接受 `model` / `size` / `quality` / `background` 与 PNG/GIF；`complexity`、`xhigh`/`max`、SVG/WebP/JPEG 与遮罩只属于开放 API。ChatGPT Free 会被端点以 HTTP 403 拒绝；缓存到套餐信息时插件会提前拦截。图片默认写入当前会话工作区的 `images/`，并附加到会话供模型后续查看。
 - 一个包、三个组件行：裸包名 `codex-supplement` 是 base（OAuth 登录、用量、Fast Mode、日志与合并后的 Client 设置页）；`codex-supplement-image` 承载生图工具与试生图路由；`codex-supplement-search` 承载 Codex 搜索 provider。base 必须用裸包名，因为 `dsh-client-modules` 只对裸包名 row 发现 Client 模块；image/search 行依赖 base 提供的 `openaiCodexAuth` 服务。
 
 不包含 Grok、Claude、Antigravity、API-key 图片适配器或视频生成。
@@ -42,11 +42,11 @@ npm pack --dry-run
 
 - 启用 Codex 搜索会把 DSH `web` provider 切换为 `openai-codex`，方式是在活动 Profile 的 `cordis.patch.yml` 写入带标记的块。关闭时只移除插件管理的标记块，不改动手写的 `web` override。启用前请先确认这一副作用符合预期。
 - 官方 Codex credential record 与旧 token 的一次性迁移保留。Fast Mode/搜索状态仍保存在插件自己的 `data/` 目录，不会从旧插件自动迁移。旧的自定义模型清单不再读取；请在官方 **Models → OpenAI Codex** 项配置模型。
-- 生图工具只有一个：`codex-generate-image`。参数与开放 API 的 `image_generation` 字段一一对应：`prompt`、`model`、`image`、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，以及 2.6 GIF 用的 `frames` / `frame_duration_ms`。当没有任何已勾选模型声明对应能力时，`complexity` / `gif` / `svg` / 帧字段会从工具 schema 中消失。它的 `model` 参数从设置页清单取值，缺省用显式默认模型；请求清单外的模型，或当前模型不支持的 quality/complexity，会被拒绝并列出合法值。旧配置里的 `codex-managed-image` 选择在读取时一次性迁移，该哨兵绝不会再发给上游。
-- **已在真实订阅上实证（2026-09-24）**：订阅端点接受 `image_generation.model`——`gpt-image-2.5-flare` 与 `gpt-image-2.5-sunburst` 各通过工具出图一次。**独立证据（2026-11-06，openai/codex#59890）**：OAuth `/backend-api/codex/images/*` lane 会忽略 `model` / `complexity` / `size` 与 SVG 格式，并以 400 拒绝 GIF。本包走 Responses hosted-tool lane，行为可能相同；试生图会如实显示结果，被拒绝时原样报出状态码与模型 id，**不会静默换用别的模型**。
+- 生图工具只有一个：`codex-generate-image`。参数与 Codex Images 端点一致：`prompt`、`model`、`image`（编辑）、`size`、`quality`、`background`、`action`、`output_format`（png/gif，gif 仅 2.6），以及 GIF 用的 `frames` / `frame_duration_ms`。`complexity`、`xhigh`/`max`、SVG/WebP/JPEG、遮罩与压缩不被该 lane 接受，已从 schema 移除。它的 `model` 参数从设置页清单取值，缺省用显式默认模型；请求清单外的模型，或当前 lane 不支持的 quality/format，会被拒绝并列出合法值。旧配置里的 `codex-managed-image` 选择在读取时一次性迁移，该哨兵绝不会再发给上游。
+- **已在真实账号上验证（2026-11-09）**：`gpt-5.5` 与 `gpt-5.6-sol` 返回 400；Terra 走旧 hosted tool 返回 200 但只有内联 SVG；强制工具返回 400；专有 Codex Images 端点在 ChatGPT Free 返回 403。Free 不包含 Codex 生图。付费套餐下，专有端点接受所选图像模型与上述字段。试生图会如实显示状态与错误，**不会静默换用别的模型**。
 - 旧插件数据不会自动复制；移除旧插件目录前，应先将数据保存在活动插件目录之外。本包不发布 npm。
 
-修改订阅生图请求字段、模型选择或兼容性判断前，请先读[插件规格](SPEC.md)、[image-generation architecture note](docs/image-generation.md) 和 [ADR 0001](docs/adr/0001-separate-responses-carrier-from-image-model.md)。
+修改订阅生图请求字段、模型选择或兼容性判断前，请先读[插件规格](SPEC.md)、[image-generation architecture note](docs/image-generation.md) 和 [ADR 0002](docs/adr/0002-use-codex-images-endpoints.md)。
 
 当前行为契约见 [SPEC.md](SPEC.md)；安全说明见 [SECURITY.md](SECURITY.md)，开发与发布边界见 [docs/release.md](docs/release.md)。
 

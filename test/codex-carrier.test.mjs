@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { DEFAULT_RESPONSES_MODEL, openaiCodexResponsesImageSubmit } from '../lib/media/adapters/openai-codex.js'
+import {
+  DEFAULT_RESPONSES_MODEL,
+  openaiCodexImagesSubmit,
+  openaiCodexResponsesImageSubmit,
+} from '../lib/media/adapters/openai-codex.js'
 
 async function submit(extra = {}, response) {
   let payload
@@ -20,6 +24,87 @@ async function submit(extra = {}, response) {
   })
   return { payload, result }
 }
+
+async function submitImages(extra = {}, response) {
+  let request
+  const result = await openaiCodexImagesSubmit({
+    prompt: 'a red apple',
+    credential: { access: 'test-token', accountId: 'test-account' },
+    imageModel: 'gpt-image-2.6-flare',
+    quality: 'high',
+    size: '1024x1024',
+    ...extra,
+    http: async (url, init) => {
+      request = { url, body: JSON.parse(init.body) }
+      return response ?? {
+        ok: true,
+        async json() {
+          return {
+            created: 1,
+            data: [{ b64_json: 'aGVsbG8=' }],
+            size: '1024x1024',
+            quality: 'high',
+            output_format: 'png',
+          }
+        },
+      }
+    },
+  })
+  return { request, result }
+}
+
+test('generation uses the dedicated Codex Images endpoint', async () => {
+  const { request, result } = await submitImages()
+  assert.equal(request.url, 'https://chatgpt.com/backend-api/codex/images/generations')
+  assert.deepEqual(request.body, {
+    prompt: 'a red apple',
+    model: 'gpt-image-2.6-flare',
+    n: 1,
+    size: '1024x1024',
+    quality: 'high',
+  })
+  assert.equal(result.images.length, 1)
+  assert.equal(result.images[0].mimeType, 'image/png')
+  assert.equal(result.carrierModel, 'codex/images')
+  assert.deepEqual(result.effective, { size: '1024x1024', quality: 'high', output_format: 'png' })
+})
+
+test('edits use the dedicated Codex Images edit endpoint', async () => {
+  const { request } = await submitImages({
+    action: 'edit',
+    image: 'data:image/png;base64,AAAA',
+  })
+  assert.equal(request.url, 'https://chatgpt.com/backend-api/codex/images/edits')
+  assert.deepEqual(request.body.images, [{ image_url: 'data:image/png;base64,AAAA' }])
+  assert.deepEqual(request.body, {
+    prompt: 'a red apple',
+    model: 'gpt-image-2.6-flare',
+    n: 1,
+    size: '1024x1024',
+    quality: 'high',
+    images: [{ image_url: 'data:image/png;base64,AAAA' }],
+  })
+})
+
+test('the Free-plan 403 is explained in the error', async () => {
+  await assert.rejects(
+    () => submitImages({}, {
+      ok: false,
+      status: 403,
+      async json() {
+        return { detail: 'Forbidden' }
+      },
+    }),
+    /Free does not include this image lane/,
+  )
+})
+
+test('hosted-tool-only controls are rejected by the Images lane', async () => {
+  await assert.rejects(() => submitImages({ complexity: 'high' }), /Complexity is not supported/)
+  await assert.rejects(() => submitImages({ outputCompression: 80 }), /not supported/)
+  await assert.rejects(() => submitImages({ outputFormat: 'webp' }), /use png or gif/)
+  await assert.rejects(() => submitImages({ quality: 'max' }), /supported: auto, low, medium, high/)
+})
 
 test('the Responses carrier defaults to a ChatGPT-account model', async () => {
   const { payload, result } = await submit()

@@ -19,9 +19,8 @@ test('there is exactly one image tool name', () => {
 test('the parameter set carries the image model as an ordinary argument', () => {
   const parameters = buildImageToolParameters({ models: ENABLED, defaultModel: 'gpt-image-2.6-flare' })
   assert.deepEqual(Object.keys(parameters).sort(), [
-    'action', 'background', 'complexity', 'frame_duration_ms', 'frames', 'image', 'input_fidelity',
-    'mask', 'model', 'moderation', 'output_compression', 'output_format', 'partial_images',
-    'prompt', 'quality', 'size',
+    'action', 'background', 'frame_duration_ms', 'frames', 'image', 'model',
+    'output_format', 'prompt', 'quality', 'size',
   ])
   assert.equal(parameters.prompt.required, true)
   assert.deepEqual(parameters.model.enum, ENABLED)
@@ -46,21 +45,21 @@ test('an empty selection produces no enum rather than an empty one', () => {
 
 test('the official remaining fields are offered with their documented values', () => {
   const parameters = buildImageToolParameters({ models: ENABLED, defaultModel: ENABLED[0] })
-  assert.deepEqual(parameters.quality.enum, ['auto', 'low', 'medium', 'high', 'xhigh', 'max'])
+  assert.deepEqual(parameters.quality.enum, ['auto', 'low', 'medium', 'high'])
   assert.deepEqual(parameters.background.enum, ['auto', 'transparent', 'opaque'])
   assert.deepEqual(parameters.action.enum, ['auto', 'generate', 'edit'])
-  assert.deepEqual(parameters.complexity.enum, ['low', 'medium', 'high'])
-  assert.deepEqual(parameters.output_format.enum, ['png', 'jpeg', 'webp', 'gif', 'svg'])
+  assert.equal('complexity' in parameters, false)
+  assert.deepEqual(parameters.output_format.enum, ['png', 'gif'])
   // 任意 WIDTHxHEIGHT 是 2/2.5/2.6 系的能力，说明必须提到它，否则模型只会用三个标准尺寸
   assert.match(parameters.size.description, /WIDTHxHEIGHT/)
 })
 
-test('2.6-only parameters disappear when no enabled model supports them', () => {
+test('GIF parameters disappear when no enabled model supports them', () => {
   const legacy = buildImageToolParameters({ models: ['gpt-image-2.5-flare'], defaultModel: 'gpt-image-2.5-flare' })
   assert.equal('complexity' in legacy, false)
   assert.equal('frames' in legacy, false)
   assert.equal('frame_duration_ms' in legacy, false)
-  assert.deepEqual(legacy.output_format.enum, ['png', 'jpeg', 'webp'])
+  assert.deepEqual(legacy.output_format.enum, ['png'])
 })
 
 test('the description names the enabled models and their tiers', () => {
@@ -73,8 +72,9 @@ test('the description names the enabled models and their tiers', () => {
   assert.match(description, /gpt-image-2\.6-sunburst（高质量档）/)
   assert.match(description, /configured default model \(gpt-image-2\.6-flare\) is used/)
   assert.match(description, /OUTPUT-NOTE/)
-  // carrier 与图像模型必须被说成两件事，否则模型会把两者混用
-  assert.match(description, /carrier/)
+  // 旧 carrier/hosted-tool 的说法不得回来
+  assert.match(description, /dedicated Codex Images endpoint/)
+  assert.doesNotMatch(description, /The Codex chat model is only the Responses carrier/)
 })
 
 test('the quality default and support range are disclosed', () => {
@@ -83,7 +83,7 @@ test('the quality default and support range are disclosed', () => {
   const fallback = buildImageToolParameters({ models: ENABLED })
   assert.match(fallback.quality.description, /Default follows the selected model: auto/)
   // 支持范围必须写明，否则模型会以为每个模型都有 xhigh/max
-  assert.match(fallback.quality.description, /cap at high/)
+  assert.match(fallback.quality.description, /auto, low, medium and high/)
 })
 
 test('the output schema separates the image model from the carrier', () => {

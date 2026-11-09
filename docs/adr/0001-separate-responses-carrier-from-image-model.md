@@ -1,7 +1,9 @@
 # ADR 0001：将 Responses carrier 与图像模型分离
 
-- 状态：已接受（Accepted）
+- 状态：已被 [ADR 0002](0002-use-codex-images-endpoints.md) 取代（Superseded）
 - 日期：2026-09-24
+
+> 2026-11-09 起，Codex OAuth 生图改走专有 Images 端点，不再存在 Responses carrier 与 hosted `image_generation` 工具。本文保留为历史决策记录；当前契约见 ADR 0002。
 
 ## 背景
 

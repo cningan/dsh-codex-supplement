@@ -1,10 +1,15 @@
 # 更新日志
 
-## 0.4.9 — 迁移到 Codex Images 端点（实测中）
+## 0.5.0 — 使用 Codex Images 端点并明确 Free 限制
 
-- 生成/编辑改走当前 Codex CLI 的 `POST /backend-api/codex/images/generations` 与 `/images/edits`；不再依赖会被 Codex 后端剥离的 Responses hosted `image_generation` 工具。
-- 本次为真实端点验证版本；Free 预检暂时旁路，以便确认套餐是否真的被 Images 端点拒绝。
-- Images 端点支持 `model` / `size` / `quality` / `background` / `output_format: gif`；`complexity`、遮罩、压缩等 hosted-tool 字段不再透传。
+- 生成/编辑迁移到当前 Codex CLI 的 `POST /backend-api/codex/images/generations` 与 `/images/edits`；不再依赖会在 Codex 后端被剥离的 Responses hosted `image_generation` 工具。
+- 真实账号验证：`gpt-5.5`、`gpt-5.6-sol` 被 400 拒绝；Terra 的 hosted tool 只返回 SVG；强制工具返回 400；专有 Images 端点在 Free 账号返回 403。结论：ChatGPT Free 不包含 Codex 生图，需要 Plus 或更高套餐。
+- Free 预检保留；即使 usage 暂时取不到，Images 端点的 403 也会被翻译成套餐提示。
+- `complexity`、`xhigh`/`max`、SVG/WebP/JPEG、遮罩、压缩等 hosted-tool 字段在该端点不支持，适配器明确拒绝而不是静默忽略。
+
+## 0.4.9 — 迁移到 Codex Images 端点（探针）
+
+- 生成/编辑改走专有 Codex Images 端点；本版用于真实端点验证，Free 预检暂时旁路。
 
 ## 0.4.8 — Free 套餐预检与明确提示
 

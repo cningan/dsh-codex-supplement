@@ -25,23 +25,20 @@ test('the minimal test request follows the default model profile', () => {
     imageModel: 'gpt-image-2.6-flare',
     quality: 'high',
     outputFormat: 'png',
-    complexity: 'medium',
   })
   assert.deepEqual(requested, {
     model: 'gpt-image-2.6-flare',
     quality: 'high',
-    complexity: 'medium',
     output_format: 'png',
   })
 })
 
-test('the test UI can override model, complexity, format, size and gif fields', () => {
+test('the test UI can override model, format, size and gif fields', () => {
   const { request } = resolveTestImageRequest({
     body: {
       prompt: 'walk cycle',
       model: 'gpt-image-2.6-sunburst',
       quality: 'high',
-      complexity: 'high',
       output_format: 'gif',
       size: '1024x1024',
       frames: 12,
@@ -52,7 +49,7 @@ test('the test UI can override model, complexity, format, size and gif fields', 
   })
   assert.equal(request.imageModel, 'gpt-image-2.6-sunburst')
   assert.equal(request.quality, 'high')
-  assert.equal(request.complexity, 'high')
+  assert.equal('complexity' in request, false)
   assert.equal(request.outputFormat, 'gif')
   assert.equal(request.size, '1024x1024')
   assert.equal(request.frameCount, 12)
@@ -69,7 +66,7 @@ test('quality follows the selected model capability', () => {
     },
     selectedModels: models,
   })
-  assert.equal(request.quality, 'max')
+  assert.equal(request.quality, 'auto')
   assert.equal('complexity' in request, false)
 
   assert.throws(

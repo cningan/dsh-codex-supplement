@@ -104,24 +104,26 @@ test('resolveDefaultImageModel falls back safely', () => {
   assert.equal(resolveDefaultImageModel({ defaultModel: '', selectedModels: [] }), DEFAULT_IMAGE_MODEL)
 })
 
-test('resolveModelProfile keeps defaults inside the selected model capability', () => {
+test('resolveModelProfile caps defaults to the Codex Images lane', () => {
   const latest = resolveModelProfile({
     model: 'gpt-image-2.6-flare',
     defaultsByModel: { 'gpt-image-2.6-flare': { quality: 'max', complexity: 'high' } },
   })
   assert.equal(latest.quality, 'auto')
-  assert.equal(latest.complexity, 'high')
+  assert.equal('complexity' in latest, false)
   assert.deepEqual(latest.qualityOptions, ['auto', 'low', 'medium', 'high'])
-  assert.deepEqual(latest.complexityOptions, ['low', 'medium', 'high'])
+  assert.deepEqual(latest.complexityOptions, [])
+  assert.equal(latest.capabilities.complexity, false)
+  assert.equal(latest.capabilities.svg, false)
 
   const older = resolveModelProfile({
     model: 'gpt-image-2.5-flare',
     defaultsByModel: { 'gpt-image-2.5-flare': { quality: 'max', complexity: 'high' } },
   })
-  assert.equal(older.quality, 'max')
+  assert.equal(older.quality, 'auto')
   assert.equal('complexity' in older, false)
   assert.deepEqual(older.complexityOptions, [])
-  assert.ok(older.qualityOptions.includes('max'))
+  assert.equal(older.qualityOptions.includes('max'), false)
 })
 
 test('the Free plan is rejected before any image request', () => {

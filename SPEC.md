@@ -8,7 +8,7 @@
 
 ## 方案
 
-一个面向 dsh 本地插件目录的单包、三组件 bundle `@cningan/dsh-codex-supplement`：裸包名 row `codex-supplement` 是 base（Codex OAuth 登录/登出、订阅用量/额度、按模型 Fast Mode、日志与设置页），子路径 row `codex-supplement-image` 承载订阅图像生成，子路径 row `codex-supplement-search` 承载 Codex 搜索 provider。image/search 依赖 base 提供的 `openaiCodexAuth` 服务，但可独立启用/禁用。与官方 Codex 对话共用共享 credential record；图像模型按次由工具 `model` 参数从设置清单选取；Responses carrier 由本插件固定为 `gpt-5.6-terra`，与官方聊天模型、图像模型三者绝不混用。裸包名 row 是 DSH `dsh-client-modules` 的硬约束：Client 模块发现只接受裸包名，子路径 row 不会进入 Web boot graph。本包不发布到 npm。
+一个面向 dsh 本地插件目录的单包、三组件 bundle `@cningan/dsh-codex-supplement`：裸包名 row `codex-supplement` 是 base（Codex OAuth 登录/登出、订阅用量/额度、按模型 Fast Mode、日志与设置页），子路径 row `codex-supplement-image` 承载订阅图像生成，子路径 row `codex-supplement-search` 承载 Codex 搜索 provider。image/search 依赖 base 提供的 `openaiCodexAuth` 服务，但可独立启用/禁用。与官方 Codex 对话共用共享 credential record；图像模型按次由工具 `model` 参数从设置清单选取；生图走 Codex 专有的 Images 端点，不再使用 Responses carrier/hosted tool。裸包名 row 是 DSH `dsh-client-modules` 的硬约束：Client 模块发现只接受裸包名，子路径 row 不会进入 Web boot graph。本包不发布到 npm。
 
 生图配置的依赖链固定为：
 
@@ -54,19 +54,19 @@
 - **生效配置解析**：工具或试生图先解析本次模型（显式 `model` > `defaultImageModel` > 清单首项），再读该模型的 profile。字段优先级为：显式调用参数 > 该模型 profile > 目录允许的模型默认 > 省略。Host 负责裁剪与校验；Client 只展示 `/capabilities` 返回的同一份 `modelProfiles`。
 - **工具 schema 扁平且与开放 API 对齐**：参数为 `prompt`、`model`、`image`、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，2.6 GIF 再加 `frames` / `frame_duration_ms`。不做嵌套分组：模型调用工具时层级/必填放错是最常见的失败，官方字段本身就是扁平集合。能力位按已勾选模型裁剪：没有 2.6 模型时 `complexity` / `frames` / `frame_duration_ms` 不出现，`output_format` 只到 png/jpeg/webp；有 2.6 时才出现 gif/svg。
 - **2.6 能力目录**：目录以 `gpt-image-2.6-flare` / `gpt-image-2.6-sunburst` 为首，保留 2.5 两档与带日期快照、2 / 1.5 / 1-mini / `chatgpt-image-latest`；`gpt-image-1` 仅作为已下线兼容项保留，不再进入出厂勾选。目录只声明“允许工具选什么”，不承诺 OAuth 网关接受；未知但语法合法的 id 仍可自填。
-- **carrier / 图像模型 / 模型 profile 分离**：顶层 Responses `model` 固定为 ChatGPT 账号可用的 `gpt-5.6-terra`，不再读取官方聊天模型选择（`gpt-5.5` 是 API-only，ChatGPT 账号会以 400 拒绝）；`image_generation.model` 只从本包允许清单取值；`quality` 与 `complexity` 属于所选图像模型的 profile，可被单次请求覆盖。四者绝不互换、不互相推断。
-- **Free 套餐预检**：ChatGPT Free 不提供 Codex 生图（官方定价明确排除）。实测 Free 账号在 Terra 上返回 200 但只输出内联 SVG，强制托管工具则返回 400。工具与试生图在发请求前读取 `wham/usage.planType`，`free` 直接抛套餐错误；设置页显示提示并禁用试生图按钮。用量读取失败时 fail-open，由上游错误兜底。
+- **Images 端点与图像模型分离**：请求直接发到 `POST /backend-api/codex/images/generations`（编辑为 `/images/edits`）；顶层只有图像模型 `model`，没有 Responses carrier。`model` 只从本包允许清单取值；`size` / `quality` / `background` / PNG-GIF 由端点消费，`complexity`、`xhigh`/`max`、SVG/WebP/JPEG、遮罩、压缩不在该端点契约内，显式传入会本地拒绝。
+- **Free 套餐预检**：ChatGPT Free 不提供 Codex 生图（官方定价明确排除）。实测 Free 账号在专有 Images 端点得到 HTTP 403；Terra carrier 的 hosted-tool 路径只会输出 SVG，强制工具则返回 400。工具与试生图在发请求前读取 `wham/usage.planType`，`free` 直接抛套餐错误；用量读取失败时 fail-open，由 403 兜底。设置页在已知 Free 时显示提示并禁用试生图按钮。
 - **质量与复杂度档位**：GPT Image 1 / 1.5 / 2 最高到 `high`；只有 GPT Image 2.5 支持 `xhigh` / `max`；2.6 把场景规划拆到 `complexity`（low / medium / high），与渲染质量解耦。显式请求当前模型不支持的档位会被本地拒绝并列出合法值；模型 profile 里的非法值在解析时被裁掉并回落到模型默认，不静默换成另一个档位发给上游。
 - **输出与附件**：图像字节经临时数据路径写入会话工作区（解析失败时如实报告，不谎称已保存）；工具结果返回文件路径与元数据，图像数据经 Host 附件机制投递供后续查看；附件保存失败仅记录日志，工作区文件仍可用。落盘扩展名覆盖 png / jpg / webp / gif / svg。
-- **试生图路由**：`POST /plugins/dsh-codex-supplement/codex/test-image`（origin 校验、256 KiB body 上限）接受 `prompt` 与可选的 model / quality / complexity / size / output_format / frames / frame_duration_ms 等字段，复用同一 adapter 与固定 carrier，返回 `{ok, ms, requested, effective, carrier, images}`。成功时 `images[]` 含 `{mediaType, bytes, dataUrl?}`（超过 3 MiB 不回传 dataUrl），失败时返回 `{ok:false, ms, error}`。它不写工作区、不注册工具，也不要求 `enableImageGeneration` 已打开——诊断应能在启用前做。每次点击会真实消耗一张订阅图。
+- **试生图路由**：`POST /plugins/dsh-codex-supplement/codex/test-image`（origin 校验、256 KiB body 上限）接受 `prompt` 与可选的 model / quality / complexity / size / output_format / frames / frame_duration_ms 等字段，复用同一 Images 适配器，返回 `{ok, ms, requested, effective, carrier, images}`。成功时 `images[]` 含 `{mediaType, bytes, dataUrl?}`（超过 3 MiB 不回传 dataUrl），失败时返回 `{ok:false, ms, error}`。它不写工作区、不注册工具，也不要求 `enableImageGeneration` 已打开——诊断应能在启用前做。每次点击会真实消耗一张订阅图。
 - **迁移**：旧 `codex-managed-image` 哨兵仅在读取时一次性迁移，之后绝不上送；旧 `enableProviders` / `providerModelSelections` 仅保留用于一次性迁移；旧聊天模型列表不再读取，模型改在官方 `Models → OpenAI Codex` 项配置。旧 profile 的媒体字段仍可存在，但 image 行不再采用。
-- **兼容性证据（带日期）**：2026-09-24 在真实订阅上以 `image_generation.model` 验证 `gpt-image-2.5-flare` 与 `gpt-image-2.5-sunburst` 各产出一张 PNG。2026-11-06 的独立报告（openai/codex#59890）显示 OAuth `/backend-api/codex/images/*` 会忽略 `model` / `complexity` / `size` / SVG，并以 400 拒绝 GIF；本包走 Responses hosted-tool lane，不能假定免疫，因此试生图原样回显上游结果。订阅端点不发布公开 schema，因此这是受限证据：被拒绝时插件原文报告状态码与模型 id，绝不静默换用别的模型。
+- **兼容性证据（带日期）**：2026-11-09 在真实 ChatGPT Free 账号上验证：`gpt-5.5` / `gpt-5.6-sol` 返回 400；Terra 走旧 hosted tool 返回 200 但只有内联 SVG；强制 hosted tool 返回 400 `tool not found`；专有 `POST /backend-api/codex/images/generations` 返回 403。结论：Free 不包含 Codex 生图，需 Plus 或更高套餐。专有端点的请求形状来自当前 Codex 源码（`ImageGenerationRequest`），响应为 `{created,data:[{b64_json}]}`；被拒绝时插件原文报告状态码与模型 id，绝不静默换用别的模型。
 - **0.4.2 复核（2026-11-09）**：在隔离 DSH `0.2.2-rc.1` + 本包 0.4.2 上，三个组件行与 `/codex/status`、`/codex/search/status`、`/capabilities`、`POST /codex/test-image` 均正常；设置页的生图工具开关、★ 设为默认、⚙ 模型缺省、试生图高级折叠均渲染。把 `gpt-image-2.6-flare` 的 quality 从 `auto` 改为 `high` 后，配置写入 image row，`/capabilities` 的 `modelProfiles[].defaults.quality` 同步为 `high`，页面重载后 select 仍显示 `high`。插件管理页显示本地化标题、描述与 `icon.svg`。未做真实订阅出图（不消耗用户额度）。
 
 ## 测试决策
 
-- **测试约定**：只测外部行为契约（工具 schema 形状、carrier/图像模型分离、允许清单/缺省解析、凭据映射、proxy 目标规则），不安装包、不读取 Profile 数据。
-- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、carrier 分离、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、2.6 参数按能力裁剪、没有已死的 `aspectRatio`）、试生图请求解析与预览上限、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
+- **测试约定**：只测外部行为契约（工具 schema 形状、Images 请求/响应、允许清单/缺省解析、凭据映射、proxy 目标规则），不安装包、不读取 Profile 数据。
+- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、Codex Images 请求与响应、403 套餐文案、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、PNG/GIF、没有已死的 `aspectRatio` 与 hosted-tool 字段）、试生图请求解析与预览上限、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
 - **命令**：`npm test` 跑离线测试；`npm run check` 重建 Client 并做 Host/Client/脚本/测试的语法检查；`npm pack --dry-run` 只审阅发布文件清单，不发布。
 - **验证边界**：Fast Mode、旧凭据迁移与真实订阅生图未在普通测试中验证；真实运行态验证必须单独做，不能以离线测试或设置自检代替。
 

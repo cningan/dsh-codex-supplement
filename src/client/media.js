@@ -60,7 +60,7 @@ window.__ModuleLoader__.load({
         testUnsupported: "当前模型不支持",
         advanced: "高级选项",
         hideAdvanced: "收起",
-        carrier: "carrier",
+        carrier: "接口",
         signedIn: "已登录",
         signedOut: "未登录",
         checking: "检查中…",
@@ -118,7 +118,7 @@ window.__ModuleLoader__.load({
         testUnsupported: "Unsupported by this model",
         advanced: "Advanced",
         hideAdvanced: "Hide",
-        carrier: "carrier",
+        carrier: "API",
         signedIn: "Signed in",
         signedOut: "Signed out",
         checking: "Checking…",
@@ -287,19 +287,14 @@ window.__ModuleLoader__.load({
       const testChoice = catalog.find((item) => item.id === activeTestModel);
       const testCaps = testChoice?.capabilities ?? {};
       const testProfile = profileFor(activeTestModel);
-      const testQualityOptions = testProfile.qualityOptions ?? ["auto"];
+      const testQualityOptions = (testProfile.qualityOptions ?? ["auto"]).filter((value) => ["auto", "low", "medium", "high"].includes(value));
       const testQualityValue = testQualityOptions.includes(testQuality)
         ? testQuality
         : (testProfile.defaults?.quality ?? "auto");
-      const testComplexityOptions = testProfile.complexityOptions ?? [];
-      const testComplexityValue = testComplexityOptions.includes(testComplexity)
-        ? testComplexity
-        : (testProfile.defaults?.complexity ?? "");
-      const testFormats = [
-        "png", "jpeg", "webp",
-        ...(testCaps.gif === true ? ["gif"] : []),
-        ...(testCaps.svg === true ? ["svg"] : []),
-      ];
+      // Codex Images 端点不接受 complexity；不再展示会必然失败的控件。
+      const testComplexityOptions = [];
+      const testComplexityValue = "";
+      const testFormats = ["png", ...(testCaps.gif === true ? ["gif"] : [])];
       const testFormatValue = testFormats.includes(testFormat) ? testFormat : "png";
 
       const runTest = async () => {
