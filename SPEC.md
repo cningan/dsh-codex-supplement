@@ -38,6 +38,7 @@
 - **输出与附件**：图像字节经临时数据路径写入会话工作区（解析失败时如实报告，不谎称已保存）；工具结果返回文件路径与元数据，图像数据经 Host 附件机制投递供后续查看；附件保存失败仅记录日志，工作区文件仍可用。
 - **迁移**：旧 `codex-managed-image` 哨兵仅在读取时一次性迁移，之后绝不上送；旧 `enableProviders` / `providerModelSelections` 仅保留用于一次性迁移；旧聊天模型列表不再读取，模型改在官方 `Models → OpenAI Codex` 项配置。
 - **兼容性证据（带日期）**：2026-09-24 在真实订阅上以 `image_generation.model` 验证 `gpt-image-2.5-flare` 与 `gpt-image-2.5-sunburst` 各产出一张 PNG。订阅端点不发布公开 schema，因此这是受限证据：被拒绝时插件原文报告状态码与模型 id，绝不静默换用别的模型；不承诺未测试 ID 或未来网关版本。
+- **0.2.2 复核（2026-11-09）**：在隔离的 DSH `0.2.2-rc.1` 运行时装载本包，Host 模块正常激活，`/plugins/dsh-codex-supplement/codex/status`、`/plugins/dsh-codex-supplement/capabilities`、`/plugins/dsh-codex-supplement/codex/fast-mode` 均返回 200，旧配置键经 schema 接受，生成的 Client 模块进入 Web boot graph。该证据覆盖组装与加载，不覆盖完整桌面 UI 会话或真实订阅调用。
 
 ## 测试决策
 

@@ -20,6 +20,7 @@
 ## 兼容性与安装
 
 - 基线：DSH `0.1.7-rc.1`；Node.js 22 或更新版本。
+- 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：Host 模块挂载、三个路由可用、生成的 Client 模块进入 Web boot graph。这是组装/加载证据，不是完整桌面 UI 会话；订阅图像端点本身仍以 2026-09-24 的实测为准。
 - 这是供 DSH 本地插件目录加载的 `@cningan` bundle。`package.json` 声明 bundle patch 和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
 - 不发布到 npm。GitHub 源码历史与之前 OAuth 仓库的历史分离，以免携带被 GitHub push protection 拒绝的未清理旧提交。
 

@@ -20,6 +20,7 @@ Open **Settings → Codex Subscription** to sign in, enable Codex search, view u
 ## Compatibility and installation
 
 - DSH `0.1.7-rc.1` baseline; Node.js 22 or newer.
+- Re-verified on DSH `0.2.2-rc.1` (2026-11-09) in an isolated runtime: the Host module mounts, its three routes answer, and the generated Client module joins the Web boot graph. This is composition/loading evidence, not a full desktop UI session; the subscription image endpoint itself was last verified on 2026-09-24.
 - This is an `@cningan` bundle intended for a DSH local-plugin source tree. Its `package.json` declares the bundle patch and combined web Client module. Install it through the DSH bundle/plugin manager after reviewing the package; package changes may require a Host restart. This package is not published to npm.
 - The package is not published to npm. GitHub source history is maintained separately from the previous OAuth repository history to avoid carrying its rejected, unsanitized commits.
 
