@@ -13,7 +13,7 @@ OpenAI Python SDK 生成的 Responses 图像工具类型暴露了工具级字段
 
 保持三个请求概念相互独立：
 
-1. Responses carrier 固定为本插件拥有的 ChatGPT-account 模型 `gpt-5.6-sol`；不读取官方聊天模型选择。2026-11-09 修订：此前读取官方选择会把 API-only 的 `gpt-5.5` 发给 ChatGPT 账号并得到 400“not supported”，因此 carrier 来源改为插件自有常量。
+1. Responses carrier 固定为本插件拥有的 ChatGPT-account 模型 `gpt-5.6-terra`；不读取官方聊天模型选择。2026-11-09 修订：此前读取官方选择会把 API-only 的 `gpt-5.5` 发给 ChatGPT 账号并得到 400“not supported”，因此 carrier 来源改为插件自有常量。
 2. 图像模型只从包选定的图像模型列表获取，允许的单次覆盖也只能来自该列表；只写入 `image_generation.model`。
 3. 保持 `quality` 为独立的工具控件，带自己的缺省与单次覆盖。绝不要把质量档编码成模型 ID，也不要从 carrier 推断图像模型。
 
@@ -42,3 +42,4 @@ OpenAI Python SDK 生成的 Responses 图像工具类型暴露了工具级字段
 - [目录与允许清单](../../lib/media/image-models.mjs)
 - [包能力与带日期的兼容性说明](../../README.md)
 - OpenAI [Responses 图像生成指南](https://developers.openai.com/api/docs/guides/tools-image-generation) 与 [SDK 图像工具类型](https://github.com/openai/openai-python/blob/main/src/openai/types/responses/tool_param.py)。公开 API schema 不保证订阅网关支持。
+

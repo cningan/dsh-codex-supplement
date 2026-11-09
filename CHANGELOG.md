@@ -1,8 +1,12 @@
 # 更新日志
 
+## 0.4.4 — 使用 Free/Go 可用的 Terra carrier
+
+- 试生图仍报 400 时确认：Free 账号不接受 `gpt-5.6-sol`，但 ChatGPT Free/Go 提供 `gpt-5.6-terra`。顶层 Responses carrier 改为 `gpt-5.6-terra`，覆盖 Free/Go 与付费账号。
+
 ## 0.4.3 — 修复 ChatGPT 账号的 carrier 400
 
-- 修复试生图 400：`The 'gpt-5.5' model is not supported when using Codex with a ChatGPT account`。顶层 Responses carrier 不再读取官方聊天模型选择，固定为 ChatGPT 账号可用的 `gpt-5.6-sol`；`gpt-5.5` 是 API-only 模型。
+- 修复试生图 400：`The 'gpt-5.5' model is not supported when using Codex with a ChatGPT account`。顶层 Responses carrier 不再读取官方聊天模型选择，改为插件固定 carrier；`gpt-5.5` 是 API-only 模型。
 - 设置页新增自定义导航图标，生图卡片增加模型行边框、统一图标按钮与可滚动的错误框；插件图标重绘渐变与高光。
 - 收紧试生图错误展示，长错误不再撑开整页。
 

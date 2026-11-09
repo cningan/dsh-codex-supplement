@@ -8,7 +8,7 @@
 
 ## 方案
 
-一个面向 dsh 本地插件目录的单包、三组件 bundle `@cningan/dsh-codex-supplement`：裸包名 row `codex-supplement` 是 base（Codex OAuth 登录/登出、订阅用量/额度、按模型 Fast Mode、日志与设置页），子路径 row `codex-supplement-image` 承载订阅图像生成，子路径 row `codex-supplement-search` 承载 Codex 搜索 provider。image/search 依赖 base 提供的 `openaiCodexAuth` 服务，但可独立启用/禁用。与官方 Codex 对话共用共享 credential record；图像模型按次由工具 `model` 参数从设置清单选取；Responses carrier 由本插件固定为 `gpt-5.6-sol`，与官方聊天模型、图像模型三者绝不混用。裸包名 row 是 DSH `dsh-client-modules` 的硬约束：Client 模块发现只接受裸包名，子路径 row 不会进入 Web boot graph。本包不发布到 npm。
+一个面向 dsh 本地插件目录的单包、三组件 bundle `@cningan/dsh-codex-supplement`：裸包名 row `codex-supplement` 是 base（Codex OAuth 登录/登出、订阅用量/额度、按模型 Fast Mode、日志与设置页），子路径 row `codex-supplement-image` 承载订阅图像生成，子路径 row `codex-supplement-search` 承载 Codex 搜索 provider。image/search 依赖 base 提供的 `openaiCodexAuth` 服务，但可独立启用/禁用。与官方 Codex 对话共用共享 credential record；图像模型按次由工具 `model` 参数从设置清单选取；Responses carrier 由本插件固定为 `gpt-5.6-terra`，与官方聊天模型、图像模型三者绝不混用。裸包名 row 是 DSH `dsh-client-modules` 的硬约束：Client 模块发现只接受裸包名，子路径 row 不会进入 Web boot graph。本包不发布到 npm。
 
 生图配置的依赖链固定为：
 
@@ -54,7 +54,7 @@
 - **生效配置解析**：工具或试生图先解析本次模型（显式 `model` > `defaultImageModel` > 清单首项），再读该模型的 profile。字段优先级为：显式调用参数 > 该模型 profile > 目录允许的模型默认 > 省略。Host 负责裁剪与校验；Client 只展示 `/capabilities` 返回的同一份 `modelProfiles`。
 - **工具 schema 扁平且与开放 API 对齐**：参数为 `prompt`、`model`、`image`、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，2.6 GIF 再加 `frames` / `frame_duration_ms`。不做嵌套分组：模型调用工具时层级/必填放错是最常见的失败，官方字段本身就是扁平集合。能力位按已勾选模型裁剪：没有 2.6 模型时 `complexity` / `frames` / `frame_duration_ms` 不出现，`output_format` 只到 png/jpeg/webp；有 2.6 时才出现 gif/svg。
 - **2.6 能力目录**：目录以 `gpt-image-2.6-flare` / `gpt-image-2.6-sunburst` 为首，保留 2.5 两档与带日期快照、2 / 1.5 / 1-mini / `chatgpt-image-latest`；`gpt-image-1` 仅作为已下线兼容项保留，不再进入出厂勾选。目录只声明“允许工具选什么”，不承诺 OAuth 网关接受；未知但语法合法的 id 仍可自填。
-- **carrier / 图像模型 / 模型 profile 分离**：顶层 Responses `model` 固定为 ChatGPT 账号可用的 `gpt-5.6-sol`，不再读取官方聊天模型选择（`gpt-5.5` 是 API-only，ChatGPT 账号会以 400 拒绝）；`image_generation.model` 只从本包允许清单取值；`quality` 与 `complexity` 属于所选图像模型的 profile，可被单次请求覆盖。四者绝不互换、不互相推断。
+- **carrier / 图像模型 / 模型 profile 分离**：顶层 Responses `model` 固定为 ChatGPT 账号可用的 `gpt-5.6-terra`，不再读取官方聊天模型选择（`gpt-5.5` 是 API-only，ChatGPT 账号会以 400 拒绝）；`image_generation.model` 只从本包允许清单取值；`quality` 与 `complexity` 属于所选图像模型的 profile，可被单次请求覆盖。四者绝不互换、不互相推断。
 - **质量与复杂度档位**：GPT Image 1 / 1.5 / 2 最高到 `high`；只有 GPT Image 2.5 支持 `xhigh` / `max`；2.6 把场景规划拆到 `complexity`（low / medium / high），与渲染质量解耦。显式请求当前模型不支持的档位会被本地拒绝并列出合法值；模型 profile 里的非法值在解析时被裁掉并回落到模型默认，不静默换成另一个档位发给上游。
 - **输出与附件**：图像字节经临时数据路径写入会话工作区（解析失败时如实报告，不谎称已保存）；工具结果返回文件路径与元数据，图像数据经 Host 附件机制投递供后续查看；附件保存失败仅记录日志，工作区文件仍可用。落盘扩展名覆盖 png / jpg / webp / gif / svg。
 - **试生图路由**：`POST /plugins/dsh-codex-supplement/codex/test-image`（origin 校验、256 KiB body 上限）接受 `prompt` 与可选的 model / quality / complexity / size / output_format / frames / frame_duration_ms 等字段，复用同一 adapter 与固定 carrier，返回 `{ok, ms, requested, effective, carrier, images}`。成功时 `images[]` 含 `{mediaType, bytes, dataUrl?}`（超过 3 MiB 不回传 dataUrl），失败时返回 `{ok:false, ms, error}`。它不写工作区、不注册工具，也不要求 `enableImageGeneration` 已打开——诊断应能在启用前做。每次点击会真实消耗一张订阅图。
@@ -85,3 +85,4 @@
 - 修改订阅生图请求字段、模型选择或兼容性声明的任何改动前，先读上述对应文档；当契约或职责变化时更新本文件。
 - 上游收敛触发器：若官方 DSH Codex provider 已提供 GUI 授权与 service_tier fallback，应优先退役本包对应路径，而不是维持重复所有权。
 - 运行期 Profile 配置、凭据、会话、生成的图像与插件数据都不是源码产物，不提交。
+

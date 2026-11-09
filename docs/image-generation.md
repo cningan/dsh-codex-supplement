@@ -17,12 +17,12 @@
 | 概念 | 属主与请求位置 | 含义 |
 |---|---|---|
 | DSH Codex 聊天模型选择 | 官方 DSH `openai-codex` provider 与 Models UI | 拥有对话模型标识及其输入/输出能力。本插件不维护第二套聊天模型目录。 |
-| Responses carrier | 顶层 Responses 请求字段 `model` | 携带请求/工具调用的 Codex 对话模型。本插件固定为 ChatGPT 账号可用的 `gpt-5.6-sol`；它不是图像引擎，也不跟随官方聊天模型选择。 |
+| Responses carrier | 顶层 Responses 请求字段 `model` | 携带请求/工具调用的 Codex 对话模型。本插件固定为 ChatGPT 账号可用的 `gpt-5.6-terra`；它不是图像引擎，也不跟随官方聊天模型选择。 |
 | 图像生成模型 | 托管 `image_generation` 工具内部的 `model` | 为本次工具调用选择图像引擎。它来自插件选定的图像模型列表，或允许的单次覆盖。 |
 | 图像质量 | `image_generation` 内部的 `quality` | 独立的生成控件，缺省为 `auto`，除非另有配置或覆盖。它既不是聊天模型也不是图像模型 ID。 |
 | 场景复杂度 | `image_generation` 内部的 `complexity` | GPT Image 2.6 起的规划强度（low / medium / high），与渲染质量解耦；省略 = 模型默认。 |
 
-`model` 这个词出现在两个不同的请求对象中。其角色来自来源与位置，而不是 ID 的拼写：carrier 由本插件固定为 `gpt-5.6-sol`，写在请求顶层；图像模型取自本包的图像选择，写在工具声明内部。不要把图像 ID 挪进顶层字段，不要从 carrier 推导图像引擎，也不要把图像模型名换算成质量值。
+`model` 这个词出现在两个不同的请求对象中。其角色来自来源与位置，而不是 ID 的拼写：carrier 由本插件固定为 `gpt-5.6-terra`，写在请求顶层；图像模型取自本包的图像选择，写在工具声明内部。不要把图像 ID 挪进顶层字段，不要从 carrier 推导图像引擎，也不要把图像模型名换算成质量值。
 
 ## 请求与输出流程
 
@@ -54,3 +54,4 @@ OpenAI Python SDK 生成的 Responses `ImageGeneration` 工具类型暴露了工
 - [Codex Responses adapter](../lib/media/adapters/openai-codex.js)
 - [carrier/图像模型测试](../test/codex-carrier.test.mjs)
 - OpenAI [Responses 图像生成指南](https://developers.openai.com/api/docs/guides/tools-image-generation) 与 SDK 生成的 [Responses 图像工具类型](https://github.com/openai/openai-python/blob/main/src/openai/types/responses/tool_param.py)。SDK 类型与订阅网关行为是两套独立的证据来源。
+

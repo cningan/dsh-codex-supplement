@@ -23,10 +23,10 @@ async function submit(extra = {}, response) {
 
 test('the Responses carrier defaults to a ChatGPT-account model', async () => {
   const { payload, result } = await submit()
-  assert.equal(DEFAULT_RESPONSES_MODEL, 'gpt-5.6-sol')
-  assert.equal(payload.model, 'gpt-5.6-sol')
+  assert.equal(DEFAULT_RESPONSES_MODEL, 'gpt-5.6-terra')
+  assert.equal(payload.model, 'gpt-5.6-terra')
   assert.equal(payload.tools[0].type, 'image_generation')
-  assert.equal(result.carrierModel, 'gpt-5.6-sol')
+  assert.equal(result.carrierModel, 'gpt-5.6-terra')
 })
 
 test('an explicit carrier is used for the top-level model only', async () => {
@@ -92,3 +92,4 @@ test('a rejected image model surfaces the status and names the model', async () 
     },
   )
 })
+
