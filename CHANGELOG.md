@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.4.9 — 迁移到 Codex Images 端点（实测中）
+
+- 生成/编辑改走当前 Codex CLI 的 `POST /backend-api/codex/images/generations` 与 `/images/edits`；不再依赖会被 Codex 后端剥离的 Responses hosted `image_generation` 工具。
+- 本次为真实端点验证版本；Free 预检暂时旁路，以便确认套餐是否真的被 Images 端点拒绝。
+- Images 端点支持 `model` / `size` / `quality` / `background` / `output_format: gif`；`complexity`、遮罩、压缩等 hosted-tool 字段不再透传。
+
 ## 0.4.8 — Free 套餐预检与明确提示
 
 - ChatGPT Free 官方不提供 Codex 生图。实测该账号在 Terra carrier 上返回 200 但只生成内联 SVG；强制 `image_generation` 则得到 400“tool not found”。这不是 carrier 问题，而是套餐能力缺失。
