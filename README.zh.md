@@ -9,20 +9,20 @@
 - ChatGPT/Codex OAuth 登录与退出，共用 DSH 官方 `llm-pi-ai/openai-codex` credential record；保留旧 Codex secret store 的一次性迁移。
 - Codex 订阅用量/额度展示、可选 Codex 网络搜索，以及按模型启用的 Fast Mode。
 - 通过 Responses `image_generation` 使用 Codex 订阅生图。图像模型由工具 `model` 参数逐次指定；内置目录以 GPT Image 2.6 Flare / Sunburst 为首，随后是 2.5（含带日期快照）与前代 id。2.6 增加规划复杂度 `complexity`、GIF/SVG 输出、遮罩与帧控制，工具 schema 会按已勾选模型的能力位裁剪。官方 Codex 对话模型仅作为 Responses carrier，两者不再混用。图片默认写入当前会话工作区的 `images/`，并附加到会话供模型后续查看。
-- 一个包、两个组件行：裸包名 row `codex-supplement` 承载生图与合并后的 Client 设置页；`codex-supplement-auth` 承载 OAuth 登录、用量、搜索与 Fast Mode。裸包名 row 是 `dsh-client-modules` 的硬约束——它只对裸包名（不接受子路径）发现 Client 模块。
+- 一个包、三个组件行：裸包名 `codex-supplement` 是 base（OAuth 登录、用量、Fast Mode、日志与合并后的 Client 设置页）；`codex-supplement-image` 承载生图工具与试生图路由；`codex-supplement-search` 承载 Codex 搜索 provider。base 必须用裸包名，因为 `dsh-client-modules` 只对裸包名 row 发现 Client 模块；image/search 行依赖 base 提供的 `openaiCodexAuth` 服务。
 
 不包含 Grok、Claude、Antigravity、API-key 图片适配器或视频生成。
 
 ## 使用方式
 
-打开 **设置 → Codex 订阅**，即可登录、启用 Codex 搜索、查看用量/额度并配置订阅生图。生图区是一行一个模型的清单：可增行、删行、自填 id，或载入内置目录（全部候选，或只载入 2.6 两档）。清单即工具 `model` 参数的合法取值；顺序即优先级，第一行是不传 `model` 时的缺省档。清单为空则不注册生图工具。同一区还有请求级的**质量**与（2.6）**复杂度**缺省，单次调用仍可覆盖；`xhigh`/`max` 只有 GPT Image 2.5 支持，`1` / `1.5` / `2` 最高到 `high`。普通对话模型及其输入/输出能力只在官方 **Models → OpenAI Codex** 项中管理。
+打开 **设置 → Codex 订阅**，页面现在按依赖分成清晰的卡片：账户（登录/设备码/账户列表）、用量额度、联网搜索（独立搜索组件行的状态与开关），以及下方的生图卡片（模型清单、质量/复杂度缺省、试生图）。生图区是一行一个模型的清单：可增行、删行、自填 id，或载入内置目录（全部候选，或只载入 2.6 两档）。清单即工具 `model` 参数的合法取值；顺序即优先级，第一行是不传 `model` 时的缺省档。清单为空则不注册生图工具。同一区还有请求级的**质量**与（2.6）**复杂度**缺省，单次调用仍可覆盖；`xhigh`/`max` 只有 GPT Image 2.5 支持，`1` / `1.5` / `2` 最高到 `high`。普通对话模型及其输入/输出能力只在官方 **Models → OpenAI Codex** 项中管理。
 
 同一区还有**试生图**面板：用同一个 adapter 发一次最小请求（不写工作区、不注册工具），显示上游状态、耗时、端点实际回传的字段与内联预览。每次点击会真实消耗一张订阅图。Codex OAuth lane 在部分构建上会忽略 `model` / `size` / `complexity`，并拒绝 `gif`/`svg`；试生图就是用来实测你这版端点到底接受什么，而不是只相信开放 API 的 schema。
 
 ## 兼容性与安装
 
 - 基线：支持 bundle/组件行的 DSH `0.2.x`；Node.js 22 或更新版本。
-- 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：两个组件行都正常挂载，`/codex/status`、`/capabilities`、`/codex/fast-mode` 与 `POST /codex/test-image` 均可用，启用生图后工具完成注册，生成的 Client 模块出现在 Web boot entry 中。设置页绑定裸包名 `codex-supplement` row，因此旧 profile 对该 row 的 `imageModels` / `imageQuality` / `imageOutputDir` 覆盖会原位保留，无需迁移。
+- 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：三个组件行都正常挂载，`/codex/status`、`/codex/usage`、`/codex/fast-mode`、`/codex/search/status`、`/capabilities` 与 `POST /codex/test-image` 均可用，启用生图后工具完成注册，生成的 Client 模块出现在 Web boot entry 中。旧 profile 对 `codex-supplement` 的 `imageModels` / `imageQuality` / `imageOutputDir` 覆盖会由 base 行接住，并作为 image 行的迁移默认值，无需手改 YAML。
 - 这是供 DSH 本地插件目录加载的 `@cningan` bundle。`package.json` 声明 bundle patch（两行）和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
 - GitHub 源码历史与之前 OAuth 仓库的历史分离，以免携带被 GitHub push protection 拒绝的未清理旧提交。
 

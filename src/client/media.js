@@ -8,7 +8,7 @@ window.__ModuleLoader__.load({
     const h = React.createElement;
 
     const NS = "dsh-codex-supplement-media";
-    const SETTINGS_ENTRY = "codex-supplement";
+    const SETTINGS_ENTRY = "codex-supplement-image";
     const CAPABILITIES_PATH = "/plugins/dsh-codex-supplement/capabilities";
     const TEST_IMAGE_PATH = "/plugins/dsh-codex-supplement/codex/test-image";
     /** 设置页“载入 2.6 两档”的固定清单（与 Host 出厂默认一致）。 */
@@ -18,6 +18,12 @@ window.__ModuleLoader__.load({
       zh: {
         title: "Codex 订阅生图",
         intro: "用 ChatGPT/Codex 订阅的 image_generation 生成与编辑图片。工具不绑定模型：清单决定 model 参数能取哪些值。",
+        imageRow: "组件行 codex-supplement-image",
+        imageRowEnabled: "生图已开启",
+        imageRowDisabled: "生图已关闭",
+        imageRowHint: "生图是独立组件行；base 行只提供登录/用量/Fast Mode 与设置页。",
+        toolRegistered: "工具已注册",
+        toolNotRegistered: "工具未注册",
         enable: "启用图片生成工具",
         topHint: "总开关与清单共同决定工具是否注册；清单为空就不暴露生图工具。",
         models: "模型清单",
@@ -69,6 +75,12 @@ window.__ModuleLoader__.load({
       en: {
         title: "Codex Subscription Image Generation",
         intro: "Generate and edit images through the ChatGPT/Codex subscription image_generation tool. The tool is not bound to a model: this list defines the allowed values of its model argument.",
+        imageRow: "component row codex-supplement-image",
+        imageRowEnabled: "Image enabled",
+        imageRowDisabled: "Image disabled",
+        imageRowHint: "Image generation is its own component row; the base row owns sign-in, usage, Fast Mode and this settings page.",
+        toolRegistered: "Tool registered",
+        toolNotRegistered: "Tool not registered",
         enable: "Enable the image-generation tool",
         topHint: "The master switch and this list together decide whether the tool is registered; an empty list exposes nothing.",
         models: "Model list",
@@ -344,9 +356,14 @@ window.__ModuleLoader__.load({
               onChange: (event) => void mutate([["enableImageGeneration", event.target.checked]]),
               style: { accentColor: "var(--dsw-alias-brand-primary)" } }),
             t("enable")),
+          h("span", { style: { padding: "2px 8px", borderRadius: 999, background: "var(--dsw-alias-bg-layer-3)", color: "var(--dsw-alias-label-secondary)", fontSize: 11 } },
+            capability?.enabled === true ? t("imageRowEnabled") : t("imageRowDisabled")),
+          h("span", { style: { padding: "2px 8px", borderRadius: 999, background: "var(--dsw-alias-bg-layer-3)", color: "var(--dsw-alias-label-secondary)", fontSize: 11 } },
+            Array.isArray(capability?.registeredTools) && capability.registeredTools.length > 0 ? t("toolRegistered") : t("toolNotRegistered")),
           writeError ? h("span", { role: "alert", style: { color: "var(--dsw-alias-state-error-primary)", fontSize: 12 } }, writeError) : null,
         ),
         h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("topHint")),
+        h("p", { style: { margin: 0, color: "var(--dsw-alias-label-tertiary)", fontSize: 11 } }, t("imageRowHint")),
         h("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: 12, border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 10, background: "var(--dsw-alias-bg-layer-1)" } },
           h("div", { style: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" } },
             h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 13, fontWeight: 600 } }, t("models")),
@@ -506,8 +523,10 @@ window.__ModuleLoader__.load({
     }
 
     function CodexImageSection({ t, configScope }) {
-      return h("div", { style: { display: "flex", flexDirection: "column", gap: 8, marginTop: 8, paddingTop: 16, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
-        h("h4", { style: { margin: 0, color: "var(--dsw-alias-label-primary)", fontSize: 16, fontWeight: 600 } }, t("title")),
+      return h("div", { style: { display: "flex", flexDirection: "column", gap: 8, marginTop: 4, paddingTop: 16, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
+        h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
+          h("h4", { style: { margin: 0, color: "var(--dsw-alias-label-primary)", fontSize: 16, fontWeight: 600 } }, t("title")),
+          h("span", { style: { padding: "2px 8px", borderRadius: 999, background: "var(--dsw-alias-bg-layer-3)", color: "var(--dsw-alias-label-secondary)", fontSize: 11 } }, t("imageRow"))),
         h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("intro")),
         h(CodexImageSettings, { t, configScope }),
       );

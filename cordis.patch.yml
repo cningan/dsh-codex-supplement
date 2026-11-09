@@ -2,6 +2,9 @@
     - id: codex-supplement
       name: '@cningan/dsh-codex-supplement'
       config: {}
-    - id: codex-supplement-auth
-      name: '@cningan/dsh-codex-supplement/auth'
+    - id: codex-supplement-image
+      name: '@cningan/dsh-codex-supplement/image'
+      config: {}
+    - id: codex-supplement-search
+      name: '@cningan/dsh-codex-supplement/search'
       config: {}

@@ -53,8 +53,8 @@ if (manifest) {
   if (manifest.main !== './lib/index.js' || manifest.exports?.['.'] !== './lib/index.js') {
     fail('Host entry must be ./lib/index.js in main and exports["."]')
   }
-  if (manifest.exports?.['./auth'] !== './lib/entries/auth.js') fail('Auth component export must point to ./lib/entries/auth.js')
-  if (manifest.exports?.['./media'] !== './lib/entries/media.js') fail('Media component export must point to ./lib/entries/media.js')
+  if (manifest.exports?.['./image'] !== './lib/entries/image.js') fail('Image component export must point to ./lib/entries/image.js')
+  if (manifest.exports?.['./search'] !== './lib/entries/search.js') fail('Search component export must point to ./lib/entries/search.js')
   if (manifest.exports?.['./client'] !== './lib/client.js') fail('Client export must point to ./lib/client.js')
   if (!manifest.files?.includes('lib') || !manifest.files?.includes('cordis.patch.yml')) {
     fail('Package files allowlist must include lib and cordis.patch.yml')
@@ -82,13 +82,15 @@ if (manifest) {
     if (!await exists(patchPath)) fail(`Missing bundle patch ${relative(packageRoot, patchPath)}`)
     else {
       const patch = await readFile(patchPath, 'utf8')
-      if (!/^\s+- id: codex-supplement\s*$/m.test(patch)) fail('Bundle patch must insert the codex-supplement media row')
+      if (!/^\s+- id: codex-supplement\s*$/m.test(patch)) fail('Bundle patch must insert the codex-supplement base row')
       if (!patch.includes("name: '@cningan/dsh-codex-supplement'")) {
         fail('Bundle patch must point the bare codex-supplement row at the package root')
       }
-      if (!/^\s+- id: codex-supplement-auth\s*$/m.test(patch)) fail('Bundle patch must insert the codex-supplement-auth row')
-      if (!patch.includes("name: '@cningan/dsh-codex-supplement/auth'")) {
-        fail('Bundle patch must point codex-supplement-auth at ./auth')
+      for (const [id, component] of [['codex-supplement-image', 'image'], ['codex-supplement-search', 'search']]) {
+        if (!new RegExp(`^\\s+- id: ${id}\\s*$`, 'm').test(patch)) fail(`Bundle patch must insert the ${id} row`)
+        if (!patch.includes(`name: '@cningan/dsh-codex-supplement/${component}'`)) {
+          fail(`Bundle patch must point ${id} at ./${component}`)
+        }
       }
     }
   }
@@ -107,7 +109,7 @@ if (manifest) {
       const settingsRows = client.match(/name:\s*["']settings\.section["']/g) ?? []
       if (settingsRows.length !== 1) fail(`Client bundle must contribute one merged settings page; found ${settingsRows.length}`)
       if (!client.includes('id: "@cningan/dsh-codex-supplement-settings"')) fail('Merged Codex settings page id is missing')
-      if (!client.includes('"codex-supplement"')) fail('Client settings form must target the codex-supplement row')
+      if (!client.includes('"codex-supplement-image"')) fail('Client settings form must target the codex-supplement-image row')
     }
   }
 }

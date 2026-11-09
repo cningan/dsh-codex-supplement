@@ -1,8 +1,13 @@
 # 更新日志
 
+## 0.4.0 — 三层组件与设置页重组
+
+- 按依赖拆成三行：`codex-supplement`（base，裸包名：OAuth/用量/Fast Mode/日志/设置页）、`codex-supplement-image`（生图 + 试生图）、`codex-supplement-search`（搜索 provider 与开关）。base 必须使用裸包名，因为 DSH `dsh-client-modules` 只对裸包名 row 发现 Client 模块；旧 profile 的媒体配置由 base 接住并作为 image 行的迁移默认值。
+- 搜索从 base 模块拆到 `search-feature.mjs`，开关改存 `data/search.json`（一次性读取旧 `data/fast-mode.json` 的 `searchEnabled`）；base 的 `/codex/status` 不再混入搜索状态，新增 `/codex/search/status`。
+- 设置页重组为分区卡片：base 的账户/用量/搜索，image 的模型清单与试生图分开；新增组件行状态徽标与“搜索行未启用”提示。
+
 ## 0.3.0 — 组件化与 GPT Image 2.6
 
-- 拆成单包双组件行：裸包名 `codex-supplement`（media）与 `codex-supplement-auth`（OAuth/用量/搜索/Fast Mode）。media 必须使用裸包名，因为 DSH `dsh-client-modules` 只对裸包名 row 发现 Client 模块；旧 profile 对 `codex-supplement` 的媒体配置（`imageModels` / `imageQuality` / `imageOutputDir`）原位保留。
 - 图像模型目录更新到 GPT Image 2.6：新增 `gpt-image-2.6-flare` / `gpt-image-2.6-sunburst`，保留 2.5 两档与带日期快照、2 / 1.5 / 1-mini / `chatgpt-image-latest`；`gpt-image-1` 仅作为已下线兼容项保留，出厂勾选改为 2.6 两档。
 - 工具 schema 重设为扁平、与开放 API 对齐：`output_format` / `output_compression` / `complexity` / `mask` / `frames` / `frame_duration_ms` / `moderation` / `input_fidelity` / `partial_images`。`complexity`、gif/svg 与帧字段按已勾选模型的能力位裁剪。
 - 请求链贯通 2.6 字段：adapter 转发 `complexity`、`frame_count`、`frame_duration_ms`，支持 gif/svg MIME 与落盘扩展名，并读取上游回传的 `effective`（model / size / quality / output_format / complexity / revised_prompt）。

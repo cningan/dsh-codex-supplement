@@ -1,13 +1,13 @@
 {
   "name": "@cningan/dsh-codex-supplement",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Codex sign-in, usage, search, Fast Mode, and subscription image generation for DeepSeek Harness.",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
     ".": "./lib/index.js",
-    "./auth": "./lib/entries/auth.js",
-    "./media": "./lib/entries/media.js",
+    "./image": "./lib/entries/image.js",
+    "./search": "./lib/entries/search.js",
     "./client": "./lib/client.js",
     "./package.json": "./package.json"
   },

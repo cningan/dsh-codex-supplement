@@ -26,7 +26,7 @@
 
 ## 请求与输出流程
 
-1. `lib/media/index.js` 拥有图像生成启用标志、选定的图像模型列表、请求级质量/复杂度缺省与输出目录设置。
+1. `codex-supplement` base row 提供 `openaiCodexAuth` 与设置页；`codex-supplement-image` 行（`lib/media/index.js`）拥有生图启用标志、选定的图像模型列表、请求级质量/复杂度缺省与输出目录设置。base 行仍接住旧媒体配置，并在 image 行启动时作为迁移默认值。
 2. `lib/media/image-tool.js` 把当前官方 Codex 选择解析为 carrier，并独立地把请求的图像模型对照选定的允许清单解析。请求未选定的图像模型会被拒绝并列合法值；代码不会静默选择替身。
 3. `lib/media/adapters/openai-codex.js` 构造 Responses 请求，其顶层 `model` 是 carrier，`tools` 项是 `image_generation`。图像模型只写入该工具的 `model` 字段；quality、complexity、size、action、background、输出格式、压缩、审核、输入保真、部分图、GIF 帧与遮罩仍是工具级控件。
 4. adapter 解析返回的图像生成事件与 `image_generation_call` 上的实际字段（`effective`）。执行/输出层保存图像字节，并通过工具结果与附件处理返回路径/元数据。
