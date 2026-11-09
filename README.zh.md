@@ -15,14 +15,14 @@
 
 ## 使用方式
 
-打开 **设置 → Codex 订阅**，页面现在按依赖分成清晰的卡片：账户（登录/设备码/账户列表）、用量额度、联网搜索（独立搜索组件行的状态与开关），以及下方的生图卡片（模型清单、质量/复杂度缺省、试生图）。生图区是一行一个模型的清单：可增行、删行、自填 id，或载入内置目录（全部候选，或只载入 2.6 两档）。清单即工具 `model` 参数的合法取值；顺序即优先级，第一行是不传 `model` 时的缺省档。清单为空则不注册生图工具。同一区还有请求级的**质量**与（2.6）**复杂度**缺省，单次调用仍可覆盖；`xhigh`/`max` 只有 GPT Image 2.5 支持，`1` / `1.5` / `2` 最高到 `high`。普通对话模型及其输入/输出能力只在官方 **Models → OpenAI Codex** 项中管理。
+打开 **设置 → Codex 订阅**，页面现在按依赖分成清晰的卡片：账户（登录/设备码/账户列表）、用量额度、联网搜索（独立搜索组件行的状态与开关），以及生图卡片。生图卡包含工具开关、一行一个模型的清单与试生图：可增行、删行、自填 id；★ 设为显式默认模型；⚙ 编辑该模型自己的 quality / complexity 缺省。清单顺序只影响展示，空清单不注册工具。quality 选项与缺省跟随所选模型：2.5 可到 `xhigh`/`max`，1 / 1.5 / 2 与 2.6 最高 `high`；2.6 才有 complexity。试生图使用同一套按模型解析。普通对话模型及其输入/输出能力只在官方 **Models → OpenAI Codex** 项中管理。
 
 同一区还有**试生图**面板：用同一个 adapter 发一次最小请求（不写工作区、不注册工具），显示上游状态、耗时、端点实际回传的字段与内联预览。每次点击会真实消耗一张订阅图。Codex OAuth lane 在部分构建上会忽略 `model` / `size` / `complexity`，并拒绝 `gif`/`svg`；试生图就是用来实测你这版端点到底接受什么，而不是只相信开放 API 的 schema。
 
 ## 兼容性与安装
 
 - 基线：支持 bundle/组件行的 DSH `0.2.x`；Node.js 22 或更新版本。
-- 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：三个组件行都正常挂载，`/codex/status`、`/codex/usage`、`/codex/fast-mode`、`/codex/search/status`、`/capabilities` 与 `POST /codex/test-image` 均可用，启用生图后工具完成注册，生成的 Client 模块出现在 Web boot entry 中。旧 profile 对 `codex-supplement` 的 `imageModels` / `imageQuality` / `imageOutputDir` 覆盖会由 base 行接住，并作为 image 行的迁移默认值，无需手改 YAML。
+- 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：三个组件行都正常挂载，`/codex/status`、`/codex/usage`、`/codex/fast-mode`、`/codex/search/status`、`/capabilities` 与 `POST /codex/test-image` 均可用，启用生图后工具完成注册，生成的 Client 模块出现在 Web boot entry 中。设置页绑定 `codex-supplement-image` 行；base 行上的旧媒体字段仍通过校验以兼容旧 profile，但不再覆盖 image 行当前的 GPT Image 2.6 默认值。
 - 这是供 DSH 本地插件目录加载的 `@cningan` bundle。`package.json` 声明 bundle patch（两行）和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
 - GitHub 源码历史与之前 OAuth 仓库的历史分离，以免携带被 GitHub push protection 拒绝的未清理旧提交。
 
@@ -42,7 +42,7 @@ npm pack --dry-run
 
 - 启用 Codex 搜索会把 DSH `web` provider 切换为 `openai-codex`，方式是在活动 Profile 的 `cordis.patch.yml` 写入带标记的块。关闭时只移除插件管理的标记块，不改动手写的 `web` override。启用前请先确认这一副作用符合预期。
 - 官方 Codex credential record 与旧 token 的一次性迁移保留。Fast Mode/搜索状态仍保存在插件自己的 `data/` 目录，不会从旧插件自动迁移。旧的自定义模型清单不再读取；请在官方 **Models → OpenAI Codex** 项配置模型。
-- 生图工具只有一个：`codex-generate-image`。参数与开放 API 的 `image_generation` 字段一一对应：`prompt`、`model`、`image`、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，以及 2.6 GIF 用的 `frames` / `frame_duration_ms`。当没有任何已勾选模型声明对应能力时，`complexity` / `gif` / `svg` / 帧字段会从工具 schema 中消失。它的 `model` 参数从设置页清单取值，缺省用清单第一项；请求清单外的模型会被拒绝并列出合法值。旧配置里的 `codex-managed-image` 选择在读取时一次性迁移，该哨兵绝不会再发给上游。
+- 生图工具只有一个：`codex-generate-image`。参数与开放 API 的 `image_generation` 字段一一对应：`prompt`、`model`、`image`、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，以及 2.6 GIF 用的 `frames` / `frame_duration_ms`。当没有任何已勾选模型声明对应能力时，`complexity` / `gif` / `svg` / 帧字段会从工具 schema 中消失。它的 `model` 参数从设置页清单取值，缺省用显式默认模型；请求清单外的模型，或当前模型不支持的 quality/complexity，会被拒绝并列出合法值。旧配置里的 `codex-managed-image` 选择在读取时一次性迁移，该哨兵绝不会再发给上游。
 - **已在真实订阅上实证（2026-09-24）**：订阅端点接受 `image_generation.model`——`gpt-image-2.5-flare` 与 `gpt-image-2.5-sunburst` 各通过工具出图一次。**独立证据（2026-11-06，openai/codex#59890）**：OAuth `/backend-api/codex/images/*` lane 会忽略 `model` / `complexity` / `size` 与 SVG 格式，并以 400 拒绝 GIF。本包走 Responses hosted-tool lane，行为可能相同；试生图会如实显示结果，被拒绝时原样报出状态码与模型 id，**不会静默换用别的模型**。
 - 旧插件数据不会自动复制；移除旧插件目录前，应先将数据保存在活动插件目录之外。本包不发布 npm。
 

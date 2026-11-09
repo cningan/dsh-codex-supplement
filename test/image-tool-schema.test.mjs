@@ -36,7 +36,7 @@ test('the dead aspectRatio hint is gone', () => {
 test('the model enum mirrors the enabled selection, not the whole catalog', () => {
   const one = buildImageToolParameters({ models: ['gpt-image-2.5-sunburst'], defaultModel: 'gpt-image-2.5-sunburst' })
   assert.deepEqual(one.model.enum, ['gpt-image-2.5-sunburst'])
-  assert.match(one.model.description, /first enabled model \(gpt-image-2\.5-sunburst\)/)
+  assert.match(one.model.description, /configured default model \(gpt-image-2\.5-sunburst\)/)
 })
 
 test('an empty selection produces no enum rather than an empty one', () => {
@@ -71,7 +71,7 @@ test('the description names the enabled models and their tiers', () => {
   })
   assert.match(description, /gpt-image-2\.6-flare（快速档）/)
   assert.match(description, /gpt-image-2\.6-sunburst（高质量档）/)
-  assert.match(description, /first enabled model \(gpt-image-2\.6-flare\) is used/)
+  assert.match(description, /configured default model \(gpt-image-2\.6-flare\) is used/)
   assert.match(description, /OUTPUT-NOTE/)
   // carrier 与图像模型必须被说成两件事，否则模型会把两者混用
   assert.match(description, /carrier/)
@@ -79,9 +79,9 @@ test('the description names the enabled models and their tiers', () => {
 
 test('the quality default and support range are disclosed', () => {
   const withDefault = buildImageToolParameters({ models: ENABLED, defaultQuality: 'high' })
-  assert.match(withDefault.quality.description, /Default: high/)
+  assert.match(withDefault.quality.description, /Default follows the selected model: high/)
   const fallback = buildImageToolParameters({ models: ENABLED })
-  assert.match(fallback.quality.description, /Default: auto/)
+  assert.match(fallback.quality.description, /Default follows the selected model: auto/)
   // 支持范围必须写明，否则模型会以为每个模型都有 xhigh/max
   assert.match(fallback.quality.description, /cap at high/)
 })

@@ -1,8 +1,16 @@
 # 更新日志
 
+## 0.4.1 — 开关、图标与文案收敛
+
+- 修正生图配置的依赖顺序：新增 `defaultImageModel` 与 `imageModelDefaults`，quality/complexity 改为跟随所选模型的 profile；工具、试生图与设置页共用同一解析。默认模型不再由清单顺序隐式决定。
+- 修复设置页显示 2.6、运行时却被 base 行旧配置迁移成 2.5 的不一致：image 行不再接收旧媒体字段。旧字段仍通过 base 的 schema 校验，但不再覆盖 image 行默认值。
+- 设置页顶部增加生图工具开关；关闭工具只需点开关，不必禁用 `codex-supplement-image` 组件行。
+- 重做插件图标（`icon.svg`），补齐 `locale/en.json` / `locale/zh.json` 的 Plugin Manager 标题与描述。
+- 收敛设置页文案：模型、质量/复杂度说明改为短标签，试生图的高级参数默认折叠；长说明移入 `title` 提示。
+
 ## 0.4.0 — 三层组件与设置页重组
 
-- 按依赖拆成三行：`codex-supplement`（base，裸包名：OAuth/用量/Fast Mode/日志/设置页）、`codex-supplement-image`（生图 + 试生图）、`codex-supplement-search`（搜索 provider 与开关）。base 必须使用裸包名，因为 DSH `dsh-client-modules` 只对裸包名 row 发现 Client 模块；旧 profile 的媒体配置由 base 接住并作为 image 行的迁移默认值。
+- 按依赖拆成三行：`codex-supplement`（base，裸包名：OAuth/用量/Fast Mode/日志/设置页）、`codex-supplement-image`（生图 + 试生图）、`codex-supplement-search`（搜索 provider 与开关）。base 必须使用裸包名，因为 DSH `dsh-client-modules` 只对裸包名 row 发现 Client 模块。
 - 搜索从 base 模块拆到 `search-feature.mjs`，开关改存 `data/search.json`（一次性读取旧 `data/fast-mode.json` 的 `searchEnabled`）；base 的 `/codex/status` 不再混入搜索状态，新增 `/codex/search/status`。
 - 设置页重组为分区卡片：base 的账户/用量/搜索，image 的模型清单与试生图分开；新增组件行状态徽标与“搜索行未启用”提示。
 

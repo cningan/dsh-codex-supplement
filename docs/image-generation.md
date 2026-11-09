@@ -6,7 +6,7 @@
 
 本包暴露一个图像工具 `codex-generate-image`，用于 ChatGPT/Codex 订阅支撑的 Responses `image_generation` 流程。它支持生成与编辑，可带可选参考图。它不是 OpenAI API-key Images 端点、通用多 provider adapter 或视频功能。包 README 列出了受支持的产品面与排除项。
 
-该功能仅在启用图像生成且至少选定一个图像模型时注册。设置列表就是工具的图像模型允许清单：其顺序决定缺省，调用方可在每次请求中选择列表中的其他模型。空列表表示没有图像工具。内置缺省列表是 GPT Image 2.6 Flare 与 Sunburst；当前目录与标签位于 `lib/media/image-models.mjs`，不在本说明中。
+该功能仅在启用图像生成且至少选定一个图像模型时注册。设置列表是工具的图像模型允许清单；`defaultImageModel` 显式决定不传 `model` 时的缺省，清单顺序只影响展示。每个启用模型通过 `imageModelDefaults[model]` 保存自己的 quality / complexity，解析时先选模型、再读该模型 profile。空列表表示没有图像工具。内置缺省列表是 GPT Image 2.6 Flare 与 Sunburst；当前目录与标签位于 `lib/media/image-models.mjs`，不在本说明中。
 
 工具接受 `prompt`、`model`、`image`（可选参考图）、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，以及 2.6 GIF 用的 `frames` / `frame_duration_ms`。当已勾选模型没有 2.6 能力位时，`complexity` / `frames` / `frame_duration_ms` 不出现，`output_format` 也只到 png/jpeg/webp。生成的文件保存到当前会话工作区之下（缺省 `images/`）；工具结果报告文件元数据、请求模型与上游回传的 `effective` 字段，图像通过 Host 附件机制传递。参见 `lib/media/image-tool-schema.mjs`、`lib/media/image-tool.js` 与 `lib/media/image-output.mjs`。
 
@@ -26,7 +26,7 @@
 
 ## 请求与输出流程
 
-1. `codex-supplement` base row 提供 `openaiCodexAuth` 与设置页；`codex-supplement-image` 行（`lib/media/index.js`）拥有生图启用标志、选定的图像模型列表、请求级质量/复杂度缺省与输出目录设置。base 行仍接住旧媒体配置，并在 image 行启动时作为迁移默认值。
+1. `codex-supplement` base row 提供 `openaiCodexAuth` 与设置页；`codex-supplement-image` 行（`lib/media/index.js`）拥有生图启用标志、模型清单、显式默认模型、每个模型的 quality/complexity 缺省与输出目录设置。base 行上的旧媒体字段仍通过校验，但不再覆盖 image 行。
 2. `lib/media/image-tool.js` 把当前官方 Codex 选择解析为 carrier，并独立地把请求的图像模型对照选定的允许清单解析。请求未选定的图像模型会被拒绝并列合法值；代码不会静默选择替身。
 3. `lib/media/adapters/openai-codex.js` 构造 Responses 请求，其顶层 `model` 是 carrier，`tools` 项是 `image_generation`。图像模型只写入该工具的 `model` 字段；quality、complexity、size、action、background、输出格式、压缩、审核、输入保真、部分图、GIF 帧与遮罩仍是工具级控件。
 4. adapter 解析返回的图像生成事件与 `image_generation_call` 上的实际字段（`effective`）。执行/输出层保存图像字节，并通过工具结果与附件处理返回路径/元数据。
@@ -40,7 +40,7 @@ OpenAI Python SDK 生成的 Responses `ImageGeneration` 工具类型暴露了工
 
 目录有意允许语法合法的自定义 ID，以免新支持的 ID 被过时的本地 enum 挡住。这并不代表远程支持。如果订阅端点拒绝请求的模型或格式，adapter 会上报响应状态、模型 ID 与格式提示；它绝不静默替换为其他模型。目录在 `lib/media/image-models.mjs`；请求构造与错误行为在 `lib/media/adapters/openai-codex.js`。
 
-`quality` 与 `complexity` 是带包级缺省的请求级值，不是按模型设置。工具描述提醒 GPT Image 1 / 1.5 / 2 最高到 `high`，GPT Image 2.5 还支持 `xhigh` 与 `max`，而 2.6 把场景规划拆到 `complexity`。当前实现不会静默降级或本地拒绝网关行为未确立的模型/质量组合；远程拒绝保持可见。只有在获得新的端点证据时才重新审视这一点；若契约变化，请更新相关测试。
+`quality` 与 `complexity` 属于所选图像模型的 profile，不是一份全局请求级缺省。显式参数可以覆盖，但必须落在该模型的能力位内；模型 profile 中的非法值在解析时被裁掉并回落到模型默认。工具描述提醒 GPT Image 1 / 1.5 / 2 最高到 `high`，GPT Image 2.5 还支持 `xhigh` 与 `max`，而 2.6 把场景规划拆到 `complexity`。当前实现不会静默换成另一个档位；远程拒绝保持可见。只有在获得新的端点证据时才重新审视这一点；若契约变化，请更新相关测试。
 
 ## 参考
 

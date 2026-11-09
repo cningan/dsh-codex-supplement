@@ -16,117 +16,115 @@ window.__ModuleLoader__.load({
 
     const dictionaries = {
       zh: {
-        title: "Codex 订阅生图",
-        intro: "用 ChatGPT/Codex 订阅的 image_generation 生成与编辑图片。工具不绑定模型：清单决定 model 参数能取哪些值。",
-        imageRow: "组件行 codex-supplement-image",
-        imageRowEnabled: "生图已开启",
-        imageRowDisabled: "生图已关闭",
-        imageRowHint: "生图是独立组件行；base 行只提供登录/用量/Fast Mode 与设置页。",
-        toolRegistered: "工具已注册",
-        toolNotRegistered: "工具未注册",
-        enable: "启用图片生成工具",
-        topHint: "总开关与清单共同决定工具是否注册；清单为空就不暴露生图工具。",
-        models: "模型清单",
-        modelsHint: "每行一个模型 id，可增可删、可自填代号。清单即工具 model 参数的合法取值；顺序即优先级，第一个是缺省档。",
-        quality: "缺省质量档",
-        qualityHint: "工具调用不传 quality 时用它，单次调用仍可覆盖。auto = 服务端按提示词自决。xhigh / max 仅 GPT Image 2.5（flare / sunburst）支持；2.6 请配合 complexity 使用。",
-        complexity: "缺省复杂度",
-        complexityHint: "2.6 起把“场景规划”与“像素渲染”拆开；low 适合快速改图，medium/high 适合元素多或约束多的场景。",
+        title: "图片生成",
+        subtitle: "订阅 image_generation，无需切换插件行。",
+        tool: "生图工具",
+        toolOn: "已开启",
+        toolOff: "已关闭",
+        toolMissing: "已开启 · 未注册",
+        defaultModel: "默认",
+        setDefault: "设为默认",
+        modelSettings: "模型缺省",
+        modelSettingsHint: "★ 设为默认；⚙ 编辑该模型的 quality / complexity。",
+        models: "模型",
+        modelsHint: "每行一个 id；顺序即优先级，第一项为默认。",
+        catalogShort: "内置候选，不是在线查询结果。",
+        quality: "质量",
+        qualityHint: "xhigh / max 仅 2.5",
+        complexity: "复杂度",
+        complexityHint: "2.6 规划强度",
         complexityDefault: "模型默认",
-        addModel: "添加模型",
-        loadCatalog: "载入内置目录",
-        loadLatest: "载入 2.6 两档",
-        catalogNote: "内置目录是插件自带的候选（含 2.6 / 2.5 / 前代），不是查询结果——订阅端点没有图像模型枚举接口；“可用性”只能靠下方的试生图实测。",
+        addModel: "添加",
+        loadCatalog: "内置目录",
+        loadLatest: "2.6 两档",
         deprecated: "已下线",
         testTitle: "试生图",
-        testIntro: "用当前勾选与设置发一次最小请求，只验证端点是否返图；不写工作区、不注册工具。OAuth lane 可能忽略 model / size / complexity，也可能拒绝 gif / svg。",
-        testPrompt: "测试提示词",
-        testPromptPlaceholder: "例如：A simple red apple on a white background, product photo",
+        testHint: "最小请求；每次消耗 1 张订阅图。",
+        testPromptPlaceholder: "描述一张测试图…",
         testModel: "模型",
         testQuality: "质量",
         testComplexity: "复杂度",
         testSize: "尺寸",
         testFormat: "格式",
-        testRun: "生成测试图",
+        testRun: "生成",
         testRunning: "生成中…",
         testOk: "成功",
         testFailed: "失败",
-        testElapsed: "耗时",
         testRequested: "请求",
         testEffective: "上游回传",
-        testNoEffective: "上游未回传实际模型/尺寸（可能被忽略）",
-        testPreviewLimited: "图片过大，未内联预览；但上游确实返回了图片。",
-        testConsumes: "每次点击会真实生成一张图并消耗订阅额度。",
-        testNeedLogin: "先登录 Codex 才能试生图。",
-        testUnsupported: "当前勾选的模型不支持该能力。",
-        carrier: "Responses carrier",
-        signedIn: "Codex 已登录",
-        signedOut: "请先登录 Codex",
-        checking: "检查登录状态…",
-        refresh: "刷新状态",
+        testNoEffective: "上游未回传实际字段",
+        testPreviewLimited: "图片过大，未内联预览",
+        testNeedLogin: "先登录 Codex",
+        testUnsupported: "当前模型不支持",
+        advanced: "高级选项",
+        hideAdvanced: "收起",
+        carrier: "carrier",
+        signedIn: "已登录",
+        signedOut: "未登录",
+        checking: "检查中…",
+        refresh: "刷新",
         loading: "加载中…",
-        loadFailed: "能力状态读取失败",
+        loadFailed: "读取失败",
         readFailed: "读取设置失败",
         writeFailed: "保存失败",
-        emptySelection: "清单为空：生图工具不会出现在上下文里。",
-        rowPlaceholder: "模型 id，例如 gpt-image-2.5-flare",
+        emptySelection: "清单为空，工具不会注册。",
+        rowPlaceholder: "模型 id",
         remove: "移除",
       },
       en: {
-        title: "Codex Subscription Image Generation",
-        intro: "Generate and edit images through the ChatGPT/Codex subscription image_generation tool. The tool is not bound to a model: this list defines the allowed values of its model argument.",
-        imageRow: "component row codex-supplement-image",
-        imageRowEnabled: "Image enabled",
-        imageRowDisabled: "Image disabled",
-        imageRowHint: "Image generation is its own component row; the base row owns sign-in, usage, Fast Mode and this settings page.",
-        toolRegistered: "Tool registered",
-        toolNotRegistered: "Tool not registered",
-        enable: "Enable the image-generation tool",
-        topHint: "The master switch and this list together decide whether the tool is registered; an empty list exposes nothing.",
-        models: "Model list",
-        modelsHint: "One model id per row. Add, remove, or type an id yourself. The list is the tool's allowed model values; order is priority and the first entry is the default.",
-        quality: "Default quality",
-        qualityHint: "Used when a call omits quality; a call can still override it. auto lets the service decide from the prompt. xhigh / max are GPT Image 2.5 (flare/sunburst) only; use quality together with complexity for 2.6.",
-        complexity: "Default complexity",
-        complexityHint: "GPT Image 2.6 splits planning from rendering: low for quick edits, medium/high for scenes with many elements or constraints.",
+        title: "Image generation",
+        subtitle: "Subscription image_generation; no row toggling needed.",
+        tool: "Image tool",
+        toolOn: "On",
+        toolOff: "Off",
+        toolMissing: "On · not registered",
+        defaultModel: "Default",
+        setDefault: "Set default",
+        modelSettings: "Model defaults",
+        modelSettingsHint: "★ sets the default; ⚙ edits that model's quality / complexity.",
+        models: "Models",
+        modelsHint: "One id per row; order is priority and the first row is the default.",
+        catalogShort: "Built-in candidates, not a live query.",
+        quality: "Quality",
+        qualityHint: "xhigh / max are 2.5 only",
+        complexity: "Complexity",
+        complexityHint: "2.6 planning effort",
         complexityDefault: "Model default",
-        addModel: "Add model",
-        loadCatalog: "Load built-in catalog",
-        loadLatest: "Load the two 2.6 models",
-        catalogNote: "The built-in catalog contains 2.6 / 2.5 / earlier candidates; it is not a query result — the subscription endpoint has no image-model enumeration. Only the test button below can tell what the lane actually accepts.",
+        addModel: "Add",
+        loadCatalog: "Catalog",
+        loadLatest: "2.6 pair",
         deprecated: "retired",
         testTitle: "Test generation",
-        testIntro: "Sends one minimal request with the current selection and settings to check whether the endpoint returns an image. It does not write the workspace or register a tool. The OAuth lane may ignore model / size / complexity and may reject gif / svg.",
-        testPrompt: "Test prompt",
-        testPromptPlaceholder: "e.g. A simple red apple on a white background, product photo",
+        testHint: "Minimal request; costs one subscription image.",
+        testPromptPlaceholder: "Describe a test image…",
         testModel: "Model",
         testQuality: "Quality",
         testComplexity: "Complexity",
         testSize: "Size",
         testFormat: "Format",
-        testRun: "Generate test image",
+        testRun: "Generate",
         testRunning: "Generating…",
         testOk: "Succeeded",
         testFailed: "Failed",
-        testElapsed: "elapsed",
         testRequested: "Requested",
-        testEffective: "Returned by endpoint",
-        testNoEffective: "The endpoint returned no effective model/size metadata (fields may be ignored).",
-        testPreviewLimited: "The image is too large for an inline preview, but the endpoint did return an image.",
-        testConsumes: "Each click really generates one image and consumes subscription quota.",
-        testNeedLogin: "Sign in to Codex before testing.",
-        testUnsupported: "The selected model does not support this capability.",
-        carrier: "Responses carrier",
-        signedIn: "Codex signed in",
-        signedOut: "Sign in to Codex first",
-        checking: "Checking sign-in…",
-        refresh: "Refresh status",
+        testEffective: "Returned",
+        testNoEffective: "Endpoint returned no effective fields",
+        testPreviewLimited: "Image too large for an inline preview",
+        testNeedLogin: "Sign in to Codex",
+        testUnsupported: "Unsupported by this model",
+        advanced: "Advanced",
+        hideAdvanced: "Hide",
+        carrier: "carrier",
+        signedIn: "Signed in",
+        signedOut: "Signed out",
+        checking: "Checking…",
+        refresh: "Refresh",
         loading: "Loading…",
-        loadFailed: "Failed to load capability status",
-        readFailed: "Failed to load settings",
+        loadFailed: "Load failed",
+        readFailed: "Could not read settings",
         writeFailed: "Save failed",
-        emptySelection: "The list is empty: the image tool will not appear in context.",
-        rowPlaceholder: "model id, e.g. gpt-image-2.5-flare",
+        emptySelection: "Empty list: the tool will not be registered.",
+        rowPlaceholder: "model id",
         remove: "Remove",
       },
     };
@@ -204,6 +202,8 @@ window.__ModuleLoader__.load({
       const [testFormat, setTestFormat] = React.useState("png");
       const [testing, setTesting] = React.useState(false);
       const [testResult, setTestResult] = React.useState(undefined);
+      const [showAdvanced, setShowAdvanced] = React.useState(false);
+      const [expandedModel, setExpandedModel] = React.useState(null);
 
       const loadCapabilities = React.useCallback(async (signal) => {
         setLoading(true);
@@ -229,6 +229,8 @@ window.__ModuleLoader__.load({
 
       const writable = snapshot.writable === true;
       const capability = capabilities?.capability;
+      const enabled = config.enableImageGeneration === true;
+      const toolRegistered = Array.isArray(capability?.registeredTools) && capability.registeredTools.length > 0;
       const catalog = Array.isArray(capability?.catalog) ? capability.catalog : [];
       // 以配置为显示正源；字段缺失（旧宿主）时回落到 Host 解析出的清单。
       const saved = Array.isArray(config.imageModels)
@@ -237,20 +239,40 @@ window.__ModuleLoader__.load({
       const list = draft ?? saved;
       const oauth = capabilities?.oauth;
       const carrier = capabilities?.codexCarrier || capability?.carrierModel || "—";
-      const qualityOptions = Array.isArray(capability?.qualities) && capability.qualities.length > 0
-        ? capability.qualities
-        : ["auto", "low", "medium", "high", "xhigh", "max"];
-      const defaultQuality = typeof config.imageQuality === "string" && config.imageQuality.length > 0
-        ? config.imageQuality
-        : (typeof capability?.defaultQuality === "string" ? capability.defaultQuality : "auto");
-      const defaultComplexity = typeof config.imageComplexity === "string" ? config.imageComplexity : "";
+      const defaultModel = list.includes(config.defaultImageModel)
+        ? config.defaultImageModel
+        : (typeof capability?.defaultModel === "string" && list.includes(capability.defaultModel)
+          ? capability.defaultModel
+          : (list[0] ?? ""));
+      const profileFor = (model) => {
+        const fromHost = Array.isArray(capability?.modelProfiles)
+          ? capability.modelProfiles.find((item) => item.id === model)
+          : undefined;
+        if (fromHost !== undefined) return fromHost;
+        const caps = catalog.find((item) => item.id === model)?.capabilities ?? {};
+        const all = ["auto", "low", "medium", "high", "xhigh", "max"];
+        const ceiling = all.indexOf(caps.maxQuality ?? "high");
+        return {
+          qualityOptions: all.filter((_, index) => index <= ceiling),
+          complexityOptions: caps.complexity === true ? ["low", "medium", "high"] : [],
+          capabilities: caps,
+          defaults: { quality: "auto", complexity: "" },
+        };
+      };
 
-      // 试生图派生值：清单变化后自动回落到首个启用模型。
-      const activeTestModel = list.includes(testModel) ? testModel : (list[0] ?? "");
+      // 试生图派生值全部跟随当前选择的模型，而不是全局缺省。
+      const activeTestModel = list.includes(testModel) ? testModel : defaultModel;
       const testChoice = catalog.find((item) => item.id === activeTestModel);
       const testCaps = testChoice?.capabilities ?? {};
-      const testQualityValue = qualityOptions.includes(testQuality) ? testQuality : defaultQuality;
-      const testComplexityValue = ["low", "medium", "high"].includes(testComplexity) ? testComplexity : "";
+      const testProfile = profileFor(activeTestModel);
+      const testQualityOptions = testProfile.qualityOptions ?? ["auto"];
+      const testQualityValue = testQualityOptions.includes(testQuality)
+        ? testQuality
+        : (testProfile.defaults?.quality ?? "auto");
+      const testComplexityOptions = testProfile.complexityOptions ?? [];
+      const testComplexityValue = testComplexityOptions.includes(testComplexity)
+        ? testComplexity
+        : (testProfile.defaults?.complexity ?? "");
       const testFormats = [
         "png", "jpeg", "webp",
         ...(testCaps.gif === true ? ["gif"] : []),
@@ -305,12 +327,29 @@ window.__ModuleLoader__.load({
         await mutate([["imageModels", cleaned]]);
       };
 
+      /** 写单个模型的缺省；整份 dict 一起写，避免依赖嵌套 path 的编辑器能力。 */
+      const setModelDefault = async (model, field, value) => {
+        const currentDefaults = config.imageModelDefaults !== null && typeof config.imageModelDefaults === "object"
+          ? config.imageModelDefaults
+          : {};
+        const next = {
+          ...currentDefaults,
+          [model]: { ...(currentDefaults[model] ?? {}), [field]: value },
+        };
+        await mutate([["imageModelDefaults", next]]);
+      };
+
+      const label = { color: "var(--dsw-alias-label-secondary)", fontSize: 12 };
+      const muted = { color: "var(--dsw-alias-label-tertiary)", fontSize: 11 };
+
       const rows = list.map((value, index) => {
         const choice = catalog.find((item) => item.id === value);
+        const profile = profileFor(value);
+        const isDefault = value === defaultModel;
         const tierLabel = choice === undefined
           ? ""
           : choice.tier === "fast" ? "快速" : choice.tier === "quality" ? "高质量" : "前代";
-        return h("div", {
+        const row = h("div", {
           key: `row-${index}`,
           style: { display: "flex", alignItems: "center", gap: 8 },
         },
@@ -341,38 +380,118 @@ window.__ModuleLoader__.load({
           }, `${tierLabel}${choice.deprecated === true ? ` · ${t("deprecated")}` : ""}`),
           h("button", {
             type: "button",
+            title: isDefault ? t("defaultModel") : t("setDefault"),
+            "aria-label": isDefault ? t("defaultModel") : t("setDefault"),
+            "aria-pressed": isDefault,
+            disabled: busy || !writable || value.length === 0,
+            onClick: () => void mutate([["defaultImageModel", value]]),
+            style: {
+              ...buttonStyle,
+              padding: "2px 7px",
+              color: isDefault ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-secondary)",
+              cursor: busy || !writable || value.length === 0 ? "default" : "pointer",
+            },
+          }, isDefault ? "★" : "☆"),
+          h("button", {
+            type: "button",
+            title: t("modelSettings"),
+            "aria-label": t("modelSettings"),
+            "aria-expanded": expandedModel === value,
+            onClick: () => setExpandedModel(expandedModel === value ? null : value),
+            style: { ...buttonStyle, padding: "2px 7px" },
+          }, "⚙"),
+          h("button", {
+            type: "button",
             title: t("remove"),
             "aria-label": t("remove"),
             disabled: busy || !writable,
             onClick: () => void commit(list.filter((_, position) => position !== index)),
             style: { ...buttonStyle, cursor: busy || !writable ? "default" : "pointer" },
           }, "✕"));
+        if (expandedModel !== value) return row;
+        return h("div", { key: `row-${index}-wrap`, style: { display: "flex", flexDirection: "column", gap: 6 } },
+          row,
+          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", padding: "6px 10px", borderRadius: 8, background: "var(--dsw-alias-bg-layer-2, var(--dsw-alias-bg-layer-1))" } },
+            h("span", { style: label }, t("quality")),
+            h("select", {
+              value: profile.defaults?.quality ?? "auto",
+              disabled: busy || !writable,
+              onChange: (event) => void setModelDefault(value, "quality", event.target.value),
+              style: selectStyle,
+            }, ...(profile.qualityOptions ?? ["auto"]).map((option) => h("option", { key: option, value: option }, option))),
+            (profile.complexityOptions ?? []).length === 0 ? null : h("span", { style: label }, t("complexity")),
+            (profile.complexityOptions ?? []).length === 0 ? null : h("select", {
+              value: profile.defaults?.complexity ?? "",
+              disabled: busy || !writable,
+              onChange: (event) => void setModelDefault(value, "complexity", event.target.value),
+              style: selectStyle,
+            },
+              h("option", { value: "" }, t("complexityDefault")),
+              ...profile.complexityOptions.map((option) => h("option", { key: option, value: option }, option)))),
+        );
       });
 
-      return h("div", { style: { display: "flex", flexDirection: "column", gap: 12 } },
-        h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-          h("label", { style: { display: "inline-flex", alignItems: "center", gap: 8, color: "var(--dsw-alias-label-primary)", fontSize: 13, cursor: busy || !writable ? "default" : "pointer" } },
-            h("input", { type: "checkbox", checked: config.enableImageGeneration === true, disabled: busy || !writable,
-              onChange: (event) => void mutate([["enableImageGeneration", event.target.checked]]),
-              style: { accentColor: "var(--dsw-alias-brand-primary)" } }),
-            t("enable")),
-          h("span", { style: { padding: "2px 8px", borderRadius: 999, background: "var(--dsw-alias-bg-layer-3)", color: "var(--dsw-alias-label-secondary)", fontSize: 11 } },
-            capability?.enabled === true ? t("imageRowEnabled") : t("imageRowDisabled")),
-          h("span", { style: { padding: "2px 8px", borderRadius: 999, background: "var(--dsw-alias-bg-layer-3)", color: "var(--dsw-alias-label-secondary)", fontSize: 11 } },
-            Array.isArray(capability?.registeredTools) && capability.registeredTools.length > 0 ? t("toolRegistered") : t("toolNotRegistered")),
+      const card = {
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        padding: 12,
+        border: "1px solid var(--dsw-alias-border-l2)",
+        borderRadius: 10,
+        background: "var(--dsw-alias-bg-layer-1)",
+      };
+
+      return h("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
+        h("div", { style: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" } },
+          h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 13, fontWeight: 600 } }, t("tool")),
+          h("button", {
+            type: "button",
+            role: "switch",
+            "aria-checked": enabled,
+            "aria-label": t("tool"),
+            disabled: busy || !writable,
+            title: enabled ? t("toolOff") : t("toolOn"),
+            onClick: async () => {
+              const saved = await mutate([["enableImageGeneration", !enabled]]);
+              if (saved) void loadCapabilities();
+            },
+            style: {
+              width: 40, height: 22, padding: 0, position: "relative", borderRadius: 999,
+              border: `1px solid ${enabled ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-border-l2)"}`,
+              background: enabled ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-bg-layer-3)",
+              cursor: busy || !writable ? "default" : "pointer",
+            },
+          }, h("span", {
+            style: {
+              position: "absolute", top: 2, left: enabled ? 20 : 2, width: 16, height: 16,
+              borderRadius: 999, background: "#fff", transition: "left .15s",
+            },
+          })),
+          h("span", {
+            style: {
+              ...label,
+              color: enabled
+                ? (toolRegistered ? "var(--dsw-alias-state-success-primary)" : "var(--dsw-alias-state-warning-primary, var(--dsw-alias-label-secondary))")
+                : "var(--dsw-alias-label-secondary)",
+            },
+          }, enabled ? (toolRegistered ? t("toolOn") : t("toolMissing")) : t("toolOff")),
+          h("button", {
+            type: "button",
+            disabled: loading,
+            title: t("refresh"),
+            "aria-label": t("refresh"),
+            onClick: () => void loadCapabilities(),
+            style: { ...buttonStyle, marginLeft: "auto", padding: "2px 8px", cursor: loading ? "default" : "pointer" },
+          }, loading ? "…" : "↻"),
           writeError ? h("span", { role: "alert", style: { color: "var(--dsw-alias-state-error-primary)", fontSize: 12 } }, writeError) : null,
         ),
-        h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("topHint")),
-        h("p", { style: { margin: 0, color: "var(--dsw-alias-label-tertiary)", fontSize: 11 } }, t("imageRowHint")),
-        h("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: 12, border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 10, background: "var(--dsw-alias-bg-layer-1)" } },
-          h("div", { style: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" } },
+        h("div", { style: card },
+          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
             h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 13, fontWeight: 600 } }, t("models")),
-            h("span", { style: { color: oauth?.loggedIn ? "var(--dsw-alias-state-success-primary)" : "var(--dsw-alias-label-secondary)", fontSize: 12 } },
+            h("span", { style: { color: oauth?.loggedIn ? "var(--dsw-alias-state-success-primary)" : "var(--dsw-alias-label-secondary)", fontSize: 11 } },
               loading ? t("checking") : oauth?.loggedIn ? t("signedIn") : t("signedOut")),
-            h("button", { type: "button", disabled: loading, onClick: () => void loadCapabilities(),
-              style: { ...buttonStyle, marginLeft: "auto", cursor: loading ? "default" : "pointer" } },
-              loading ? t("loading") : t("refresh"))),
-          h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("modelsHint")),
+            h("span", { style: { ...muted, marginLeft: "auto" } }, t("carrier") + ": " + carrier)),
+          h("p", { style: { margin: 0, ...muted } }, t("modelsHint")),
           rows.length > 0 ? h("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, ...rows) : null,
           h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
             h("button", {
@@ -384,6 +503,7 @@ window.__ModuleLoader__.load({
             h("button", {
               type: "button",
               disabled: busy || !writable || catalog.length === 0,
+              title: t("loadCatalog"),
               onClick: () => void commit(catalog.map((item) => item.id)),
               style: { ...buttonStyle, cursor: busy || !writable || catalog.length === 0 ? "default" : "pointer" },
             }, t("loadCatalog")),
@@ -392,86 +512,34 @@ window.__ModuleLoader__.load({
               disabled: busy || !writable,
               onClick: () => void commit(LATEST_IMAGE_MODELS),
               style: { ...buttonStyle, cursor: busy || !writable ? "default" : "pointer" },
-            }, t("loadLatest"))),
-          h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("catalogNote")),
-          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", paddingTop: 4 } },
-            h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 12 } }, t("quality")),
-            h("select", {
-              value: defaultQuality,
-              disabled: busy || !writable,
-              onChange: (event) => void mutate([["imageQuality", event.target.value]]),
-              style: selectStyle,
-            }, ...qualityOptions.map((option) => h("option", { key: option, value: option }, option))),
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("qualityHint"))),
-          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-            h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 12 } }, t("complexity")),
-            h("select", {
-              value: ["low", "medium", "high"].includes(defaultComplexity) ? defaultComplexity : "",
-              disabled: busy || !writable,
-              onChange: (event) => void mutate([["imageComplexity", event.target.value]]),
-              style: selectStyle,
-            },
-              h("option", { value: "" }, t("complexityDefault")),
-              ...["low", "medium", "high"].map((option) => h("option", { key: option, value: option }, option))),
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("complexityHint"))),
+            }, t("loadLatest")),
+            h("span", { style: { ...muted, marginLeft: "auto" } }, t("catalogShort"))),
+          h("p", { style: { margin: 0, ...muted } }, t("modelSettingsHint")),
           list.length === 0
             ? h("p", { role: "status", style: { margin: 0, color: "var(--dsw-alias-state-error-primary)", fontSize: 12 } }, t("emptySelection"))
             : null,
-          h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, `${t("carrier")}: ${carrier}`),
           error ? h("span", { role: "alert", style: { color: "var(--dsw-alias-state-error-primary)", fontSize: 12 } }, `${t("loadFailed")}: ${error}`) : null,
         ),
-        h("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: 12, border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 10, background: "var(--dsw-alias-bg-layer-1)" } },
-          h("div", { style: { display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" } },
-            h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 13, fontWeight: 600 } }, t("testTitle")),
-            h("span", { style: { color: "var(--dsw-alias-state-warning-primary, var(--dsw-alias-label-secondary))", fontSize: 11 } }, t("testConsumes"))),
-          h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testIntro")),
-          h("label", { style: { display: "flex", flexDirection: "column", gap: 4 } },
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testPrompt")),
-            h("textarea", {
-              rows: 2,
-              value: testPrompt,
-              placeholder: t("testPromptPlaceholder"),
-              onChange: (event) => setTestPrompt(event.target.value),
-              style: { ...inputStyle, resize: "vertical", minHeight: 52 },
-            })),
+        h("div", { style: card },
           h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testModel")),
+            h("span", { style: { color: "var(--dsw-alias-label-primary)", fontSize: 13, fontWeight: 600 } }, t("testTitle")),
+            h("span", { style: muted }, t("testHint"))),
+          h("textarea", {
+            rows: 2,
+            "aria-label": t("testPromptPlaceholder"),
+            value: testPrompt,
+            placeholder: t("testPromptPlaceholder"),
+            onChange: (event) => setTestPrompt(event.target.value),
+            style: { ...inputStyle, resize: "vertical", minHeight: 48 },
+          }),
+          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
             h("select", {
               value: activeTestModel,
               disabled: list.length === 0,
+              "aria-label": t("testModel"),
               onChange: (event) => setTestModel(event.target.value),
               style: selectStyle,
             }, ...list.map((id) => h("option", { key: id, value: id }, id))),
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testQuality")),
-            h("select", {
-              value: testQualityValue,
-              onChange: (event) => setTestQuality(event.target.value),
-              style: selectStyle,
-            }, ...qualityOptions.map((option) => h("option", { key: option, value: option }, option))),
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testComplexity")),
-            h("select", {
-              value: testComplexityValue,
-              disabled: testCaps.complexity !== true,
-              title: testCaps.complexity === true ? "" : t("testUnsupported"),
-              onChange: (event) => setTestComplexity(event.target.value),
-              style: selectStyle,
-            },
-              h("option", { value: "" }, t("complexityDefault")),
-              ...["low", "medium", "high"].map((option) => h("option", { key: option, value: option }, option))),
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testSize")),
-            h("input", {
-              type: "text",
-              value: testSize,
-              onChange: (event) => setTestSize(event.target.value),
-              style: { ...inputStyle, flex: "0 0 110px" },
-            }),
-            h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testFormat")),
-            h("select", {
-              value: testFormatValue,
-              onChange: (event) => setTestFormat(event.target.value),
-              style: selectStyle,
-            }, ...testFormats.map((option) => h("option", { key: option, value: option }, option)))),
-          h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
             h("button", {
               type: "button",
               disabled: testing || !oauth?.loggedIn || list.length === 0 || testPrompt.trim().length === 0,
@@ -484,7 +552,44 @@ window.__ModuleLoader__.load({
                 cursor: testing || !oauth?.loggedIn || list.length === 0 ? "default" : "pointer",
               },
             }, testing ? t("testRunning") : t("testRun")),
-            !oauth?.loggedIn ? h("span", { style: { color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("testNeedLogin")) : null),
+            h("button", {
+              type: "button",
+              "aria-expanded": showAdvanced,
+              onClick: () => setShowAdvanced((value) => !value),
+              style: { ...buttonStyle, padding: "2px 8px", border: 0, background: "transparent", color: "var(--dsw-alias-label-secondary)" },
+            }, showAdvanced ? t("hideAdvanced") : t("advanced")),
+            !oauth?.loggedIn ? h("span", { style: muted }, t("testNeedLogin")) : null),
+          showAdvanced ? h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
+            h("span", { style: label }, t("testQuality")),
+            h("select", {
+              value: testQualityValue,
+              onChange: (event) => setTestQuality(event.target.value),
+              style: selectStyle,
+            }, ...testQualityOptions.map((option) => h("option", { key: option, value: option }, option))),
+            ...(testComplexityOptions.length === 0 ? [] : [
+              h("span", { key: "complexity-label", style: label }, t("testComplexity")),
+              h("select", {
+                key: "complexity-select",
+                value: testComplexityValue,
+                onChange: (event) => setTestComplexity(event.target.value),
+                style: selectStyle,
+              },
+                h("option", { value: "" }, t("complexityDefault")),
+                ...testComplexityOptions.map((option) => h("option", { key: option, value: option }, option))),
+            ]),
+            h("span", { style: label }, t("testSize")),
+            h("input", {
+              type: "text",
+              value: testSize,
+              onChange: (event) => setTestSize(event.target.value),
+              style: { ...inputStyle, flex: "0 0 104px" },
+            }),
+            h("span", { style: label }, t("testFormat")),
+            h("select", {
+              value: testFormatValue,
+              onChange: (event) => setTestFormat(event.target.value),
+              style: selectStyle,
+            }, ...testFormats.map((option) => h("option", { key: option, value: option }, option)))) : null,
           testResult === undefined ? null : h("div", { style: { display: "flex", flexDirection: "column", gap: 6, padding: 10, borderRadius: 8, background: "var(--dsw-alias-bg-layer-2, var(--dsw-alias-bg-layer-1))" } },
             h("div", {
               style: {
@@ -508,7 +613,7 @@ window.__ModuleLoader__.load({
                   alt: `test image ${index + 1}`,
                   style: {
                     maxWidth: "100%",
-                    maxHeight: 260,
+                    maxHeight: 240,
                     alignSelf: "flex-start",
                     borderRadius: 8,
                     border: "1px solid var(--dsw-alias-border-l2)",
@@ -524,10 +629,9 @@ window.__ModuleLoader__.load({
 
     function CodexImageSection({ t, configScope }) {
       return h("div", { style: { display: "flex", flexDirection: "column", gap: 8, marginTop: 4, paddingTop: 16, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
-        h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
+        h("div", { style: { display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" } },
           h("h4", { style: { margin: 0, color: "var(--dsw-alias-label-primary)", fontSize: 16, fontWeight: 600 } }, t("title")),
-          h("span", { style: { padding: "2px 8px", borderRadius: 999, background: "var(--dsw-alias-bg-layer-3)", color: "var(--dsw-alias-label-secondary)", fontSize: 11 } }, t("imageRow"))),
-        h("p", { style: { margin: 0, color: "var(--dsw-alias-label-secondary)", fontSize: 12 } }, t("intro")),
+          h("span", { style: { color: "var(--dsw-alias-label-tertiary)", fontSize: 11 } }, t("subtitle"))),
         h(CodexImageSettings, { t, configScope }),
       );
     }

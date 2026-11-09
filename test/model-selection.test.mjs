@@ -8,6 +8,7 @@ import {
   resolveCarrierModel,
   resolveDefaultImageModel,
   resolveImageModelForRequest,
+  resolveModelProfile,
   resolveSelectedImageModels,
 } from '../lib/media/model-selection.mjs'
 import {
@@ -101,6 +102,26 @@ test('resolveDefaultImageModel falls back safely', () => {
   assert.equal(resolveDefaultImageModel({ defaultModel: 'gpt-image-2', selectedModels: ['gpt-image-2'] }), 'gpt-image-2')
   assert.equal(resolveDefaultImageModel({ defaultModel: 'gpt-image-1', selectedModels: ['gpt-image-2'] }), 'gpt-image-2')
   assert.equal(resolveDefaultImageModel({ defaultModel: '', selectedModels: [] }), DEFAULT_IMAGE_MODEL)
+})
+
+test('resolveModelProfile keeps defaults inside the selected model capability', () => {
+  const latest = resolveModelProfile({
+    model: 'gpt-image-2.6-flare',
+    defaultsByModel: { 'gpt-image-2.6-flare': { quality: 'max', complexity: 'high' } },
+  })
+  assert.equal(latest.quality, 'auto')
+  assert.equal(latest.complexity, 'high')
+  assert.deepEqual(latest.qualityOptions, ['auto', 'low', 'medium', 'high'])
+  assert.deepEqual(latest.complexityOptions, ['low', 'medium', 'high'])
+
+  const older = resolveModelProfile({
+    model: 'gpt-image-2.5-flare',
+    defaultsByModel: { 'gpt-image-2.5-flare': { quality: 'max', complexity: 'high' } },
+  })
+  assert.equal(older.quality, 'max')
+  assert.equal('complexity' in older, false)
+  assert.deepEqual(older.complexityOptions, [])
+  assert.ok(older.qualityOptions.includes('max'))
 })
 
 test('the carrier is resolved separately from the image model', () => {

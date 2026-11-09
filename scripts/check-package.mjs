@@ -56,8 +56,14 @@ if (manifest) {
   if (manifest.exports?.['./image'] !== './lib/entries/image.js') fail('Image component export must point to ./lib/entries/image.js')
   if (manifest.exports?.['./search'] !== './lib/entries/search.js') fail('Search component export must point to ./lib/entries/search.js')
   if (manifest.exports?.['./client'] !== './lib/client.js') fail('Client export must point to ./lib/client.js')
+  if (manifest.exports?.['./icon'] !== './icon.svg') fail('Icon export must point to ./icon.svg')
+  if (manifest.exports?.['./locale/*.json'] !== './locale/*.json') fail('Locale exports must point to ./locale/*.json')
   if (!manifest.files?.includes('lib') || !manifest.files?.includes('cordis.patch.yml')) {
     fail('Package files allowlist must include lib and cordis.patch.yml')
+  }
+  for (const asset of ['icon.svg', 'locale']) {
+    if (!manifest.files?.includes(asset)) fail(`Package files allowlist must include ${asset}`)
+    if (!await exists(resolve(packageRoot, asset))) fail(`Missing display asset ${asset}`)
   }
   if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') fail('dsh.bundle.patch must point to ./cordis.patch.yml')
   if (manifest.dsh?.client?.platform !== 'web') fail('dsh.client.platform must be web')

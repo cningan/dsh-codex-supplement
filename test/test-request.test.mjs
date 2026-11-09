@@ -7,9 +7,14 @@ import {
 } from '../lib/media/test-request.mjs'
 
 const MODELS = ['gpt-image-2.6-flare', 'gpt-image-2.6-sunburst']
-const CONFIG = { imageQuality: 'high', imageComplexity: 'medium' }
+const CONFIG = {
+  defaultImageModel: 'gpt-image-2.6-flare',
+  imageModelDefaults: {
+    'gpt-image-2.6-flare': { quality: 'high', complexity: 'medium' },
+  },
+}
 
-test('the minimal test request uses the first enabled model and configured defaults', () => {
+test('the minimal test request follows the default model profile', () => {
   const { request, requested } = resolveTestImageRequest({
     body: { prompt: '  a red apple  ' },
     config: CONFIG,
@@ -35,7 +40,7 @@ test('the test UI can override model, complexity, format, size and gif fields', 
     body: {
       prompt: 'walk cycle',
       model: 'gpt-image-2.6-sunburst',
-      quality: 'max',
+      quality: 'high',
       complexity: 'high',
       output_format: 'gif',
       size: '1024x1024',
@@ -46,12 +51,35 @@ test('the test UI can override model, complexity, format, size and gif fields', 
     selectedModels: MODELS,
   })
   assert.equal(request.imageModel, 'gpt-image-2.6-sunburst')
-  assert.equal(request.quality, 'max')
+  assert.equal(request.quality, 'high')
   assert.equal(request.complexity, 'high')
   assert.equal(request.outputFormat, 'gif')
   assert.equal(request.size, '1024x1024')
   assert.equal(request.frameCount, 12)
   assert.equal(request.frameDurationMs, 150)
+})
+
+test('quality follows the selected model capability', () => {
+  const models = ['gpt-image-2.5-flare', 'gpt-image-2.6-flare']
+  const { request } = resolveTestImageRequest({
+    body: { prompt: 'x', model: 'gpt-image-2.5-flare' },
+    config: {
+      defaultImageModel: 'gpt-image-2.6-flare',
+      imageModelDefaults: { 'gpt-image-2.5-flare': { quality: 'max' } },
+    },
+    selectedModels: models,
+  })
+  assert.equal(request.quality, 'max')
+  assert.equal('complexity' in request, false)
+
+  assert.throws(
+    () => resolveTestImageRequest({
+      body: { prompt: 'x', model: 'gpt-image-2.6-flare', quality: 'max' },
+      config: {},
+      selectedModels: models,
+    }),
+    /not supported by gpt-image-2\.6-flare/,
+  )
 })
 
 test('invalid optional fields are ignored instead of breaking the test', () => {
