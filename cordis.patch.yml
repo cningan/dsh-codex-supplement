@@ -2,3 +2,6 @@
     - id: codex-supplement
       name: '@cningan/dsh-codex-supplement'
       config: {}
+    - id: codex-supplement-auth
+      name: '@cningan/dsh-codex-supplement/auth'
+      config: {}

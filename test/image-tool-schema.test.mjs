@@ -8,7 +8,7 @@ import {
   renderImageToolOutput,
 } from '../lib/media/image-tool-schema.mjs'
 
-const ENABLED = ['gpt-image-2.5-flare', 'gpt-image-2.5-sunburst']
+const ENABLED = ['gpt-image-2.6-flare', 'gpt-image-2.6-sunburst']
 
 test('there is exactly one image tool name', () => {
   assert.equal(IMAGE_TOOL_NAME, 'codex-generate-image')
@@ -17,9 +17,11 @@ test('there is exactly one image tool name', () => {
 })
 
 test('the parameter set carries the image model as an ordinary argument', () => {
-  const parameters = buildImageToolParameters({ models: ENABLED, defaultModel: 'gpt-image-2.5-flare' })
+  const parameters = buildImageToolParameters({ models: ENABLED, defaultModel: 'gpt-image-2.6-flare' })
   assert.deepEqual(Object.keys(parameters).sort(), [
-    'action', 'background', 'format', 'image', 'model', 'prompt', 'quality', 'size',
+    'action', 'background', 'complexity', 'frame_duration_ms', 'frames', 'image', 'input_fidelity',
+    'mask', 'model', 'moderation', 'output_compression', 'output_format', 'partial_images',
+    'prompt', 'quality', 'size',
   ])
   assert.equal(parameters.prompt.required, true)
   assert.deepEqual(parameters.model.enum, ENABLED)
@@ -47,20 +49,29 @@ test('the official remaining fields are offered with their documented values', (
   assert.deepEqual(parameters.quality.enum, ['auto', 'low', 'medium', 'high', 'xhigh', 'max'])
   assert.deepEqual(parameters.background.enum, ['auto', 'transparent', 'opaque'])
   assert.deepEqual(parameters.action.enum, ['auto', 'generate', 'edit'])
-  assert.deepEqual(parameters.format.enum, ['png', 'jpeg', 'webp'])
-  // 任意 WIDTHxHEIGHT 是 2/2.5 系的能力，说明必须提到它，否则模型只会用三个标准尺寸
+  assert.deepEqual(parameters.complexity.enum, ['low', 'medium', 'high'])
+  assert.deepEqual(parameters.output_format.enum, ['png', 'jpeg', 'webp', 'gif', 'svg'])
+  // 任意 WIDTHxHEIGHT 是 2/2.5/2.6 系的能力，说明必须提到它，否则模型只会用三个标准尺寸
   assert.match(parameters.size.description, /WIDTHxHEIGHT/)
+})
+
+test('2.6-only parameters disappear when no enabled model supports them', () => {
+  const legacy = buildImageToolParameters({ models: ['gpt-image-2.5-flare'], defaultModel: 'gpt-image-2.5-flare' })
+  assert.equal('complexity' in legacy, false)
+  assert.equal('frames' in legacy, false)
+  assert.equal('frame_duration_ms' in legacy, false)
+  assert.deepEqual(legacy.output_format.enum, ['png', 'jpeg', 'webp'])
 })
 
 test('the description names the enabled models and their tiers', () => {
   const description = buildImageToolDescription({
     models: ENABLED,
-    defaultModel: 'gpt-image-2.5-flare',
+    defaultModel: 'gpt-image-2.6-flare',
     outputNote: 'OUTPUT-NOTE',
   })
-  assert.match(description, /gpt-image-2\.5-flare（快速档）/)
-  assert.match(description, /gpt-image-2\.5-sunburst（高质量档）/)
-  assert.match(description, /first enabled model \(gpt-image-2\.5-flare\) is used/)
+  assert.match(description, /gpt-image-2\.6-flare（快速档）/)
+  assert.match(description, /gpt-image-2\.6-sunburst（高质量档）/)
+  assert.match(description, /first enabled model \(gpt-image-2\.6-flare\) is used/)
   assert.match(description, /OUTPUT-NOTE/)
   // carrier 与图像模型必须被说成两件事，否则模型会把两者混用
   assert.match(description, /carrier/)
@@ -77,7 +88,7 @@ test('the quality default and support range are disclosed', () => {
 
 test('the output schema separates the image model from the carrier', () => {
   const schema = buildImageToolOutputSchema()
-  assert.deepEqual(Object.keys(schema.properties).sort(), ['carrier', 'files', 'model', 'summary'])
+  assert.deepEqual(Object.keys(schema.properties).sort(), ['carrier', 'effective', 'files', 'model', 'summary'])
   assert.equal(schema.properties.files.required, true)
   assert.equal(schema.properties.summary.required, true)
 })

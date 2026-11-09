@@ -22,10 +22,10 @@ import {
 const providerId = CODEX_PROVIDER_ID
 const adapter = { id: providerId, auth: 'oauth' }
 
-test('the shipped default selection is the fast + quality 2.5 pair', () => {
-  assert.deepEqual([...DEFAULT_IMAGE_MODELS], ['gpt-image-2.5-flare', 'gpt-image-2.5-sunburst'])
-  assert.ok(isKnownImageModel('gpt-image-2.5-flare'))
-  assert.ok(isKnownImageModel('gpt-image-2.5-sunburst'))
+test('the shipped default selection is the fast + quality 2.6 pair', () => {
+  assert.deepEqual([...DEFAULT_IMAGE_MODELS], ['gpt-image-2.6-flare', 'gpt-image-2.6-sunburst'])
+  assert.ok(isKnownImageModel('gpt-image-2.6-flare'))
+  assert.ok(isKnownImageModel('gpt-image-2.6-sunburst'))
   assert.ok(IMAGE_MODEL_IDS.includes(DEFAULT_IMAGE_MODEL))
 })
 
@@ -36,8 +36,8 @@ test('an explicit model list is authoritative, including an explicit empty list'
 
 test('malformed ids are dropped and duplicates collapsed', () => {
   assert.deepEqual(resolveSelectedImageModels({
-    models: ['gpt-image-2.5-flare', 'gpt-image-2.5-flare', '', 'has space', 'gpt-image-2'],
-  }), ['gpt-image-2.5-flare', 'gpt-image-2'])
+    models: ['gpt-image-2.6-flare', 'gpt-image-2.6-flare', '', 'has space', 'gpt-image-2'],
+  }), ['gpt-image-2.6-flare', 'gpt-image-2'])
 })
 
 test('a missing field falls back to the shipped pair, not to "disabled"', () => {
@@ -66,10 +66,10 @@ test('the legacy sentinel is migrated, never forwarded as a model id', () => {
 })
 
 test('a requested model must be enabled by configuration', () => {
-  const selectedModels = ['gpt-image-2.5-flare', 'gpt-image-2.5-sunburst']
+  const selectedModels = ['gpt-image-2.6-flare', 'gpt-image-2.6-sunburst']
   assert.deepEqual(
-    resolveImageModelForRequest({ requested: 'gpt-image-2.5-sunburst', selectedModels }),
-    { model: 'gpt-image-2.5-sunburst' },
+    resolveImageModelForRequest({ requested: 'gpt-image-2.6-sunburst', selectedModels }),
+    { model: 'gpt-image-2.6-sunburst' },
   )
   assert.throws(
     () => resolveImageModelForRequest({ requested: 'gpt-image-1', selectedModels }),
@@ -78,15 +78,15 @@ test('a requested model must be enabled by configuration', () => {
 })
 
 test('omitting the model uses the configured default, then the first enabled', () => {
-  const selectedModels = ['gpt-image-2.5-flare', 'gpt-image-2.5-sunburst']
+  const selectedModels = ['gpt-image-2.6-flare', 'gpt-image-2.6-sunburst']
   assert.deepEqual(
-    resolveImageModelForRequest({ selectedModels, defaultModel: 'gpt-image-2.5-sunburst' }),
-    { model: 'gpt-image-2.5-sunburst' },
+    resolveImageModelForRequest({ selectedModels, defaultModel: 'gpt-image-2.6-sunburst' }),
+    { model: 'gpt-image-2.6-sunburst' },
   )
   // 默认档不在勾选清单里 → 回落到清单首个，而不是发出一个没勾选的模型。
   assert.deepEqual(
     resolveImageModelForRequest({ selectedModels, defaultModel: 'gpt-image-1' }),
-    { model: 'gpt-image-2.5-flare' },
+    { model: 'gpt-image-2.6-flare' },
   )
 })
 
@@ -125,8 +125,8 @@ test('image model id validation allows unknown-but-well-formed ids', () => {
 })
 
 test('describeImageModels labels the enabled tiers', () => {
-  const text = describeImageModels(['gpt-image-2.5-flare', 'gpt-image-2.5-sunburst', 'gpt-image-9-future'])
-  assert.match(text, /gpt-image-2\.5-flare（快速档）/)
-  assert.match(text, /gpt-image-2\.5-sunburst（高质量档）/)
+  const text = describeImageModels(['gpt-image-2.6-flare', 'gpt-image-2.6-sunburst', 'gpt-image-9-future'])
+  assert.match(text, /gpt-image-2\.6-flare（快速档）/)
+  assert.match(text, /gpt-image-2\.6-sunburst（高质量档）/)
   assert.match(text, /gpt-image-9-future/)
 })

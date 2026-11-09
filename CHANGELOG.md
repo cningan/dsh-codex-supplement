@@ -1,9 +1,14 @@
 # 更新日志
 
-## 未发布 — DSH 0.2.2 兼容性复核
+## 0.3.0 — 组件化与 GPT Image 2.6
 
-- 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：Host 模块激活，`codex/status`、`capabilities` 与 `codex/fast-mode` 路由均返回 200，现有配置（含旧迁移键）通过 schema，Client 模块出现在 Web boot graph 中。
-- 证据边界：只覆盖组装、加载与路由；完整桌面 UI 会话与真实 Codex 订阅调用未在本轮复核，图像端点仍以 2026-09-24 的实测为准。
+- 拆成单包双组件行：裸包名 `codex-supplement`（media）与 `codex-supplement-auth`（OAuth/用量/搜索/Fast Mode）。media 必须使用裸包名，因为 DSH `dsh-client-modules` 只对裸包名 row 发现 Client 模块；旧 profile 对 `codex-supplement` 的媒体配置（`imageModels` / `imageQuality` / `imageOutputDir`）原位保留。
+- 图像模型目录更新到 GPT Image 2.6：新增 `gpt-image-2.6-flare` / `gpt-image-2.6-sunburst`，保留 2.5 两档与带日期快照、2 / 1.5 / 1-mini / `chatgpt-image-latest`；`gpt-image-1` 仅作为已下线兼容项保留，出厂勾选改为 2.6 两档。
+- 工具 schema 重设为扁平、与开放 API 对齐：`output_format` / `output_compression` / `complexity` / `mask` / `frames` / `frame_duration_ms` / `moderation` / `input_fidelity` / `partial_images`。`complexity`、gif/svg 与帧字段按已勾选模型的能力位裁剪。
+- 请求链贯通 2.6 字段：adapter 转发 `complexity`、`frame_count`、`frame_duration_ms`，支持 gif/svg MIME 与落盘扩展名，并读取上游回传的 `effective`（model / size / quality / output_format / complexity / revised_prompt）。
+- 设置页新增**试生图**面板与 `POST /plugins/dsh-codex-supplement/codex/test-image`：复用同一 adapter 与 carrier，显示上游状态、耗时、实际回传字段与内联预览；不写工作区、不注册工具、不要求生图开关已打开。每次点击消耗一张真实订阅图。
+- 设置页新增 2.6 复杂度缺省、模型能力徽标、只载入 2.6 两档的按钮，并更新 OAuth lane 的忽略/拒绝提示。
+- 2026-11-09 在隔离 DSH `0.2.2-rc.1` 复核：两个组件行激活，四条路由 200，启用生图后工具注册，Client 模块进入 Web boot entry。
 
 ## 0.2.0 — 图像模型选择
 
