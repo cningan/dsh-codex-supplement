@@ -27,7 +27,7 @@ window.__ModuleLoader__.load({
         modelSettings: "模型缺省",
         modelSettingsHint: "★ 设为默认；⚙ 编辑该模型的 quality / complexity。",
         models: "模型",
-        modelsHint: "每行一个 id；顺序即优先级，第一项为默认。",
+        modelsHint: "每行一个 id；★ 决定默认模型。",
         catalogShort: "内置候选，不是在线查询结果。",
         quality: "质量",
         qualityHint: "xhigh / max 仅 2.5",
@@ -83,7 +83,7 @@ window.__ModuleLoader__.load({
         modelSettings: "Model defaults",
         modelSettingsHint: "★ sets the default; ⚙ edits that model's quality / complexity.",
         models: "Models",
-        modelsHint: "One id per row; order is priority and the first row is the default.",
+        modelsHint: "One id per row; ★ selects the default model.",
         catalogShort: "Built-in candidates, not a live query.",
         quality: "Quality",
         qualityHint: "xhigh / max are 2.5 only",
@@ -248,15 +248,32 @@ window.__ModuleLoader__.load({
         const fromHost = Array.isArray(capability?.modelProfiles)
           ? capability.modelProfiles.find((item) => item.id === model)
           : undefined;
-        if (fromHost !== undefined) return fromHost;
         const caps = catalog.find((item) => item.id === model)?.capabilities ?? {};
         const all = ["auto", "low", "medium", "high", "xhigh", "max"];
         const ceiling = all.indexOf(caps.maxQuality ?? "high");
-        return {
+        const base = fromHost ?? {
           qualityOptions: all.filter((_, index) => index <= ceiling),
           complexityOptions: caps.complexity === true ? ["low", "medium", "high"] : [],
           capabilities: caps,
           defaults: { quality: "auto", complexity: "" },
+        };
+        // 配置是即时正源；host profile 只提供能力位与回落值。
+        const local = config.imageModelDefaults !== null && typeof config.imageModelDefaults === "object"
+          ? (config.imageModelDefaults[model] ?? {})
+          : {};
+        const qualityOptions = base.qualityOptions ?? ["auto"];
+        const complexityOptions = base.complexityOptions ?? [];
+        const quality = qualityOptions.includes(local.quality)
+          ? local.quality
+          : (qualityOptions.includes(base.defaults?.quality) ? base.defaults.quality : "auto");
+        const complexity = complexityOptions.includes(local.complexity)
+          ? local.complexity
+          : (complexityOptions.includes(base.defaults?.complexity) ? base.defaults.complexity : "");
+        return {
+          ...base,
+          qualityOptions,
+          complexityOptions,
+          defaults: { quality, complexity },
         };
       };
 
@@ -324,7 +341,8 @@ window.__ModuleLoader__.load({
       const commit = async (next) => {
         const cleaned = [...new Set(next.map((value) => String(value ?? "").trim()).filter(Boolean))];
         setDraft(null);
-        await mutate([["imageModels", cleaned]]);
+        const saved = await mutate([["imageModels", cleaned]]);
+        if (saved) void loadCapabilities();
       };
 
       /** 写单个模型的缺省；整份 dict 一起写，避免依赖嵌套 path 的编辑器能力。 */

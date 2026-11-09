@@ -1,8 +1,14 @@
 # 更新日志
 
+## 0.4.2 — 每模型缺省与显示元数据校正
+
+- 完成 per-model 配置链：`defaultImageModel` 显式默认、`imageModelDefaults[model]` 保存每个模型的 quality/complexity；工具、试生图与 `/capabilities` 共用同一解析，显式非法档位本地拒绝。
+- 设置页模型行支持 ★ 设为默认与 ⚙ 编辑该模型缺省；试生图选项随所选模型变化。
+- 补充 `icon.svg` / `locale` 的包文件与 JSON 校验；收敛生图文案，试生图高级参数默认折叠。
+- 修正生图开关在模型变更后不刷新注册状态的问题。
+
 ## 0.4.1 — 开关、图标与文案收敛
 
-- 修正生图配置的依赖顺序：新增 `defaultImageModel` 与 `imageModelDefaults`，quality/complexity 改为跟随所选模型的 profile；工具、试生图与设置页共用同一解析。默认模型不再由清单顺序隐式决定。
 - 修复设置页显示 2.6、运行时却被 base 行旧配置迁移成 2.5 的不一致：image 行不再接收旧媒体字段。旧字段仍通过 base 的 schema 校验，但不再覆盖 image 行默认值。
 - 设置页顶部增加生图工具开关；关闭工具只需点开关，不必禁用 `codex-supplement-image` 组件行。
 - 重做插件图标（`icon.svg`），补齐 `locale/en.json` / `locale/zh.json` 的 Plugin Manager 标题与描述。

@@ -65,6 +65,22 @@ if (manifest) {
     if (!manifest.files?.includes(asset)) fail(`Package files allowlist must include ${asset}`)
     if (!await exists(resolve(packageRoot, asset))) fail(`Missing display asset ${asset}`)
   }
+  const icon = await readFile(resolve(packageRoot, 'icon.svg'), 'utf8').catch(() => '')
+  if (!icon.includes('<svg') || !icon.includes('</svg>')) fail('icon.svg must contain an SVG document')
+  for (const language of ['en', 'zh']) {
+    const localePath = resolve(packageRoot, 'locale', `${language}.json`)
+    try {
+      const locale = JSON.parse(await readFile(localePath, 'utf8'))
+      if (typeof locale?.meta?.title !== 'string' || locale.meta.title.length === 0) {
+        fail(`locale/${language}.json must define meta.title`)
+      }
+      if (typeof locale?.meta?.description !== 'string' || locale.meta.description.length === 0) {
+        fail(`locale/${language}.json must define meta.description`)
+      }
+    } catch (error) {
+      fail(`Invalid locale/${language}.json: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
   if (manifest.dsh?.bundle?.patch !== './cordis.patch.yml') fail('dsh.bundle.patch must point to ./cordis.patch.yml')
   if (manifest.dsh?.client?.platform !== 'web') fail('dsh.client.platform must be web')
 

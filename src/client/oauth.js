@@ -15,7 +15,7 @@ window.__ModuleLoader__.load({
     const dictionaries = {
       zh: {
         oauthTitle: "Codex 订阅",
-        oauthIntro: "登录 ChatGPT/Codex 订阅。普通模型及其输入/输出能力由官方 Models 页的 OpenAI Codex 项管理。",
+        oauthIntro: "登录 ChatGPT/Codex 订阅；普通模型由官方 Models 页管理。",
         signedIn: "已登录",
         signedOut: "未登录",
         checking: "检查中…",
@@ -37,7 +37,7 @@ window.__ModuleLoader__.load({
         deviceWaiting: "官方授权页已打开；完成验证后系统会自动检测成功并登录（无需粘贴代码）。",
         deviceOpen: "重新打开官方授权页",
         codexSearch: "联网搜索",
-        codexSearchHint: "开启：把 dsh 网页搜索切换到 ChatGPT（写入 web 配置，一般即刻生效、重启保险）；关闭：保持官方 DeepSeek 搜索。",
+        codexSearchHint: "切换 dsh 网页搜索 provider；会写入 web 配置。",
         codexSearchOn: "已开启",
         codexSearchOff: "已关闭",
         searchEnable: "开启搜索",
@@ -64,7 +64,7 @@ window.__ModuleLoader__.load({
       },
       en: {
         oauthTitle: "Codex Subscription",
-        oauthIntro: "Sign in with your ChatGPT/Codex subscription. Manage normal models and input/output capabilities in the official Models page under OpenAI Codex.",
+        oauthIntro: "Sign in with ChatGPT/Codex; manage normal models on the official Models page.",
         signedIn: "Signed in",
         signedOut: "Not signed in",
         checking: "Checking…",
@@ -86,7 +86,7 @@ window.__ModuleLoader__.load({
         deviceWaiting: "The official authorization page is open; it will auto-detect completion and sign you in (no need to paste codes).",
         deviceOpen: "Reopen the official authorization page",
         codexSearch: "Web search",
-        codexSearchHint: "On: switches DSH web search to ChatGPT (writes the web config; usually immediate, restart to be sure). Off keeps the official DeepSeek search.",
+        codexSearchHint: "On: switches DSH web search to ChatGPT (writes the web config). Off keeps the official DeepSeek search.",
         codexSearchOn: "On",
         codexSearchOff: "Off",
         searchEnable: "Enable search",
