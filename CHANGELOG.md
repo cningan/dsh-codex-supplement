@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.4.8 — Free 套餐预检与明确提示
+
+- ChatGPT Free 官方不提供 Codex 生图。实测该账号在 Terra carrier 上返回 200 但只生成内联 SVG；强制 `image_generation` 则得到 400“tool not found”。这不是 carrier 问题，而是套餐能力缺失。
+- 试生图与工具在发请求前读取 `wham/usage.planType`；`free` 直接返回可操作错误，不再浪费一次远程请求。
+- 设置页在 Free 套餐下显示提示并禁用“生成”按钮；`/capabilities` 增加 `planType`。
+
 ## 0.4.7 — 强制调用 image_generation
 
 - `tool_choice` 从 `auto` 改为 `{ type: "image_generation" }`。实测 Terra carrier 已返回 200，但 `auto` 时模型会直接输出内联 SVG 文本，完全不调用托管的生图工具。

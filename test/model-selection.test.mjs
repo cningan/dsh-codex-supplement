@@ -4,6 +4,7 @@ import {
   CODEX_PROVIDER_ID,
   LEGACY_MANAGED_IMAGE_CHOICE,
   assertCodexImageAdapter,
+  assertImagePlanSupported,
   legacySelectionState,
   resolveDefaultImageModel,
   resolveImageModelForRequest,
@@ -121,6 +122,14 @@ test('resolveModelProfile keeps defaults inside the selected model capability', 
   assert.equal('complexity' in older, false)
   assert.deepEqual(older.complexityOptions, [])
   assert.ok(older.qualityOptions.includes('max'))
+})
+
+test('the Free plan is rejected before any image request', () => {
+  assert.throws(() => assertImagePlanSupported('free'), /ChatGPT Free plan/)
+  assert.throws(() => assertImagePlanSupported('FREE'), /ChatGPT Free plan/)
+  assert.doesNotThrow(() => assertImagePlanSupported('plus'))
+  assert.doesNotThrow(() => assertImagePlanSupported('pro'))
+  assert.doesNotThrow(() => assertImagePlanSupported(undefined))
 })
 
 test('unsupported adapters are rejected before any request', () => {

@@ -8,7 +8,7 @@
 
 - ChatGPT/Codex OAuth 登录与退出，共用 DSH 官方 `llm-pi-ai/openai-codex` credential record；保留旧 Codex secret store 的一次性迁移。
 - Codex 订阅用量/额度展示、可选 Codex 网络搜索，以及按模型启用的 Fast Mode。
-- 通过 Responses `image_generation` 使用 Codex 订阅生图。图像模型由工具 `model` 参数逐次指定；内置目录以 GPT Image 2.6 Flare / Sunburst 为首，随后是 2.5（含带日期快照）与前代 id。2.6 增加规划复杂度 `complexity`、GIF/SVG 输出、遮罩与帧控制，工具 schema 会按已勾选模型的能力位裁剪。Responses carrier 固定为 ChatGPT 账号可用的 `gpt-5.6-terra`，不跟随官方聊天模型，也不与图像模型混用。图片默认写入当前会话工作区的 `images/`，并附加到会话供模型后续查看。
+- 通过 Responses `image_generation` 使用 Codex 订阅生图。图像模型由工具 `model` 参数逐次指定；内置目录以 GPT Image 2.6 Flare / Sunburst 为首，随后是 2.5（含带日期快照）与前代 id。2.6 增加规划复杂度 `complexity`、GIF/SVG 输出、遮罩与帧控制，工具 schema 会按已勾选模型的能力位裁剪。Responses carrier 固定为 ChatGPT 账号可用的 `gpt-5.6-terra`，不跟随官方聊天模型，也不与图像模型混用。ChatGPT Free 不包含这条 Codex 生图通道；插件在发请求前识别 `planType: free` 并显示可操作的套餐提示。图片默认写入当前会话工作区的 `images/`，并附加到会话供模型后续查看。
 - 一个包、三个组件行：裸包名 `codex-supplement` 是 base（OAuth 登录、用量、Fast Mode、日志与合并后的 Client 设置页）；`codex-supplement-image` 承载生图工具与试生图路由；`codex-supplement-search` 承载 Codex 搜索 provider。base 必须用裸包名，因为 `dsh-client-modules` 只对裸包名 row 发现 Client 模块；image/search 行依赖 base 提供的 `openaiCodexAuth` 服务。
 
 不包含 Grok、Claude、Antigravity、API-key 图片适配器或视频生成。

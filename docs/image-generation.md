@@ -10,14 +10,14 @@
 
 工具接受 `prompt`、`model`、`image`（可选参考图）、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，以及 2.6 GIF 用的 `frames` / `frame_duration_ms`。当已勾选模型没有 2.6 能力位时，`complexity` / `frames` / `frame_duration_ms` 不出现，`output_format` 也只到 png/jpeg/webp。生成的文件保存到当前会话工作区之下（缺省 `images/`）；工具结果报告文件元数据、请求模型与上游回传的 `effective` 字段，图像通过 Host 附件机制传递。参见 `lib/media/image-tool-schema.mjs`、`lib/media/image-tool.js` 与 `lib/media/image-output.mjs`。
 
-设置页另有试生图面板与 `POST /plugins/dsh-codex-supplement/codex/test-image`。它复用同一 adapter 与当前 carrier，只发一次最小请求，不写工作区、不注册工具；响应包含 `ok`、`ms`、`requested`、`effective`、`carrier` 与 `images`（超过 3 MiB 不回传 `dataUrl`）。每次点击会真实消耗一张订阅图，因此它适合用来判断当前 OAuth 构建到底接受哪些字段，而不是作为无副作用的健康检查。
+设置页另有试生图面板与 `POST /plugins/dsh-codex-supplement/codex/test-image`。它复用同一 adapter 与固定 carrier，只发一次最小请求，不写工作区、不注册工具；响应包含 `ok`、`ms`、`requested`、`effective`、`carrier` 与 `images`（超过 3 MiB 不回传 `dataUrl`）。每次点击会真实消耗一张订阅图，因此它适合用来判断当前 OAuth 构建到底接受哪些字段，而不是作为无副作用的健康检查。ChatGPT Free 会被 `planType` 预检拦截，不会发出远程请求。
 
 ## 五个不同的模型/请求概念
 
 | 概念 | 属主与请求位置 | 含义 |
 |---|---|---|
 | DSH Codex 聊天模型选择 | 官方 DSH `openai-codex` provider 与 Models UI | 拥有对话模型标识及其输入/输出能力。本插件不维护第二套聊天模型目录。 |
-| Responses carrier | 顶层 Responses 请求字段 `model` | 携带请求/工具调用的 Codex 对话模型。本插件固定为 ChatGPT 账号可用的 `gpt-5.6-terra`；它不是图像引擎，也不跟随官方聊天模型选择。 |
+| Responses carrier | 顶层 Responses 请求字段 `model` | 携带请求/工具调用的 Codex 对话模型。本插件固定为 ChatGPT 账号可用的 `gpt-5.6-terra`；它不是图像引擎，也不跟随官方聊天模型选择。ChatGPT Free 不提供该生图通道。 |
 | 图像生成模型 | 托管 `image_generation` 工具内部的 `model` | 为本次工具调用选择图像引擎。它来自插件选定的图像模型列表，或允许的单次覆盖。 |
 | 图像质量 | `image_generation` 内部的 `quality` | 独立的生成控件，缺省为 `auto`，除非另有配置或覆盖。它既不是聊天模型也不是图像模型 ID。 |
 | 场景复杂度 | `image_generation` 内部的 `complexity` | GPT Image 2.6 起的规划强度（low / medium / high），与渲染质量解耦；省略 = 模型默认。 |
