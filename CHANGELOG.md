@@ -1,5 +1,10 @@
 # 更新日志
 
+## 0.5.1 — 设置页文案与 Images lane 对齐
+
+- 设置页不再显示 `complexity` 提示；副标题改为 Codex Images API，模型缺省只编辑 quality。
+- 模型 profile 的 quality 选项裁剪为 auto/low/medium/high，GIF 参数仅在有 2.6 模型时出现。
+
 ## 0.5.0 — 使用 Codex Images 端点并明确 Free 限制
 
 - 生成/编辑迁移到当前 Codex CLI 的 `POST /backend-api/codex/images/generations` 与 `/images/edits`；不再依赖会在 Codex 后端被剥离的 Responses hosted `image_generation` 工具。
