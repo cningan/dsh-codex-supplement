@@ -1,5 +1,9 @@
 # 更新日志
 
+## 0.4.5 — 诊断“200 但无图片”
+
+- 当 Responses 返回 200 但没有 `image_generation_call` 时，错误信息附带响应里的可读文本（最多 800 字符），用于区分“套餐不支持生图”“模型被拒”“服务端只回了说明文字”等情况；不再只显示“API 未返回图片”。
+
 ## 0.4.4 — 使用 Free/Go 可用的 Terra carrier
 
 - 试生图仍报 400 时确认：Free 账号不接受 `gpt-5.6-sol`，但 ChatGPT Free/Go 提供 `gpt-5.6-terra`。顶层 Responses carrier 改为 `gpt-5.6-terra`，覆盖 Free/Go 与付费账号。

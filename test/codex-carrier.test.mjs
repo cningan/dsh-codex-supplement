@@ -75,6 +75,23 @@ test('the documented image_generation surface is forwarded field by field', asyn
   assert.equal(payload.input[0].content[1].type, 'input_image')
 })
 
+test('a 200 response without an image surfaces the assistant text', async () => {
+  await assert.rejects(
+    () => submit({}, {
+      ok: true,
+      async json() {
+        return {
+          output: [{
+            type: 'message',
+            content: [{ type: 'output_text', text: 'Image generation is not available on this plan.' }],
+          }],
+        }
+      },
+    }),
+    /Image generation is not available on this plan/,
+  )
+})
+
 test('a rejected image model surfaces the status and names the model', async () => {
   await assert.rejects(
     () => submit({ imageModel: 'gpt-image-9-future' }, {
