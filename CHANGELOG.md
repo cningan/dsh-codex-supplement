@@ -1,5 +1,9 @@
 # 更新日志
 
+## 0.4.7 — 强制调用 image_generation
+
+- `tool_choice` 从 `auto` 改为 `{ type: "image_generation" }`。实测 Terra carrier 已返回 200，但 `auto` 时模型会直接输出内联 SVG 文本，完全不调用托管的生图工具。
+
 ## 0.4.6 — 修正无图诊断的文本遍历
 
 - 0.4.5 的文本收集漏了 `content` 数组，导致仍只显示“API 未返回图片”；已补上并加回归测试。

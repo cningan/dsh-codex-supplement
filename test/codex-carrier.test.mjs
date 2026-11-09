@@ -26,6 +26,7 @@ test('the Responses carrier defaults to a ChatGPT-account model', async () => {
   assert.equal(DEFAULT_RESPONSES_MODEL, 'gpt-5.6-terra')
   assert.equal(payload.model, 'gpt-5.6-terra')
   assert.equal(payload.tools[0].type, 'image_generation')
+  assert.deepEqual(payload.tool_choice, { type: 'image_generation' })
   assert.equal(result.carrierModel, 'gpt-5.6-terra')
 })
 
