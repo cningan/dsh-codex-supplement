@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.6.0 — 插件版本显示与更新检查
+
+- 设置页底部新增版本行与「检查更新」：读取 GitHub Releases 最新 tag 与本包 `package.json` 版本比较，有新版本时给出可安装的 `.tgz` 地址与复制按钮。
+- 新版路由 `GET /plugins/dsh-codex-supplement/update-check`（`refresh=1` 绕过 60 秒缓存）；GitHub 不可达时降级为错误文本，不影响登录与生图。
+- 明确一点：DSH 的 bundle 没有原地升级 API，更新只能「卸载 → 用新地址重装」；插件只提示，不替用户执行安装。
+
 ## 0.5.2 — 修复 Images JSON 响应解析并补成功链路测试
 
 - 修复一个会直接导致付费账号“请求成功但无图片”的问题：专有 Images 端点返回普通 JSON，旧代码却按 Responses 的 SSE 流解析。现在 Images 请求单独走 `res.json()`。

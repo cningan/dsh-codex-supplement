@@ -52,11 +52,12 @@
 - **Fast Mode 注入**：对匹配的 Codex Responses 请求注入 `service_tier: priority`；注入是 fail-open——解析或改写失败时原请求继续，最多是不生效，不会阻塞对话。
 - **图像工具注册**：仅当 `enableImageGeneration` 为 true 且至少选定一个图像模型时注册单一工具 `codex-generate-image`；`imageModels` 列表即 `model` 参数的允许清单。`defaultImageModel` 显式保存默认模型，非法或未勾选时回落到清单首项；清单顺序只影响展示。`imageModelDefaults[model]` 保存该模型的 quality / complexity 缺省。三者缺省分别为 false、2.6 两档、`gpt-image-2.6-flare`、空 dict；输出目录 `imageOutputDir` 缺省 `images`。
 - **生效配置解析**：工具或试生图先解析本次模型（显式 `model` > `defaultImageModel` > 清单首项），再读该模型的 profile。字段优先级为：显式调用参数 > 该模型 profile > 目录允许的模型默认 > 省略。Host 负责裁剪与校验；Client 只展示 `/capabilities` 返回的同一份 `modelProfiles`。
-- **工具 schema 扁平且与开放 API 对齐**：参数为 `prompt`、`model`、`image`、`mask`、`size`、`quality`、`complexity`、`background`、`action`、`output_format`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`，2.6 GIF 再加 `frames` / `frame_duration_ms`。不做嵌套分组：模型调用工具时层级/必填放错是最常见的失败，官方字段本身就是扁平集合。能力位按已勾选模型裁剪：没有 2.6 模型时 `complexity` / `frames` / `frame_duration_ms` 不出现，`output_format` 只到 png/jpeg/webp；有 2.6 时才出现 gif/svg。
+- **工具 schema 扁平且与 Codex Images lane 对齐**：参数为 `prompt`、`model`、`image`、`size`、`quality`、`background`、`action`、`output_format`，2.6 GIF 再加 `frames` / `frame_duration_ms`。不做嵌套分组：模型调用工具时层级/必填放错是最常见的失败。`quality` 只到 auto/low/medium/high；`output_format` 只有 png，有 2.6 模型时才加 gif。`complexity`、`mask`、`output_compression`、`moderation`、`input_fidelity`、`partial_images`、SVG/WebP/JPEG 属于开放 API 或旧 hosted-tool，不在该 lane 契约内，已从 schema 移除。
 - **2.6 能力目录**：目录以 `gpt-image-2.6-flare` / `gpt-image-2.6-sunburst` 为首，保留 2.5 两档与带日期快照、2 / 1.5 / 1-mini / `chatgpt-image-latest`；`gpt-image-1` 仅作为已下线兼容项保留，不再进入出厂勾选。目录只声明“允许工具选什么”，不承诺 OAuth 网关接受；未知但语法合法的 id 仍可自填。
 - **Images 端点与图像模型分离**：请求直接发到 `POST /backend-api/codex/images/generations`（编辑为 `/images/edits`）；顶层只有图像模型 `model`，没有 Responses carrier。`model` 只从本包允许清单取值；`size` / `quality` / `background` / PNG-GIF 由端点消费，`complexity`、`xhigh`/`max`、SVG/WebP/JPEG、遮罩、压缩不在该端点契约内，显式传入会本地拒绝。
 - **Free 套餐预检**：ChatGPT Free 不提供 Codex 生图（官方定价明确排除）。实测 Free 账号在专有 Images 端点得到 HTTP 403；Terra carrier 的 hosted-tool 路径只会输出 SVG，强制工具则返回 400。工具与试生图在发请求前读取 `wham/usage.planType`，`free` 直接抛套餐错误；用量读取失败时 fail-open，由 403 兜底。设置页在已知 Free 时显示提示并禁用试生图按钮。
-- **质量与复杂度档位**：GPT Image 1 / 1.5 / 2 最高到 `high`；只有 GPT Image 2.5 支持 `xhigh` / `max`；2.6 把场景规划拆到 `complexity`（low / medium / high），与渲染质量解耦。显式请求当前模型不支持的档位会被本地拒绝并列出合法值；模型 profile 里的非法值在解析时被裁掉并回落到模型默认，不静默换成另一个档位发给上游。
+- **质量档位**：Codex Images 端点只接受 `auto` / `low` / `medium` / `high`，没有 `complexity`，模型 profile 的 quality 选项在 `resolveModelProfile` 里裁剪到这一集合，保证设置页、工具 schema 与实际请求三者一致。显式请求该集合外的档位会被本地拒绝并列出合法值。
+- **版本与更新检查**：`GET /plugins/dsh-codex-supplement/update-check` 返回 `{current, latest, updateAvailable, installUrl, releaseUrl, publishedAt, error?}`；`refresh=1` 绕过 60 秒缓存。版本源是 GitHub Releases（不是 `main` 分支），`installUrl` 取 release 的 `.tgz` 资产，供用户复制到插件安装框。DSH 的 bundle 没有原地升级 API，因此插件只报告、不自动安装；GitHub 不可达时降级为 `error` 文本，不影响登录与生图。
 - **输出与附件**：图像字节经临时数据路径写入会话工作区（解析失败时如实报告，不谎称已保存）；工具结果返回文件路径与元数据，图像数据经 Host 附件机制投递供后续查看；附件保存失败仅记录日志，工作区文件仍可用。落盘扩展名覆盖 png / jpg / webp / gif / svg。
 - **试生图路由**：`POST /plugins/dsh-codex-supplement/codex/test-image`（origin 校验、256 KiB body 上限）接受 `prompt` 与可选的 model / quality / complexity / size / output_format / frames / frame_duration_ms 等字段，复用同一 Images 适配器，返回 `{ok, ms, requested, effective, carrier, images}`。成功时 `images[]` 含 `{mediaType, bytes, dataUrl?}`（超过 3 MiB 不回传 dataUrl），失败时返回 `{ok:false, ms, error}`。它不写工作区、不注册工具，也不要求 `enableImageGeneration` 已打开——诊断应能在启用前做。每次点击会真实消耗一张订阅图。
 - **迁移**：旧 `codex-managed-image` 哨兵仅在读取时一次性迁移，之后绝不上送；旧 `enableProviders` / `providerModelSelections` 仅保留用于一次性迁移；旧聊天模型列表不再读取，模型改在官方 `Models → OpenAI Codex` 项配置。旧 profile 的媒体字段仍可存在，但 image 行不再采用。
@@ -66,7 +67,7 @@
 ## 测试决策
 
 - **测试约定**：只测外部行为契约（工具 schema 形状、Images 请求/响应、允许清单/缺省解析、凭据映射、proxy 目标规则），不安装包、不读取 Profile 数据。
-- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、Codex Images 请求与响应、真实本地 HTTP mock 的成功链路（设置页请求 → 路由解析 → adapter → JSON 图片解析）、403 套餐文案、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、PNG/GIF、没有已死的 `aspectRatio` 与 hosted-tool 字段）、试生图请求解析与预览上限、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
+- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、Codex Images 请求与响应、真实本地 HTTP mock 的成功链路（设置页请求 → 路由解析 → adapter → JSON 图片解析）、403 套餐文案、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、PNG/GIF、没有已死的 `aspectRatio` 与 hosted-tool 字段）、试生图请求解析与预览上限、版本解析/比较/更新检查缓存与降级、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
 - **命令**：`npm test` 跑离线测试；`npm run check` 重建 Client 并做 Host/Client/脚本/测试的语法检查；`npm pack --dry-run` 只审阅发布文件清单，不发布。
 - **验证边界**：Fast Mode、旧凭据迁移与真实订阅生图未在普通测试中验证；真实运行态验证必须单独做，不能以离线测试或设置自检代替。
 
