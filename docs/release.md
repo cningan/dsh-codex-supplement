@@ -1,6 +1,13 @@
 # 发布与交接策略
 
-本仓库是单一包的唯一来源：无 scope 的 `dsh-codex-supplement`（0.7.0 起；0.6.x 及更早的包名是 `@cningan/dsh-codex-supplement`）。
+本仓库是单一包的唯一来源：无 scope 的 `dsh-codex-supplement`（0.7.0 起；0.6.x 及更早的包名是 `@cningan/dsh-codex-supplement`）。跨仓库的 npm 2FA、异步发布与 Trusted Publishing 通用规则见工作区 [NPM 发布规则](../docs/npm-publishing.md)；本文只写本包的事实。
+
+## 当前状态（2026-11-10）
+
+- `dsh-codex-supplement@0.7.0` 已发布到 npm registry，`latest` 指向 0.7.0。
+- `desktop` Profile 已从 GitHub Release URL 切换为 registry spec `^0.7.0`，插件页的原生「检查更新 / 更新」可用。
+- GitHub Actions Trusted Publishing 已配置：workflow `publish.yml`、仓库 `cningan/dsh-codex-supplement`、environment `npm-publish`、权限 `publish` + `stage publish`；仓库变量 `NPM_TRUSTED_PUBLISHER_READY=true`。
+- 首次发布时 npm 先建了 `0.0.0-stage` 占位版本，约 4 分钟后 0.7.0 才可查询；这是新包的异步处理，不是失败。
 
 ## 两条分发渠道
 
@@ -23,21 +30,35 @@
 
 ## 发布到 npm
 
-`npm publish` 是独立的外部动作，需要发布者本人的 npm 账号与 2FA。仓库与 AI 都不持有可用的发布凭据：`~/.npmrc` 里的 token 是本机状态，不进入仓库，也不能假定仍然有效（用 `npm whoami` 验证）。
+`npm publish` 是独立的外部动作，需要发布者本人的 npm 账号与安全密钥（2FA）。仓库与 AI 都不持有可用的发布凭据：`~/.npmrc` 里的 token 是本机状态，不进入仓库，也不能假定仍然有效（用 `npm whoami` 验证）。
 
-首次发布必须由能登录的人在本机执行（Trusted Publishing 只能给已经存在的包签发 OIDC 凭据，不能完成第一个版本）：
+**首个版本已经人工发布完成**。当时的正确路径（不要加 `--auth-type=legacy`）：
 
 ```sh
-npm login --auth-type=legacy --registry https://registry.npmjs.org/
+npm login --registry https://registry.npmjs.org/
 npm whoami
 npm publish --registry https://registry.npmjs.org/
 ```
 
-- `--auth-type=legacy` 是刻意的：若 npmjs.com 网页被网络拦截，网页授权走不通，而 registry 的登录接口通常仍可用。
-- `publishConfig.access` 已是 `public`；不要改成私有。
-- 发布后核验：`npm view dsh-codex-supplement@<version> version dist.attestations --json`。
+- 登录会打印 `https://www.npmjs.com/login?...`，在浏览器里用 Windows Hello / 安全密钥完成授权。
+- `npm publish` 还会再要一次 2FA；授权后的浏览器落地页可能 404，这是正常的，以 CLI 的 `+ dsh-codex-supplement@<version>` 和 registry 版本为准。
+- 新包/新版本是异步生效的：CLI 退出 0 后 packument 可能仍 404，新包还可能先出现 `0.0.0-stage` 占位；等几分钟再 `npm view dsh-codex-supplement version`。不要重复发布同一个版本。
+- recovery code 可代替 OTP，但会触发 72 小时发布冻结，不是捷径。
 
-后续版本可选配置 **Trusted Publishing**（GitHub Actions + OIDC，无需存 token）：先新增一个发布 workflow（例如 `publish.yml`，用 `npm publish --provenance`），在 npm 上为 `dsh-codex-supplement` 建立与该 workflow、仓库 `cningan/dsh-codex-supplement` 和 `npm-publish` environment 的信任关系，再让 tag 推送触发发布。关系建立前不要把发布步骤放进 CI。
+**后续版本走 Trusted Publishing（已配置）**：
+
+```sh
+npm version patch        # 更新版本、提交、创建 vX.Y.Z 标签
+git push --follow-tags   # publish.yml 用 GitHub OIDC 发布并开 Release
+```
+
+前提：workflow 在 tag 指向的提交里，`NPM_TRUSTED_PUBLISHER_READY=true`，npm CLI ≥ 11.5.1（workflow 用 Node 24），且 npm 侧的信任关系仍有效：
+
+```sh
+npm trust list dsh-codex-supplement
+```
+
+输出应包含 `permissions: publish`。首个版本不能靠 Trusted Publishing 创建，包必须先在 npm 上存在。npm 的 `minimumReleaseAge` 可能拦住刚发布的版本；本次安装时 pnpm 已自动把 `dsh-codex-supplement@0.7.0` 写进 Profile 的 `minimumReleaseAgeExclude`，以后用新版本时要确认实际装上的是新版本。
 
 ## GitHub Release（备用安装包）
 
@@ -58,6 +79,7 @@ GitHub push/release 与 npm 发布是各自独立、需要用户授权的动作�
 - 在 DSH 插件页「添加插件」里填 `dsh-codex-supplement`，由 pnpm 从 registry 安装。之后插件页的「检查更新 / 更新」可用。
 - 更新由 DSH 执行：移除旧版 → 安装同名精确新版本；未启用 HMR 时提示重启后生效。
 - 已用旧 URL/`.tgz` 安装的 Profile 需要先移除旧包（`@cningan/dsh-codex-supplement` 或旧 `.tgz` 依赖），再按新包名安装。插件数据目录随包目录变化，Fast Mode/搜索开关等本地状态不会自动迁移；官方 Codex credential record 不受影响。
+- 界面显示与实际安装不一致时，先看插件页的版本与来源；URL 来源永远显示「不可更新」，这是预期行为。
 
 ## 边界
 

@@ -1,0 +1,128 @@
+name: Publish to npm
+
+# Trusted publishing (GitHub OIDC): no npm token is stored in this repository.
+#
+# Two things gate the publish step, and both must hold before a release:
+#
+#   1. The package exists on npm and has a trusted publisher relationship for
+#      this workflow. Create it once from a machine logged in to npm:
+#
+#        npm trust github dsh-codex-supplement \
+#          --file publish.yml \
+#          --repo cningan/dsh-codex-supplement \
+#          --env npm-publish \
+#          --allow-publish \
+#          --registry https://registry.npmjs.org/
+#
+#      Verify with `npm trust list dsh-codex-supplement`.
+#
+#   2. The repository variable NPM_TRUSTED_PUBLISHER_READY is "true":
+#
+#        gh variable set NPM_TRUSTED_PUBLISHER_READY --body true \
+#          --repo cningan/dsh-codex-supplement
+#
+#      Until both hold, a tag push only runs checks. This is deliberate: a tag
+#      that always fails teaches everyone to ignore the red X.
+#
+# The npm CLI doing the publish must support OIDC (11.5.1 or newer). The Node
+# 24 line ships npm 11.x, so the workflow asserts the version instead of
+# discovering it through a bare 404 from the registry.
+#
+# After bootstrapping, a release is:
+#   npm version patch        # bumps package.json, commits, creates the tag
+#   git push --follow-tags   # GitHub Actions publishes and opens the Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write # create the GitHub Release for the tag
+  id-token: write # exchange the GitHub OIDC token for an npm publish credential
+
+jobs:
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Fail loudly instead of 404-ing mysteriously: an npm without OIDC sends
+      # the publish unauthenticated, and the registry answers only "404 PUT".
+      - name: Assert npm can do OIDC
+        if: vars.NPM_TRUSTED_PUBLISHER_READY == 'true'
+        run: |
+          npm_version="$(npm --version)"
+          echo "node $(node --version) / npm $npm_version"
+          node -e '
+            const v = process.argv[1].split(".").map(Number);
+            if (v[0] < 11 || (v[0] === 11 && v[1] < 5)) {
+              console.error(`npm ${process.argv[1]} is older than 11.5.1, so it cannot exchange an OIDC token`);
+              process.exit(1);
+            }
+          ' "$npm_version"
+
+      - name: Check
+        run: npm run check
+
+      - name: Test
+        run: npm test
+
+      - name: Explain the gate
+        if: vars.NPM_TRUSTED_PUBLISHER_READY != 'true'
+        run: |
+          echo "::notice title=Publish skipped::Trusted publishing is not armed yet."
+          echo "Create the npm trusted publisher relationship for publish.yml and set"
+          echo "the repository variable NPM_TRUSTED_PUBLISHER_READY to true."
+
+      # --loglevel=verbose is deliberate: the npm CLI swallows OIDC failures at
+      # the default level, so a rejected token exchange is otherwise invisible.
+      - name: Publish
+        if: vars.NPM_TRUSTED_PUBLISHER_READY == 'true'
+        run: npm publish --provenance --access public --loglevel=verbose
+
+      # npm accepts a new package version asynchronously (the CLI prints
+      # "being processed", exits 0, and the registry may take minutes). Wait
+      # before creating the Release so an operator checking right away does not
+      # read a temporary 404 as a failed publish. A timeout is a warning, not a
+      # failure: the publish itself already succeeded.
+      - name: Wait for the registry
+        if: vars.NPM_TRUSTED_PUBLISHER_READY == 'true' && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          for attempt in $(seq 1 40); do
+            if npm view "dsh-codex-supplement@$version" version 2>/dev/null | grep -qx "$version"; then
+              echo "dsh-codex-supplement@$version is visible in the registry"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::warning::dsh-codex-supplement@$version was not visible after 10 minutes"
+
+      - name: Pack release asset
+        if: vars.NPM_TRUSTED_PUBLISHER_READY == 'true' && startsWith(github.ref, 'refs/tags/v')
+        run: npm pack
+
+      # The npm version, the git tag, and the release page are three records of
+      # one event, so the release is opened here rather than remembered by hand.
+      - name: Open the GitHub Release
+        if: vars.NPM_TRUSTED_PUBLISHER_READY == 'true' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          asset="dsh-codex-supplement-$version.tgz"
+          if gh release view "v$version" >/dev/null 2>&1; then
+            gh release upload "v$version" "$asset" --clobber
+          else
+            gh release create "v$version" "$asset" \
+              --title "v$version" --generate-notes --verify-tag
+          fi
