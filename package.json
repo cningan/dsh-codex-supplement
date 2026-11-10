@@ -1,6 +1,6 @@
 {
   "name": "dsh-codex-supplement",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Codex sign-in, usage, search, Fast Mode, and subscription image generation for DeepSeek Harness.",
   "type": "module",
   "main": "./lib/index.js",
@@ -47,7 +47,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build:client": "node scripts/build-client.mjs",
     "check": "node scripts/build-client.mjs && node scripts/check-package.mjs && node scripts/check-docs.mjs",
@@ -64,20 +66,36 @@
     "@deepseek-ai/dsh-client-ui-settings": "*"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/cordis": { "optional": true },
-    "@deepseek-ai/schemastery": { "optional": true },
-    "@deepseek-ai/dsh-tools": { "optional": true },
-    "@deepseek-ai/dsh-client-locale": { "optional": true },
-    "@deepseek-ai/dsh-client-ui-conversation": { "optional": true },
-    "@deepseek-ai/dsh-client-ui-model-selection": { "optional": true },
-    "@deepseek-ai/dsh-client-ui-settings": { "optional": true }
+    "@deepseek-ai/cordis": {
+      "optional": true
+    },
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-locale": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-conversation": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-model-selection": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-settings": {
+      "optional": true
+    }
   },
   "meta": {
     "title": "Codex Supplement",
     "description": "Codex sign-in, usage, search, Fast Mode, and subscription image generation."
   },
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "inject": [
         "@deepseek-ai/dsh-client-locale",
