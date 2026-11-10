@@ -2,6 +2,8 @@
 
 在本仓库采取任何行动之前，先读 [README.md](README.md)（中英双语）与 [SPEC.md](SPEC.md)（统一规格）。贡献、安全与发布边界见 CONTRIBUTING.md / SECURITY.md / docs/release.md；词汇见 CONTEXT.md；发布史见 CHANGELOG.md。
 
+跨平台适配（macOS 回环回调、系统代理、路径与权限）见 [docs/cross-platform.md](docs/cross-platform.md)；工作区通用插件规范见 [../docs/plugin-authoring.md](../docs/plugin-authoring.md)。
+
 ## Agent skills
 
 ### Issue tracker
