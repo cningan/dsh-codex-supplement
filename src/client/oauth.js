@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: "@cningan/dsh-codex-supplement",
+  id: "dsh-codex-supplement",
   factory: (require) => {
     var module = { exports: {} };
     var exports = module.exports;
@@ -64,16 +64,6 @@ window.__ModuleLoader__.load({
         fastModeDisabledTitle: "当前：标准速度。点击开启 1.5 倍速度",
         fastModeLoadingTitle: "正在加载此对话的 Fast mode 状态",
         fastModeUnavailableTitle: "此对话暂时无法使用 Fast mode",
-        versionLabel: "版本",
-        checkUpdate: "检查更新",
-        updateChecking: "检查中…",
-        updateIsLatest: "已是最新",
-        updateAvailable: "有新版本 {latest}",
-        updateInstallHint: "DSH 不支持原地升级：先卸载本插件，再把下面的地址粘回安装框。",
-        updateCopy: "复制地址",
-        updateCopied: "已复制",
-        updateFailed: "检查失败：",
-        updateManual: "打开发布页",
       },
       en: {
         oauthTitle: "Codex Subscription",
@@ -126,16 +116,6 @@ window.__ModuleLoader__.load({
         fastModeDisabledTitle: "Current: Standard speed. Click to enable 1.5x speed.",
         fastModeLoadingTitle: "Fast mode state is loading for this conversation.",
         fastModeUnavailableTitle: "Fast mode is unavailable for this conversation.",
-        versionLabel: "Version",
-        checkUpdate: "Check for updates",
-        updateChecking: "Checking…",
-        updateIsLatest: "Up to date",
-        updateAvailable: "New version {latest}",
-        updateInstallHint: "DSH has no in-place upgrade: remove this plugin, then paste the address below into the install box.",
-        updateCopy: "Copy address",
-        updateCopied: "Copied",
-        updateFailed: "Update check failed:",
-        updateManual: "Open releases",
       },
     };
 
@@ -405,77 +385,6 @@ window.__ModuleLoader__.load({
         }));
     }
 
-    // 插件版本与更新提示。DSH 的 bundle 没有原地升级 API：更新只有
-    // 「卸载 → 用新地址重装」一条路，所以这里只显示版本、检查发布页，
-    // 并把可安装的 .tgz 地址交给用户复制。
-    const UPDATE_PATH = "/plugins/dsh-codex-supplement/update-check";
-
-    function UpdateFooter({ t }) {
-      const [state, setState] = React.useState({ status: "loading", current: "" });
-      const [copied, setCopied] = React.useState(false);
-      const controllerRef = React.useRef(undefined);
-
-      const load = React.useCallback(async (refresh) => {
-        controllerRef.current?.abort();
-        const controller = new AbortController();
-        controllerRef.current = controller;
-        setState((previous) => ({ ...previous, status: refresh ? "checking" : "loading" }));
-        try {
-          const data = await jsonRequest(`${UPDATE_PATH}${refresh ? "?refresh=1" : ""}`, undefined, undefined, controller.signal);
-          if (!controller.signal.aborted) setState({ status: "ready", ...data });
-        } catch (error) {
-          if (!controller.signal.aborted) {
-            setState((previous) => ({ ...previous, status: "error", error: error instanceof Error ? error.message : String(error) }));
-          }
-        }
-      }, []);
-
-      React.useEffect(() => {
-        void load(false);
-        return () => controllerRef.current?.abort();
-      }, [load]);
-
-      const busy = state.status === "loading" || state.status === "checking";
-      const button = { minHeight: 28, padding: "4px 12px", border: "1px solid var(--dsw-alias-border-l2)", borderRadius: 14, background: "var(--dsw-alias-bg-layer-1)", color: "var(--dsw-alias-label-primary)", font: "inherit", fontSize: 12, cursor: busy ? "default" : "pointer" };
-      const muted = { fontSize: 12, color: "var(--dsw-alias-label-tertiary)" };
-
-      const copy = async () => {
-        if (!state.installUrl) return;
-        try {
-          await navigator.clipboard.writeText(state.installUrl);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        } catch { /* 剪贴板不可用时地址仍是可选中的文本 */ }
-      };
-
-      return h("div", { style: { display: "flex", flexDirection: "column", gap: 8, paddingTop: 12, borderTop: "1px solid var(--dsw-alias-border-l2)" } },
-        h("div", { style: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" } },
-          h("span", { style: muted }, `${t("versionLabel")} ${state.current || "—"}`),
-          h("button", { type: "button", disabled: busy, onClick: () => void load(true), style: button }, busy ? t("updateChecking") : t("checkUpdate")),
-          state.status === "ready" && state.latest
-            ? h("span", { style: muted }, state.updateAvailable ? t("updateAvailable").replace("{latest}", state.latest) : t("updateIsLatest"))
-            : null,
-        ),
-        state.status === "ready" && state.updateAvailable
-          ? h("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
-              h("span", { style: muted }, t("updateInstallHint")),
-              state.installUrl
-                ? h("div", { style: { display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" } },
-                    h("code", { style: { fontSize: 11, overflowWrap: "anywhere", color: "var(--dsw-alias-label-secondary)" } }, state.installUrl),
-                    h("button", { type: "button", onClick: () => void copy(), style: button }, copied ? t("updateCopied") : t("updateCopy")),
-                  )
-                : null,
-            )
-          : null,
-        state.status === "ready" && !state.updateAvailable && state.releaseUrl
-          ? h("a", { href: state.releaseUrl, target: "_blank", rel: "noreferrer", style: { ...muted, color: "var(--dsw-alias-state-business-primary)" } }, t("updateManual"))
-          : null,
-        state.status === "error"
-          ? h("span", { role: "alert", style: muted }, `${t("updateFailed")}${state.error}`)
-          : null,
-      );
-    }
-
     function OAuthSection({ t, media }) {
       return h("div", { style: { display: "flex", flexDirection: "column", gap: 14 } },
         h("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
@@ -483,7 +392,6 @@ window.__ModuleLoader__.load({
           h("p", { style: { margin: 0, fontSize: 13, color: "var(--dsw-alias-label-secondary)" } }, t("oauthIntro"))),
         PROVIDERS.map((provider) => h(ProviderCard, { key: provider.id, provider, t })),
         media?.Section ? h(media.Section, { t: media.t, configScope: media.configScope }) : null,
-        h(UpdateFooter, { t }),
       );
     }
 
@@ -717,14 +625,14 @@ window.__ModuleLoader__.load({
       const t = ctx.locale.bind("dsh-codex-supplement-auth");
       ctx.slots.inject("settings.section", () => ctx.slots.register({
         name: "settings.section",
-        id: "@cningan/dsh-codex-supplement-settings",
+        id: "dsh-codex-supplement-settings",
         order: 12,
         label: () => t("oauthTitle"),
         inject: () => ({ t, media }),
       }, OAuthSection));
       ctx.slots.inject("settings.section.icon", () => ctx.slots.register({
         name: "settings.section.icon",
-        id: "@cningan/dsh-codex-supplement-settings",
+        id: "dsh-codex-supplement-settings",
         order: 12,
       }, CodexSettingsIcon));
       // 对话输入框右侧 Fast mode 按钮：照旧插件经 modelDirectories 拿当前会话的模型选择
@@ -734,7 +642,7 @@ window.__ModuleLoader__.load({
       ctx.inject(["slots", "modelDirectories"], (scope) => {
         scope.slots.inject("conversation.input.right", () => scope.slots.register({
           name: "conversation.input.right",
-          id: "@cningan/dsh-codex-supplement-fast-mode",
+          id: "dsh-codex-supplement-fast-mode",
           order: 10,
           locale: "dsh-codex-supplement-auth",
           inject: (sessionId) => ({
@@ -744,7 +652,7 @@ window.__ModuleLoader__.load({
         // 对话输入框额度入口（照旧插件 QuotaButton：与 Fast 闪电并排，仅 codex 登录时显示有效额度）
         scope.slots.inject("conversation.input.right", () => scope.slots.register({
           name: "conversation.input.right",
-          id: "@cningan/dsh-codex-supplement-quota",
+          id: "dsh-codex-supplement-quota",
           order: 11,
           locale: "dsh-codex-supplement-auth",
           inject: (sessionId) => ({

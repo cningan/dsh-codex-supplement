@@ -48,8 +48,12 @@ try {
 }
 
 if (manifest) {
-  const expectedName = '@cningan/dsh-codex-supplement'
+  const expectedName = 'dsh-codex-supplement'
   if (manifest.name !== expectedName) fail(`package.json name must be ${expectedName}`)
+  if (manifest.publishConfig?.access !== 'public') fail('package.json publishConfig.access must be public')
+  if (manifest.repository?.url !== 'git+https://github.com/cningan/dsh-codex-supplement.git') {
+    fail('package.json repository.url must point at the canonical GitHub repository')
+  }
   if (manifest.main !== './lib/index.js' || manifest.exports?.['.'] !== './lib/index.js') {
     fail('Host entry must be ./lib/index.js in main and exports["."]')
   }
@@ -105,12 +109,12 @@ if (manifest) {
     else {
       const patch = await readFile(patchPath, 'utf8')
       if (!/^\s+- id: codex-supplement\s*$/m.test(patch)) fail('Bundle patch must insert the codex-supplement base row')
-      if (!patch.includes("name: '@cningan/dsh-codex-supplement'")) {
+      if (!patch.includes("name: 'dsh-codex-supplement'")) {
         fail('Bundle patch must point the bare codex-supplement row at the package root')
       }
       for (const [id, component] of [['codex-supplement-image', 'image'], ['codex-supplement-search', 'search']]) {
         if (!new RegExp(`^\\s+- id: ${id}\\s*$`, 'm').test(patch)) fail(`Bundle patch must insert the ${id} row`)
-        if (!patch.includes(`name: '@cningan/dsh-codex-supplement/${component}'`)) {
+        if (!patch.includes(`name: 'dsh-codex-supplement/${component}'`)) {
           fail(`Bundle patch must point ${id} at ./${component}`)
         }
       }
@@ -125,12 +129,12 @@ if (manifest) {
     else {
       const client = await readFile(clientPath, 'utf8')
       const loaderRows = client.match(/window\.__ModuleLoader__\.load\s*\(/g) ?? []
-      const packageIds = client.match(/\bid:\s*["']@cningan\/dsh-codex-supplement["']/g) ?? []
+      const packageIds = client.match(/\bid:\s*["']dsh-codex-supplement["']/g) ?? []
       if (loaderRows.length !== 1) fail(`Client bundle must contain one Loader row; found ${loaderRows.length}`)
       if (packageIds.length !== 1) fail(`Client bundle must contain one package Loader id; found ${packageIds.length}`)
       const settingsRows = client.match(/name:\s*["']settings\.section["']/g) ?? []
       if (settingsRows.length !== 1) fail(`Client bundle must contribute one merged settings page; found ${settingsRows.length}`)
-      if (!client.includes('id: "@cningan/dsh-codex-supplement-settings"')) fail('Merged Codex settings page id is missing')
+      if (!client.includes('id: "dsh-codex-supplement-settings"')) fail('Merged Codex settings page id is missing')
       if (!client.includes('"codex-supplement-image"')) fail('Client settings form must target the codex-supplement-image row')
     }
   }

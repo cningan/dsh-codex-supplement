@@ -1,6 +1,6 @@
 {
-  "name": "@cningan/dsh-codex-supplement",
-  "version": "0.6.2",
+  "name": "dsh-codex-supplement",
+  "version": "0.7.0",
   "description": "Codex sign-in, usage, search, Fast Mode, and subscription image generation for DeepSeek Harness.",
   "type": "module",
   "main": "./lib/index.js",
@@ -24,9 +24,29 @@
     "LICENSE",
     "icon.svg",
     "locale",
-    "docs"
+    "docs",
+    "!docs/agents"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cningan/dsh-codex-supplement.git"
+  },
+  "homepage": "https://github.com/cningan/dsh-codex-supplement#readme",
+  "bugs": {
+    "url": "https://github.com/cningan/dsh-codex-supplement/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "codex",
+    "chatgpt",
+    "image-generation"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": { "node": ">=22" },
   "scripts": {
     "build:client": "node scripts/build-client.mjs",

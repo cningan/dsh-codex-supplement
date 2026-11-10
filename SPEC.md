@@ -8,7 +8,7 @@
 
 ## 方案
 
-一个面向 dsh 本地插件目录的单包、三组件 bundle `@cningan/dsh-codex-supplement`：裸包名 row `codex-supplement` 是 base（Codex OAuth 登录/登出、订阅用量/额度、按模型 Fast Mode、日志与设置页），子路径 row `codex-supplement-image` 承载订阅图像生成，子路径 row `codex-supplement-search` 承载 Codex 搜索 provider。image/search 依赖 base 提供的 `openaiCodexAuth` 服务，但可独立启用/禁用。与官方 Codex 对话共用共享 credential record；图像模型按次由工具 `model` 参数从设置清单选取；生图走 Codex 专有的 Images 端点，不再使用 Responses carrier/hosted tool。裸包名 row 是 DSH `dsh-client-modules` 的硬约束：Client 模块发现只接受裸包名，子路径 row 不会进入 Web boot graph。本包不发布到 npm。
+一个面向 dsh 本地插件目录的单包、三组件 bundle `dsh-codex-supplement`：裸包名 row `codex-supplement` 是 base（Codex OAuth 登录/登出、订阅用量/额度、按模型 Fast Mode、日志与设置页），子路径 row `codex-supplement-image` 承载订阅图像生成，子路径 row `codex-supplement-search` 承载 Codex 搜索 provider。image/search 依赖 base 提供的 `openaiCodexAuth` 服务，但可独立启用/禁用。与官方 Codex 对话共用共享 credential record；图像模型按次由工具 `model` 参数从设置清单选取；生图走 Codex 专有的 Images 端点，不再使用 Responses carrier/hosted tool。裸包名 row 是 DSH `dsh-client-modules` 的硬约束：Client 模块发现只接受裸包名，子路径 row 不会进入 Web boot graph。包以无 scope 名 `dsh-codex-supplement` 发布到 npm；版本显示、检查更新与原地升级由 DSH 插件页负责，插件不再实现自己的更新检查。
 
 生图配置的依赖链固定为：
 
@@ -41,6 +41,7 @@
 14. 作为维护者，我想让旧插件数据（凭据、Fast Mode/搜索状态、legacy 图像模型选择）能一次性迁移，以便平滑过渡且不把哨兵上送。
 15. 作为维护者，我想让启用/关闭搜索只增删插件自己的带标记 Profile 块，以便不改动手写的 web override。
 16. 作为维护者，我想让凭证、Profile 配置、会话与生成的媒体都不进入源码/包产物，以便仓库只含契约。
+17. 作为升级用户，我想在 DSH 插件页看到本插件版本并一键更新，以便不用先卸载再找 `.tgz` 地址。
 
 ## 实现决策
 
@@ -57,7 +58,7 @@
 - **Images 端点与图像模型分离**：请求直接发到 `POST /backend-api/codex/images/generations`（编辑为 `/images/edits`）；顶层只有图像模型 `model`，没有 Responses carrier。`model` 只从本包允许清单取值；`size` / `quality` / `background` / PNG-GIF 由端点消费，`complexity`、`xhigh`/`max`、SVG/WebP/JPEG、遮罩、压缩不在该端点契约内，显式传入会本地拒绝。
 - **Free 套餐预检**：ChatGPT Free 不提供 Codex 生图（官方定价明确排除）。实测 Free 账号在专有 Images 端点得到 HTTP 403；Terra carrier 的 hosted-tool 路径只会输出 SVG，强制工具则返回 400。工具与试生图在发请求前读取 `wham/usage.planType`，`free` 直接抛套餐错误；用量读取失败时 fail-open，由 403 兜底。设置页在已知 Free 时显示提示并禁用试生图按钮。
 - **质量档位**：Codex Images 端点只接受 `auto` / `low` / `medium` / `high`，没有 `complexity`，模型 profile 的 quality 选项在 `resolveModelProfile` 里裁剪到这一集合，保证设置页、工具 schema 与实际请求三者一致。显式请求该集合外的档位会被本地拒绝并列出合法值。
-- **版本与更新检查**：`GET /plugins/dsh-codex-supplement/update-check` 返回 `{current, latest, updateAvailable, installUrl, releaseUrl, publishedAt, error?}`；`refresh=1` 绕过 60 秒缓存。版本源是 GitHub Releases（不是 `main` 分支），`installUrl` 取 release 的 `.tgz` 资产，供用户复制到插件安装框。DSH 的 bundle 没有原地升级 API，因此插件只报告、不自动安装；GitHub 不可达时降级为 `error` 文本，不影响登录与生图。
+- **原生更新（npm registry）**：包以无 scope 名 `dsh-codex-supplement` 发布（`publishConfig.access: public`），并应以该包名安装，使 Profile 依赖保存为 registry spec。DSH 的 `listVersions` 只对「以自己名字保存的 registry spec」提供更新检查，`updateBundle` 会先移除旧版再安装同名精确新版本（无 HMR 时提示重启生效）；URL／`.tgz` 安装不参与，插件页只提示卸载重装。插件本身不再注册版本路由或更新 UI；设置页只承载账户、用量、搜索与生图。
 - **登录回环回调**：浏览器授权使用 PKCE + 本机 loopback 回调 `http://localhost:1455/auth/callback`。服务器同时监听 `127.0.0.1` 与 `::1`（任一成功即可），因为 macOS 的 `localhost` 优先解析到 IPv6，只绑 IPv4 会让回调无声丢失。回调端口被占用时给出可操作诊断；授权中始终提供「手动粘贴完整回调地址」的兜底通道（`POST /codex/submit-code` 复用服务端当前会话），因此即使回调被防火墙或端口冲突挡住也能完成登录。state 不匹配一律判失败，不静默接受。
 - **输出与附件**：图像字节经临时数据路径写入会话工作区（解析失败时如实报告，不谎称已保存）；工具结果返回文件路径与元数据，图像数据经 Host 附件机制投递供后续查看；附件保存失败仅记录日志，工作区文件仍可用。落盘扩展名覆盖 png / jpg / webp / gif / svg。
 - **试生图路由**：`POST /plugins/dsh-codex-supplement/codex/test-image`（origin 校验、256 KiB body 上限）接受 `prompt` 与可选的 model / quality / complexity / size / output_format / frames / frame_duration_ms 等字段，复用同一 Images 适配器，返回 `{ok, ms, requested, effective, carrier, images}`。成功时 `images[]` 含 `{mediaType, bytes, dataUrl?}`（超过 3 MiB 不回传 dataUrl），失败时返回 `{ok:false, ms, error}`。它不写工作区、不注册工具，也不要求 `enableImageGeneration` 已打开——诊断应能在启用前做。每次点击会真实消耗一张订阅图。
@@ -68,7 +69,7 @@
 ## 测试决策
 
 - **测试约定**：只测外部行为契约（工具 schema 形状、Images 请求/响应、允许清单/缺省解析、凭据映射、proxy 目标规则），不安装包、不读取 Profile 数据。
-- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、Codex Images 请求与响应、真实本地 HTTP mock 的成功链路（设置页请求 → 路由解析 → adapter → JSON 图片解析）、403 套餐文案、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、PNG/GIF、没有已死的 `aspectRatio` 与 hosted-tool 字段）、试生图请求解析与预览上限、版本解析/比较/更新检查缓存与降级、登录回环回调的 IPv4/IPv6 双栈可达性与 state 校验、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
+- **覆盖范围**：离线测试覆盖模型选择/默认模型/每模型 profile 裁剪、Codex Images 请求与响应、真实本地 HTTP mock 的成功链路（设置页请求 → 路由解析 → adapter → JSON 图片解析）、403 套餐文案、图像目录与能力位、工具 schema 形态（单一名称、`model` enum、PNG/GIF、没有已死的 `aspectRatio` 与 hosted-tool 字段）、试生图请求解析与预览上限、登录回环回调的 IPv4/IPv6 双栈可达性与 state 校验、搜索开关的旧文件迁移、credential 映射与 proxy 目标规则。
 - **命令**：`npm test` 跑离线测试；`npm run check` 重建 Client 并做 Host/Client/脚本/测试的语法检查；`npm pack --dry-run` 只审阅发布文件清单，不发布。
 - **验证边界**：Fast Mode、旧凭据迁移与真实订阅生图未在普通测试中验证；真实运行态验证必须单独做，不能以离线测试或设置自检代替。
 
@@ -79,7 +80,8 @@
 - 通用 provider-registry / LLM-adapter 框架；官方 DSH Codex 仍是聊天实现。
 - 重复的 Codex 聊天模型发现、模型编辑器、插件自有的聊天模型列表与模型列表路由（归官方 `openai-codex` provider）。
 - 第二个图像工具名 `media-image-codex` 与 `codex-managed-image` 哨兵；已过时的 `aspectRatio` 参数。
-- npm 发布、多包部署辅助脚本及其改动 Profile 的测试。
+- 多包部署辅助脚本及其改动 Profile 的测试。
+- 插件自带的版本显示、更新检查路由与设置页更新 UI（已由 DSH 插件页原生承担）。
 - 聊天模型的能力管理（官方 Models 页负责）。
 
 ## 备注

@@ -71,5 +71,4 @@
 |---|---|
 | 回调双栈可达、state 校验 | `test/oauth-callback.test.mjs` |
 | macOS 系统代理解析 | `test/proxy-macos.test.mjs` |
-| 版本/更新检查 | `test/update-check.test.mjs` |
 | Images 请求与成功链路 | `test/codex-carrier.test.mjs`、`test/codex-images-integration.test.mjs` |

@@ -2,7 +2,7 @@
 
 > [English](README.md) | 简体中文
 
-一个面向 DeepSeek Harness（`dsh`）的单体插件包，把原 `dsh-oauth` 与 `dsh-multimedia` 中需要保留的 Codex 能力合并到 **`@cningan/dsh-codex-supplement`**。
+一个面向 DeepSeek Harness（`dsh`）的单体插件包，把原 `dsh-oauth` 与 `dsh-multimedia` 中需要保留的 Codex 能力合并到 **`dsh-codex-supplement`**。发布在 npm registry；安装了它的 profile 由 DSH 插件页原生负责版本显示与更新。
 
 ## 功能
 
@@ -22,10 +22,11 @@
 ## 兼容性与安装
 
 - 基线：支持 bundle/组件行的 DSH `0.2.x`；Node.js 22 或更新版本。
-- 安装地址请用 GitHub Release 的 `.tgz` 资产，不要用 `github:` 简写：后者要求本机有 git（macOS 需要 Xcode Command Line Tools），且容易因 GitHub 连接抖动超时。Release 资产是纯 HTTPS 下载，对 Windows 与 macOS 都一样。
-- 设置页底部有版本号与「检查更新」：DSH 的 bundle 没有原地升级 API，更新方式始终是「先卸载旧包，再装新的 `.tgz` 地址」。
+- 安装地址用 npm 包名 `dsh-codex-supplement`（插件管理器「添加插件」里填包名）。只有以 registry 包名安装、且 Profile 依赖保存为 registry spec 时，插件页的「检查更新 / 更新」才会识别并原地升级。
+- GitHub Release 的 `.tgz` 仍可用于离线或固定版本安装，但 URL 安装不参与原生更新检查，只能卸载重装。不要用 `github:` 简写：它要求本机有 git（macOS 需要 Xcode Command Line Tools），且容易因 GitHub 连接抖动超时。
+- 更新走 DSH 插件页：每行显示已安装版本，有更新时按钮变为「更新到 x.y.z」；更新会先移除旧版再安装同名精确版本，未启用 HMR 时提示重启后生效。插件不再自带设置页更新检查。
 - 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：三个组件行都正常挂载，`/codex/status`、`/codex/usage`、`/codex/fast-mode`、`/codex/search/status`、`/capabilities` 与 `POST /codex/test-image` 均可用，启用生图后工具完成注册，生成的 Client 模块出现在 Web boot entry 中。设置页绑定 `codex-supplement-image` 行；base 行上的旧媒体字段仍通过校验以兼容旧 profile，但不再覆盖 image 行当前的 GPT Image 2.6 默认值。
-- 这是供 DSH 本地插件目录加载的 `@cningan` bundle。`package.json` 声明 bundle patch（两行）和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
+- 这是供 DSH 本地插件目录加载的 bundle，发布在 npm registry。`package.json` 声明 bundle patch（三行）和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。
 - GitHub 源码历史与之前 OAuth 仓库的历史分离，以免携带被 GitHub push protection 拒绝的未清理旧提交。
 
 ## macOS 常见问题
@@ -33,7 +34,7 @@
 - **登录页显示授权成功，但插件一直停在「授权中」**：macOS 的 `localhost` 优先解析到 IPv6 `::1`。0.6.1 起回调服务器同时监听 `127.0.0.1` 与 `::1`；若仍失败，点「没收到回调？手动粘贴」，把浏览器地址栏里 `localhost:1455/auth/callback?code=...&state=...` 整条粘进去提交即可完成登录。
 - **回调端口被占用**：官方 Codex CLI 也可能占用 `1455`。关掉占用该端口的程序后重试，或直接用手动粘贴方式。
 - **能登录但请求 403 `unsupported_country_region_territory`**：Node 不读系统代理。0.6.2 起会自动读取 macOS 系统代理（`scutil --proxy`）；如果你用的是 Clash 的「混合端口」，SOCKS 配置也会按 HTTP 使用。
-- **不要用 `github:` 简写安装**：它需要本机 git，而 macOS 默认没有 Command Line Tools（会报 `xcode-select`）。用 Release 的 `.tgz` 地址。
+- **不要用 `github:` 简写安装**：它需要本机 git，而 macOS 默认没有 Command Line Tools（会报 `xcode-select`）。用 npm 包名安装；离线场景再用 Release 的 `.tgz` 地址。
 
 通用跨平台注意事项（路径、权限、换行、字体、剪贴板等）见 [docs/cross-platform.md](docs/cross-platform.md)。
 
@@ -55,7 +56,7 @@ npm pack --dry-run
 - 官方 Codex credential record 与旧 token 的一次性迁移保留。Fast Mode/搜索状态仍保存在插件自己的 `data/` 目录，不会从旧插件自动迁移。旧的自定义模型清单不再读取；请在官方 **Models → OpenAI Codex** 项配置模型。
 - 生图工具只有一个：`codex-generate-image`。参数与 Codex Images 端点一致：`prompt`、`model`、`image`（编辑）、`size`、`quality`、`background`、`action`、`output_format`（png/gif，gif 仅 2.6），以及 GIF 用的 `frames` / `frame_duration_ms`。`complexity`、`xhigh`/`max`、SVG/WebP/JPEG、遮罩与压缩不被该 lane 接受，已从 schema 移除。它的 `model` 参数从设置页清单取值，缺省用显式默认模型；请求清单外的模型，或当前 lane 不支持的 quality/format，会被拒绝并列出合法值。旧配置里的 `codex-managed-image` 选择在读取时一次性迁移，该哨兵绝不会再发给上游。
 - **已在真实账号上验证（2026-11-09）**：`gpt-5.5` 与 `gpt-5.6-sol` 返回 400；Terra 走旧 hosted tool 返回 200 但只有内联 SVG；强制工具返回 400；专有 Codex Images 端点在 ChatGPT Free 返回 403。Free 不包含 Codex 生图。付费套餐下，专有端点接受所选图像模型与上述字段。试生图会如实显示状态与错误，**不会静默换用别的模型**。
-- 旧插件数据不会自动复制；移除旧插件目录前，应先将数据保存在活动插件目录之外。本包不发布 npm。
+- 旧插件数据不会自动复制；移除旧插件目录前，应先将数据保存在活动插件目录之外。包以 `dsh-codex-supplement` 发布在 npm。
 
 修改订阅生图请求字段、模型选择或兼容性判断前，请先读[插件规格](SPEC.md)、[image-generation architecture note](docs/image-generation.md) 和 [ADR 0002](docs/adr/0002-use-codex-images-endpoints.md)。
 

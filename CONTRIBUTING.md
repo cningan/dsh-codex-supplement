@@ -4,7 +4,7 @@
 
 ## 范围
 
-- 保持它作为单一 `@cningan/dsh-codex-supplement` bundle。在没有确认的产品需求时，不要恢复分离的 OAuth/媒体包，也不要加入非 Codex provider、通用 API-key 图像 adapter 或视频支持。
+- 保持它作为单一 `dsh-codex-supplement` bundle。在没有确认的产品需求时，不要恢复分离的 OAuth/媒体包，也不要加入非 Codex provider、通用 API-key 图像 adapter 或视频支持。
 - DSH 官方 `openai-codex` provider 拥有 Codex 聊天。本插件拥有相邻的登录、用量、搜索、Fast Mode 与订阅图像生成功能。
 - 不要添加凭据、token、账户导出、Profile 配置、生成的媒体或插件 `data/*.json` 文件。
 - 每当组件移动、所有权变更或被移除时更新 `SPEC.md`：把移除的行为写进「范围外」，并在适当之处补上测试。
@@ -23,4 +23,4 @@ npm pack --dry-run
 
 ## Profile 安全与发布
 
-例行开发中不要安装、修改或重启用户的活动 Profile。Profile 安装、真实 Profile 检查、GitHub 发布与 npm 发布是彼此独立的动作，都需要明确授权。本仓库没有自动化发布流程。
+例行开发中不要安装、修改或重启用户的活动 Profile。Profile 安装、真实 Profile 检查、GitHub 发布与 npm 发布是彼此独立的动作，都需要明确授权。发布步骤与原生更新的前提见 [docs/release.md](docs/release.md)：包必须发布到 npm，并以包名安装，DSH 插件页的「检查更新 / 更新」才会生效；插件自身不实现更新检查。

@@ -1,10 +1,10 @@
 - insert:
     - id: codex-supplement
-      name: '@cningan/dsh-codex-supplement'
+      name: 'dsh-codex-supplement'
       config: {}
     - id: codex-supplement-image
-      name: '@cningan/dsh-codex-supplement/image'
+      name: 'dsh-codex-supplement/image'
       config: {}
     - id: codex-supplement-search
-      name: '@cningan/dsh-codex-supplement/search'
+      name: 'dsh-codex-supplement/search'
       config: {}

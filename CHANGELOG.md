@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.7.0 — 改用 DSH 原生更新检查
+
+- 移除设置页底部的版本行、GitHub Releases 更新检查与 `GET /plugins/dsh-codex-supplement/update-check`：插件不再自己判断新版本，版本显示与「检查更新 / 更新」由 DSH 插件页原生负责。
+- 包名改为无 scope 的 `dsh-codex-supplement`，以 `publishConfig.access: public` 发布到 npm。只有以 registry 包名安装的插件才能被原生更新识别并原地升级；GitHub Release 的 `.tgz` 继续作为离线/固定版本安装方式，但只能卸载重装。
+- 安装身份变更：旧 profile 里 `@cningan/dsh-codex-supplement` 的 URL 依赖需要先卸载，再按新包名安装。插件数据目录随包目录变化，Fast Mode/搜索开关等本地状态不会自动迁移（账户与官方 credential record 不受影响）。
+
 ## 0.6.2 — macOS 系统代理与跨平台说明
 
 - macOS 系统代理现在会被读取（`scutil --proxy`）：Windows 走注册表，macOS 走 SystemConfiguration，Linux 仍看环境变量。Clash 的混合端口即使显示为 SOCKS 也按 HTTP 使用。这修复了「能登录但请求 403 unsupported_country_region_territory」。
