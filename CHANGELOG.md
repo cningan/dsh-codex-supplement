@@ -1,5 +1,11 @@
 # 更新日志
 
+## 0.7.1 — 发布文档修正与文档漂移检查
+
+- 修正发布文档：首个版本用安全密钥的浏览器授权，不再建议 `--auth-type=legacy`；补充 npm 异步生效与 `0.0.0-stage` 占位、Trusted Publishing、推送 workflow 所需的 GitHub `workflow` scope。
+- `npm run check` 新增文档漂移检查：禁止再写入「不发布到 npm」「没有原地升级 API」等过期结论，并拦截没有警告语境的 `--auth-type=legacy`。
+- 本版本首次由 GitHub Actions 的 OIDC（Trusted Publishing）发布。
+
 ## 0.7.0 — 改用 DSH 原生更新检查
 
 - 移除设置页底部的版本行、GitHub Releases 更新检查与 `GET /plugins/dsh-codex-supplement/update-check`：插件不再自己判断新版本，版本显示与「检查更新 / 更新」由 DSH 插件页原生负责。

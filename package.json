@@ -50,7 +50,7 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "build:client": "node scripts/build-client.mjs",
-    "check": "node scripts/build-client.mjs && node scripts/check-package.mjs",
+    "check": "node scripts/build-client.mjs && node scripts/check-package.mjs && node scripts/check-docs.mjs",
     "test": "node --test",
     "prepack": "node scripts/build-client.mjs"
   },
