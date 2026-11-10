@@ -4,10 +4,10 @@
 
 ## 当前状态（2026-11-10）
 
-- `dsh-codex-supplement@0.7.0` 已发布到 npm registry，`latest` 指向 0.7.0。
-- `desktop` Profile 已从 GitHub Release URL 切换为 registry spec `^0.7.0`，插件页的原生「检查更新 / 更新」可用。
-- GitHub Actions Trusted Publishing 已配置：workflow `publish.yml`、仓库 `cningan/dsh-codex-supplement`、environment `npm-publish`、权限 `publish` + `stage publish`；仓库变量 `NPM_TRUSTED_PUBLISHER_READY=true`。
-- 首次发布时 npm 先建了 `0.0.0-stage` 占位版本，约 4 分钟后 0.7.0 才可查询；这是新包的异步处理，不是失败。
+- `dsh-codex-supplement@0.7.1` 已发布到 npm registry，`latest` 指向 0.7.1。0.7.0 是首次人工发布；0.7.1 是首次由 GitHub Actions OIDC 发布（带 provenance），并自动创建了 GitHub Release 的 `.tgz`。
+- `desktop` Profile 已从 GitHub Release URL 切换为 registry spec `^0.7.0`；插件页现在可检查到 0.7.1 并原地升级。
+- GitHub Actions Trusted Publishing 已配置并完成首次发布：workflow `publish.yml`、仓库 `cningan/dsh-codex-supplement`、environment `npm-publish`、权限 `publish` + `stage publish`；仓库变量 `NPM_TRUSTED_PUBLISHER_READY=true`。
+- 首次发布时 npm 先建了 `0.0.0-stage` 占位版本，约 4 分钟后 0.7.0 才可查询；这是新包的异步处理，不是失败。0.7.1 的发布没有出现这个问题。
 
 ## 两条分发渠道
 
@@ -25,14 +25,14 @@
    npm pack --dry-run
    ```
 
-   `npm pack --dry-run` 只审阅文件清单，不发布；确认没有测试夹具、凭据、运行期 `data/*.json` 或本机路径。
+   `npm pack --dry-run` 只审阅文件清单，不发布；确认没有测试夹具、凭据、运行期 `data/*.json` 或本机路径。`npm run check` 现在包含文档漂移检查（过期发布结论、无警告语境的 `--auth-type=legacy`）。
 3. 确认工作树干净，版本号符合预期的语义化变更。DSH 的更新检查按 semver 比较，发布新版本必须递增 `package.json` 的 `version`。
 
 ## 发布到 npm
 
 `npm publish` 是独立的外部动作，需要发布者本人的 npm 账号与安全密钥（2FA）。仓库与 AI 都不持有可用的发布凭据：`~/.npmrc` 里的 token 是本机状态，不进入仓库，也不能假定仍然有效（用 `npm whoami` 验证）。
 
-**首个版本已经人工发布完成**。当时的正确路径（不要加 `--auth-type=legacy`）：
+**0.7.0 已经人工发布完成；0.7.1 起由 Actions 发布**。首次人工发布时的正确路径（不要加 `--auth-type=legacy`）：
 
 ```sh
 npm login --registry https://registry.npmjs.org/
@@ -45,7 +45,7 @@ npm publish --registry https://registry.npmjs.org/
 - 新包/新版本是异步生效的：CLI 退出 0 后 packument 可能仍 404，新包还可能先出现 `0.0.0-stage` 占位；等几分钟再 `npm view dsh-codex-supplement version`。不要重复发布同一个版本。
 - recovery code 可代替 OTP，但会触发 72 小时发布冻结，不是捷径。
 
-**后续版本走 Trusted Publishing（已配置）**：
+**后续版本走 Trusted Publishing（0.7.1 已验证）**：
 
 ```sh
 npm version patch        # 更新版本、提交、创建 vX.Y.Z 标签
