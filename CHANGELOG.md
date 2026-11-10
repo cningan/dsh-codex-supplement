@@ -1,5 +1,12 @@
 # 更新日志
 
+## 0.6.2 — macOS 系统代理与跨平台说明
+
+- macOS 系统代理现在会被读取（`scutil --proxy`）：Windows 走注册表，macOS 走 SystemConfiguration，Linux 仍看环境变量。Clash 的混合端口即使显示为 SOCKS 也按 HTTP 使用。这修复了「能登录但请求 403 unsupported_country_region_territory」。
+- 账户列表显示套餐徽标；Free 套餐在账号行直接标注「需 Plus 或更高」。
+- 生图设置的能力请求加了 10 秒超时，宿主或代理卡住时不会再永远显示「检查中…」。
+- 新增 [docs/cross-platform.md](docs/cross-platform.md)：localhost/IPv6、系统代理、路径大小写、文件权限、换行、端口冲突、PATH、字体与剪贴板的检查清单；README 增加 macOS 常见问题与 Release 安装建议。
+
 ## 0.6.1 — macOS 登录回调与关闭态开关
 
 - 修复 macOS 上「官方页面已授权但插件收不到回调」：回调地址写的是 `localhost`，而服务器原先只绑定 `127.0.0.1`；macOS 的 `localhost` 优先解析到 `::1`，回调因此打不到插件。现在 loopback 同时监听 IPv4 与 IPv6（任一成功即可），并在会话里暴露实际回调地址。

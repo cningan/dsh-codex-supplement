@@ -211,13 +211,21 @@ window.__ModuleLoader__.load({
 
       const loadCapabilities = React.useCallback(async (signal) => {
         setLoading(true);
+        // 宿主不可达或代理卡住时不能让 UI 永远停在"检查中"：10 秒后按失败处理。
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10000);
+        const onAbort = () => controller.abort();
+        signal?.addEventListener("abort", onAbort, { once: true });
         try {
-          const data = await jsonRequest(CAPABILITIES_PATH, signal);
+          const data = await jsonRequest(CAPABILITIES_PATH, controller.signal);
           setCapabilities(data);
           setError(undefined);
         } catch (cause) {
           if (cause?.name !== "AbortError") setError(cause instanceof Error ? cause.message : String(cause));
+          else if (!signal?.aborted) setError("timeout");
         } finally {
+          clearTimeout(timer);
+          signal?.removeEventListener("abort", onAbort);
           if (!signal?.aborted) setLoading(false);
         }
       }, []);

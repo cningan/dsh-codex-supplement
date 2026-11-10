@@ -26,6 +26,15 @@ The same section has a **Test generation** panel. It sends one minimal request t
 - The package declares `dsh.bundle.patch` (base + image + search rows) and one merged Web Client module. Install it through the DSH bundle/plugin manager after reviewing the package; package changes may require a Host restart. This package is not published to npm.
 - GitHub source history is maintained separately from the previous OAuth repository history to avoid carrying its rejected, unsanitized commits.
 
+## macOS notes
+
+- **Authorization succeeds in the browser but the card stays on “Authorizing”**: macOS resolves `localhost` to IPv6 `::1` first. Since 0.6.1 the callback server listens on both `127.0.0.1` and `::1`. If it still stalls, use “No callback? Paste it manually” and paste the full `localhost:1455/auth/callback?code=...&state=...` URL.
+- **Callback port busy**: the official Codex CLI may also hold port `1455`. Close it or use the manual paste path.
+- **403 `unsupported_country_region_territory` after signing in**: Node does not read the system proxy. Since 0.6.2 the plugin reads the macOS system proxy via `scutil --proxy`; a Clash mixed port configured as SOCKS is used as an HTTP proxy.
+- **Avoid the `github:` install shorthand on macOS**: it needs git and Xcode Command Line Tools. Use the Release `.tgz` asset instead.
+
+See [docs/cross-platform.md](docs/cross-platform.md) for the general checklist (paths, permissions, line endings, fonts, clipboard).
+
 ## Build and test
 
 No install-time dependencies are needed for the unit and syntax checks:

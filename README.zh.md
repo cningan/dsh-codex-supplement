@@ -22,9 +22,20 @@
 ## 兼容性与安装
 
 - 基线：支持 bundle/组件行的 DSH `0.2.x`；Node.js 22 或更新版本。
+- 安装地址请用 GitHub Release 的 `.tgz` 资产，不要用 `github:` 简写：后者要求本机有 git（macOS 需要 Xcode Command Line Tools），且容易因 GitHub 连接抖动超时。Release 资产是纯 HTTPS 下载，对 Windows 与 macOS 都一样。
+- 设置页底部有版本号与「检查更新」：DSH 的 bundle 没有原地升级 API，更新方式始终是「先卸载旧包，再装新的 `.tgz` 地址」。
 - 2026-11-09 在隔离的 DSH `0.2.2-rc.1` 运行时复核：三个组件行都正常挂载，`/codex/status`、`/codex/usage`、`/codex/fast-mode`、`/codex/search/status`、`/capabilities` 与 `POST /codex/test-image` 均可用，启用生图后工具完成注册，生成的 Client 模块出现在 Web boot entry 中。设置页绑定 `codex-supplement-image` 行；base 行上的旧媒体字段仍通过校验以兼容旧 profile，但不再覆盖 image 行当前的 GPT Image 2.6 默认值。
 - 这是供 DSH 本地插件目录加载的 `@cningan` bundle。`package.json` 声明 bundle patch（两行）和合并后的 Web Client 模块。审阅源码后，通过 DSH bundle/plugin manager 安装；修改包文件后可能需要重启 Host。此包不发布到 npm。
 - GitHub 源码历史与之前 OAuth 仓库的历史分离，以免携带被 GitHub push protection 拒绝的未清理旧提交。
+
+## macOS 常见问题
+
+- **登录页显示授权成功，但插件一直停在「授权中」**：macOS 的 `localhost` 优先解析到 IPv6 `::1`。0.6.1 起回调服务器同时监听 `127.0.0.1` 与 `::1`；若仍失败，点「没收到回调？手动粘贴」，把浏览器地址栏里 `localhost:1455/auth/callback?code=...&state=...` 整条粘进去提交即可完成登录。
+- **回调端口被占用**：官方 Codex CLI 也可能占用 `1455`。关掉占用该端口的程序后重试，或直接用手动粘贴方式。
+- **能登录但请求 403 `unsupported_country_region_territory`**：Node 不读系统代理。0.6.2 起会自动读取 macOS 系统代理（`scutil --proxy`）；如果你用的是 Clash 的「混合端口」，SOCKS 配置也会按 HTTP 使用。
+- **不要用 `github:` 简写安装**：它需要本机 git，而 macOS 默认没有 Command Line Tools（会报 `xcode-select`）。用 Release 的 `.tgz` 地址。
+
+通用跨平台注意事项（路径、权限、换行、字体、剪贴板等）见 [docs/cross-platform.md](docs/cross-platform.md)。
 
 ## 构建与测试
 
