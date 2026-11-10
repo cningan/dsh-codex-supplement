@@ -493,14 +493,15 @@ window.__ModuleLoader__.load({
             },
             style: {
               width: 40, height: 22, padding: 0, position: "relative", borderRadius: 999,
-              border: `1px solid ${enabled ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-border-l2)"}`,
-              background: enabled ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-bg-layer-3)",
+              border: `1px solid ${enabled ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-tertiary)"}`,
+              background: enabled ? "var(--dsw-alias-brand-primary)" : "var(--dsw-alias-label-tertiary)",
               cursor: busy || !writable ? "default" : "pointer",
             },
           }, h("span", {
             style: {
               position: "absolute", top: 2, left: enabled ? 20 : 2, width: 16, height: 16,
-              borderRadius: 999, background: "#fff", transition: "left .15s",
+              borderRadius: 999, background: "#fff", boxShadow: "0 1px 2px rgba(0,0,0,.35)",
+              transition: "left .15s",
             },
           })),
           h("span", {
