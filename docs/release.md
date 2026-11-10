@@ -25,7 +25,7 @@
    npm pack --dry-run
    ```
 
-   `npm pack --dry-run` 只审阅文件清单，不发布；确认没有测试夹具、凭据、运行期 `data/*.json` 或本机路径。`npm run check` 现在包含文档漂移检查（过期发布结论、无警告语境的 `--auth-type=legacy`）。
+   `npm pack --dry-run` 只审阅文件清单，不发布；确认没有测试夹具、凭据、运行期 `data/*.json` 或本机路径。`npm run check` 现在包含文档漂移检查（过期发布结论、没有警告语境的 legacy 登录参数）。
 3. 确认工作树干净，版本号符合预期的语义化变更。DSH 的更新检查按 semver 比较，发布新版本必须递增 `package.json` 的 `version`。
 
 ## 发布到 npm
