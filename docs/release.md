@@ -60,6 +60,8 @@ npm trust list dsh-codex-supplement
 
 输出应包含 `permissions: publish`。首个版本不能靠 Trusted Publishing 创建，包必须先在 npm 上存在。npm 的 `minimumReleaseAge` 可能拦住刚发布的版本；本次安装时 pnpm 已自动把 `dsh-codex-supplement@0.7.0` 写进 Profile 的 `minimumReleaseAgeExclude`，以后用新版本时要确认实际装上的是新版本。
 
+推送 workflow 文件到 GitHub 前，确认 `gh auth status` 的 scopes 含 `workflow`；否则 GitHub 会拒绝 push `.github/workflows/*`，处理方式是 `gh auth refresh -h github.com -s workflow` 走设备码授权后重推。推送后用 `gh workflow list --repo cningan/dsh-codex-supplement` 确认 `Publish to npm` 已注册；tag 推送后用 `gh run list` 查看发布运行。
+
 ## GitHub Release（备用安装包）
 
 1. 推送到 `main` 并创建与包版本一致的标签（例如 `v0.7.0`）。
